@@ -457,15 +457,15 @@ static int __param_to_ipv4_filter(const char* param, struct prov_ipv4_filter* fi
   return rc;\
 }
 
-declare_set_ipv4_fcn(provenance_ingress_ipv4_track, PROV_IPV4_INGRESS_FILE, PROV_NET_TRACKED);
-declare_set_ipv4_fcn(provenance_ingress_ipv4_propagate, PROV_IPV4_INGRESS_FILE, PROV_NET_TRACKED|PROV_NET_PROPAGATE);
-declare_set_ipv4_fcn(provenance_ingress_ipv4_record, PROV_IPV4_INGRESS_FILE, PROV_NET_TRACKED|PROV_NET_RECORD);
-declare_set_ipv4_fcn(provenance_ingress_ipv4_delete, PROV_IPV4_INGRESS_FILE, PROV_NET_DELETE);
+declare_set_ipv4_fcn(provenance_ingress_ipv4_track, PROV_IPV4_INGRESS_FILE, PROV_SET_TRACKED);
+declare_set_ipv4_fcn(provenance_ingress_ipv4_propagate, PROV_IPV4_INGRESS_FILE, PROV_SET_TRACKED|PROV_SET_PROPAGATE);
+declare_set_ipv4_fcn(provenance_ingress_ipv4_record, PROV_IPV4_INGRESS_FILE, PROV_SET_TRACKED|PROV_SET_RECORD);
+declare_set_ipv4_fcn(provenance_ingress_ipv4_delete, PROV_IPV4_INGRESS_FILE, PROV_SET_DELETE);
 
-declare_set_ipv4_fcn(provenance_egress_ipv4_track, PROV_IPV4_EGRESS_FILE, PROV_NET_TRACKED);
-declare_set_ipv4_fcn(provenance_egress_ipv4_propagate, PROV_IPV4_EGRESS_FILE, PROV_NET_TRACKED|PROV_NET_PROPAGATE);
-declare_set_ipv4_fcn(provenance_egress_ipv4_record, PROV_IPV4_EGRESS_FILE, PROV_NET_TRACKED|PROV_NET_RECORD);
-declare_set_ipv4_fcn(provenance_egress_ipv4_delete, PROV_IPV4_EGRESS_FILE, PROV_NET_DELETE);
+declare_set_ipv4_fcn(provenance_egress_ipv4_track, PROV_IPV4_EGRESS_FILE, PROV_SET_TRACKED);
+declare_set_ipv4_fcn(provenance_egress_ipv4_propagate, PROV_IPV4_EGRESS_FILE, PROV_SET_TRACKED|PROV_SET_PROPAGATE);
+declare_set_ipv4_fcn(provenance_egress_ipv4_record, PROV_IPV4_EGRESS_FILE, PROV_SET_TRACKED|PROV_SET_RECORD);
+declare_set_ipv4_fcn(provenance_egress_ipv4_delete, PROV_IPV4_EGRESS_FILE, PROV_SET_DELETE);
 
 declare_get_ipv4_fcn(provenance_ingress_ipv4, PROV_IPV4_INGRESS_FILE);
 declare_get_ipv4_fcn(provenance_egress_ipv4, PROV_IPV4_EGRESS_FILE);
@@ -556,9 +556,9 @@ int provenance_secid_to_secctx( uint32_t secid, char* secctx, uint32_t len){
   return rc;\
 }
 
-declare_set_secctx_fcn(provenance_secctx_track, PROV_SEC_TRACKED);
-declare_set_secctx_fcn(provenance_secctx_propagate, PROV_SEC_TRACKED|PROV_SEC_PROPAGATE);
-declare_set_secctx_fcn(provenance_secctx_delete, PROV_SEC_DELETE);
+declare_set_secctx_fcn(provenance_secctx_track, PROV_SET_TRACKED);
+declare_set_secctx_fcn(provenance_secctx_propagate, PROV_SET_TRACKED|PROV_SET_PROPAGATE);
+declare_set_secctx_fcn(provenance_secctx_delete, PROV_SET_DELETE);
 declare_get_secctx_fcn(provenance_secctx);
 
 #define declare_set_cgroup_fcn(fcn_name, operation) int fcn_name (const uint32_t cid){\
@@ -586,9 +586,9 @@ declare_get_secctx_fcn(provenance_secctx);
   return rc;\
 }
 
-declare_set_cgroup_fcn(provenance_cgroup_track, PROV_NS_TRACKED);
-declare_set_cgroup_fcn(provenance_cgroup_propagate, PROV_NS_TRACKED|PROV_NS_PROPAGATE);
-declare_set_cgroup_fcn(provenance_cgroup_delete, PROV_NS_DELETE);
+declare_set_cgroup_fcn(provenance_cgroup_track, PROV_SET_TRACKED);
+declare_set_cgroup_fcn(provenance_cgroup_propagate, PROV_SET_TRACKED|PROV_SET_PROPAGATE);
+declare_set_cgroup_fcn(provenance_cgroup_delete, PROV_SET_DELETE);
 
 declare_get_ns_fcn(provenance_ns);
 
