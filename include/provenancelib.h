@@ -297,6 +297,16 @@ int provenance_secctx_propagate(const char* secctx);
 int provenance_secctx_delete(const char* secctx);
 int provenance_secctx( struct secinfo* filters, size_t length );
 
+int provenance_uid_track(const char* name);
+int provenance_uid_propagate(const char* name);
+int provenance_uid_delete(const char* name);
+int provenance_uid(struct userinfo* filters, size_t length );
+
+int provenance_gid_track(const char* name);
+int provenance_gid_propagate(const char* name);
+int provenance_gid_delete(const char* name);
+int provenance_gid(struct groupinfo* filters, size_t length );
+
 int provenance_cgroup_track(const uint32_t cid);
 int provenance_cgroup_propagate(const uint32_t cid);
 int provenance_cgroup_delete(const uint32_t cid);
