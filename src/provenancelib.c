@@ -603,7 +603,7 @@ int provenance_policy_hash(uint8_t* buffer, size_t length){
   return rc;
 }
 
-#define declare_set_uid_fcn(fcn_name, operation) int fcn_name (const char* uname){\
+#define declare_set_user_fcn(fcn_name, operation) int fcn_name (const char* uname){\
   struct userinfo filter;\
   struct passwd *pwd;\
   int rc;\
@@ -620,11 +620,11 @@ int provenance_policy_hash(uint8_t* buffer, size_t length){
   return rc;\
 }
 
-declare_set_uid_fcn(provenance_uid_track, PROV_SET_TRACKED);
-declare_set_uid_fcn(provenance_uid_propagate, PROV_SET_TRACKED|PROV_SET_PROPAGATE);
-declare_set_uid_fcn(provenance_uid_delete, PROV_SET_DELETE);
+declare_set_user_fcn(provenance_user_track, PROV_SET_TRACKED);
+declare_set_user_fcn(provenance_user_propagate, PROV_SET_TRACKED|PROV_SET_PROPAGATE);
+declare_set_user_fcn(provenance_user_delete, PROV_SET_DELETE);
 
-int provenance_uid(struct userinfo* filters, size_t length ){
+int provenance_user(struct userinfo* filters, size_t length ){
   int rc;
   int fd = open(PROV_UID_FILTER, O_RDONLY);
   if( fd < 0 ){
@@ -636,7 +636,7 @@ int provenance_uid(struct userinfo* filters, size_t length ){
 }
 
 
-#define declare_set_gid_fcn(fcn_name, operation) int fcn_name (const char* uname){\
+#define declare_set_group_fcn(fcn_name, operation) int fcn_name (const char* uname){\
   struct groupinfo filter;\
   struct group *gr;\
   int rc;\
@@ -653,11 +653,11 @@ int provenance_uid(struct userinfo* filters, size_t length ){
   return rc;\
 }
 
-declare_set_gid_fcn(provenance_gid_track, PROV_SET_TRACKED);
-declare_set_gid_fcn(provenance_gid_propagate, PROV_SET_TRACKED|PROV_SET_PROPAGATE);
-declare_set_gid_fcn(provenance_gid_delete, PROV_SET_DELETE);
+declare_set_group_fcn(provenance_group_track, PROV_SET_TRACKED);
+declare_set_group_fcn(provenance_group_propagate, PROV_SET_TRACKED|PROV_SET_PROPAGATE);
+declare_set_group_fcn(provenance_group_delete, PROV_SET_DELETE);
 
-int provenance_gid(struct groupinfo* filters, size_t length ){
+int provenance_group(struct groupinfo* filters, size_t length ){
   int rc;
   int fd = open(PROV_GID_FILTER, O_RDONLY);
   if( fd < 0 ){
