@@ -541,12 +541,12 @@ char* task_to_json(struct task_prov_struct* n){
   __add_uint32_attribute("cf:gid", n->gid, true);
   __add_uint32_attribute("cf:pid", n->pid, true);
   __add_uint32_attribute("cf:vpid", n->vpid, true);
-  __add_uint32_attribute("cf:uts_namspace", n->utsns, true);
-  __add_uint32_attribute("cf:ipc_namespace", n->ipcns, true);
-  __add_uint32_attribute("cf:mnt_namespace", n->mntns, true);
-  __add_uint32_attribute("cf:pid_namespace", n->pidns, true);
-  __add_uint32_attribute("cf:net_namespace", n->netns, true);
-  __add_uint32_attribute("cf:cgroup_namespace", n->cgroupns, true);
+  __add_uint32_attribute("cf:utsns", n->utsns, true);
+  __add_uint32_attribute("cf:ipcns", n->ipcns, true);
+  __add_uint32_attribute("cf:mntns", n->mntns, true);
+  __add_uint32_attribute("cf:pidns", n->pidns, true);
+  __add_uint32_attribute("cf:netns", n->netns, true);
+  __add_uint32_attribute("cf:cgroupns", n->cgroupns, true);
   __add_string_attribute("cf:secctx", secctx, true);
   __add_label_attribute("task", utoa(n->identifier.node_id.version, tmp, DECIMAL), true);
   __close_json_entry(buffer);
