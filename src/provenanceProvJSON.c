@@ -799,6 +799,30 @@ char* pathname_to_json(struct file_name_struct* n){
   return buffer;
 }
 
+char* arg_to_json(struct arg_struct* n){
+  int i;
+  NODE_PREP_IDs(n);
+  prov_prep_taint((union prov_elt*)n);
+  __node_start(id, &(n->identifier.node_id), taint, n->jiffies);
+  for(i=0; i<n->length; i++){
+    if(n->value[i]=='\\')
+      n->value[i]='/';
+    if(n->value[i]=='\n')
+      n->value[i]=' ';
+  }
+  __add_string_attribute("cf:value", n->value, true);
+  if(n->truncated==PROV_TRUNCATED)
+    __add_string_attribute("cf:truncated", "true", true);
+  else
+    __add_string_attribute("cf:truncated", "false", true);
+  if(n->identifier.node_id.type == ENT_ARG)
+    __add_label_attribute("argv", n->value, true);
+  else
+    __add_label_attribute("envp", n->value, true);
+  __close_json_entry(buffer);
+  return buffer;
+}
+
 char* machine_description_json(char* buffer){
   char tmp[64];
   uint32_t machine_id;

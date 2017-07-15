@@ -305,6 +305,11 @@ void long_prov_record(union long_prov_elt* msg){
       if(prov_ops.log_packet_content!=NULL)
         prov_ops.log_packet_content(&(msg->pckcnt_info));
       break;
+    case ENT_ARG:
+    case ENT_ENV:
+      if(prov_ops.log_arg!=NULL)
+        prov_ops.log_arg(&(msg->arg_info));
+      break;
     default:
       record_error("Error: unknown long type %llu\n", prov_type(msg));
       break;

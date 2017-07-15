@@ -71,6 +71,8 @@ static const char RL_STR_PERM_WRITE[]             = "perm_write";
 static const char RL_STR_PERM_EXEC[]              = "perm_exec";
 static const char RL_STR_TERMINATE_PROCESS[]      = "terminate";
 static const char RL_STR_CLOSED[]						      = "closed";
+static const char RL_STR_ARG[]						        = "arg";
+static const char RL_STR_ENV[]      						  = "env";
 
 static inline const char* relation_str(uint64_t type){
   switch(type){
@@ -154,6 +156,10 @@ static inline const char* relation_str(uint64_t type){
 			return RL_STR_TERMINATE_PROCESS;
 		case RL_CLOSED:
 			return RL_STR_CLOSED;
+    case RL_ARG:
+      return RL_STR_ARG;
+    case RL_ENV:
+      return RL_STR_ENV;
     default:
       return RL_STR_UNKNOWN;
   }
@@ -202,6 +208,8 @@ static inline const uint64_t relation_id(char* str){
   MATCH_AND_RETURN(str, RL_STR_SH_WRITE, RL_SH_WRITE);
   MATCH_AND_RETURN(str, RL_STR_TERMINATE_PROCESS, RL_TERMINATE_PROCESS);
   MATCH_AND_RETURN(str, RL_STR_CLOSED, RL_CLOSED);
+  MATCH_AND_RETURN(str, RL_STR_ARG, RL_ARG);
+  MATCH_AND_RETURN(str, RL_STR_ENV, RL_ENV);
   return 0;
 }
 
@@ -232,6 +240,8 @@ static const char ND_STR_INODE_MMAP[]=        "mmaped_file";
 static const char ND_STR_IATTR[]=             "iattr";
 static const char ND_STR_XATTR[]=             "xattr";
 static const char ND_STR_PCKCNT[]=            "packet_content";
+static const char ND_STR_ARG[]=               "argv";
+static const char ND_STR_ENV[]=               "envp";
 
 static inline const uint64_t node_id(char* str){
   MATCH_AND_RETURN(str, ND_STR_TASK, ACT_TASK);
@@ -256,6 +266,8 @@ static inline const uint64_t node_id(char* str){
   MATCH_AND_RETURN(str, ND_STR_IATTR, ENT_IATTR);
   MATCH_AND_RETURN(str, ND_STR_XATTR, ENT_XATTR);
   MATCH_AND_RETURN(str, ND_STR_PCKCNT, ENT_PCKCNT);
+  MATCH_AND_RETURN(str, ND_STR_ARG, ENT_ARG);
+  MATCH_AND_RETURN(str, ND_STR_ENV, ENT_ENV);
   return 0;
 }
 
@@ -307,6 +319,10 @@ static inline const char* node_str(uint64_t type){
       return ND_STR_XATTR;
     case ENT_PCKCNT:
       return ND_STR_PCKCNT;
+    case ENT_ARG:
+      return ND_STR_ARG;
+    case ENT_ENV:
+      return ND_STR_ENV;
     default:
       return ND_STR_UNKNOWN;
   }

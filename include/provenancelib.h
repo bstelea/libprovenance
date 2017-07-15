@@ -43,6 +43,7 @@ struct provenance_ops{
   void (*log_iattr)(struct iattr_prov_struct*);
   void (*log_xattr)(struct xattr_prov_struct*);
   void (*log_packet_content)(struct pckcnt_struct*);
+  void (*log_arg)(struct arg_struct*);
   /* callback for library errors */
   void (*log_error)(char*);
 };
