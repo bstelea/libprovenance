@@ -73,6 +73,7 @@ static const char RL_STR_TERMINATE_PROCESS[]      = "terminate";
 static const char RL_STR_CLOSED[]						      = "closed";
 static const char RL_STR_ARG[]						        = "arg";
 static const char RL_STR_ENV[]      						  = "env";
+static const char RL_STR_LOG[]      						  = "log";
 
 static inline const char* relation_str(uint64_t type){
   switch(type){
@@ -160,6 +161,8 @@ static inline const char* relation_str(uint64_t type){
       return RL_STR_ARG;
     case RL_ENV:
       return RL_STR_ENV;
+    case RL_LOG:
+      return RL_STR_LOG;
     default:
       return RL_STR_UNKNOWN;
   }
@@ -210,6 +213,7 @@ static inline const uint64_t relation_id(char* str){
   MATCH_AND_RETURN(str, RL_STR_CLOSED, RL_CLOSED);
   MATCH_AND_RETURN(str, RL_STR_ARG, RL_ARG);
   MATCH_AND_RETURN(str, RL_STR_ENV, RL_ENV);
+  MATCH_AND_RETURN(str, RL_STR_LOG, RL_LOG);
   return 0;
 }
 
