@@ -239,7 +239,7 @@ void node_record(union prov_elt *msg){
         prov_ops.log_iattr(&(msg->iattr_info));
       break;
     default:
-      record_error("Error: unknown type %llu\n", prov_type(msg));
+      record_error("Error: unknown type %llx\n", prov_type(msg));
       break;
   }
 }
@@ -311,7 +311,7 @@ void long_prov_record(union long_prov_elt* msg){
         prov_ops.log_arg(&(msg->arg_info));
       break;
     default:
-      record_error("Error: unknown long type %llu\n", prov_type(msg));
+      record_error("Error: unknown long type %llx\n", prov_type(msg));
       break;
   }
 }
