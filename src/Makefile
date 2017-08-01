@@ -1,4 +1,4 @@
-SRC = provenancelib.c provenanceProvJSON.c provenanceutils.c provenancefilter.c relay.c
+SRC = libprovenance.c provenanceProvJSON.c provenanceutils.c provenancefilter.c relay.c
 OBJ = $(SRC:.c=.o)
 OUT = provenance.a
 INCLUDES = -I../threadpool -I../include -I../uthash/uthash/src
@@ -17,11 +17,11 @@ static: $(OUT)
 
 $(OUT): $(OBJ)
 	ar rcs provenance.a $(OBJ)
-	ar -M <provenancelib.mri
+	ar -M <libprovenance.mri
 
 clean:
 	rm -f $(OBJ) $(OUT)
 	rm -f *.a
 
 install:
-	cp --force ./provenancelib.a /usr/local/lib/provenancelib.a
+	cp --force ./libprovenance.a /usr/local/lib/libprovenance.a

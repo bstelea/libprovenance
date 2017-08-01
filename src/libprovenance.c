@@ -23,7 +23,7 @@
 #include <pwd.h>
 #include <grp.h>
 
-#include "provenancelib.h"
+#include "provenance.h"
 #include "provenanceutils.h"
 #include "uthash.h"
 

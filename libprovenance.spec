@@ -1,5 +1,5 @@
 Summary: CamFlow userspace library
-Name: camflow-provenance-lib
+Name: libprovenance
 Version: 0.3.2
 Release: 1
 Group: audit/camflow
@@ -15,8 +15,8 @@ rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/usr/local/lib/
 mkdir -p $RPM_BUILD_ROOT/usr/local/include
 cd $RPM_BUILD_ROOT
-cp -f %{SOURCEURL0}/src/provenancelib.a ./usr/local/lib/provenancelib.a
-cp -f %{SOURCEURL0}/include/provenancelib.h ./usr/local/include/provenancelib.h
+cp -f %{SOURCEURL0}/src/libprovenance.a ./usr/local/lib/libprovenance.a
+cp -f %{SOURCEURL0}/include/provenance.h ./usr/local/include/provenance.h
 cp -f %{SOURCEURL0}/include/provenancefilter.h ./usr/local/include/provenancefilter.h
 cp -f %{SOURCEURL0}/include/provenanceutils.h ./usr/local/include/provenanceutils.h
 cp -f %{SOURCEURL0}/include/provenancePovJSON.h ./usr/local/include/provenancePovJSON.h
@@ -26,8 +26,8 @@ rm -r -f "$RPM_BUILD_ROOT"
 
 %files
 %defattr(644,root,root)
-/usr/local/lib/provenancelib.a
-/usr/local/include/provenancelib.h
+/usr/local/lib/libprovenance.a
+/usr/local/include/provenance.h
 /usr/local/include/provenancefilter.h
 /usr/local/include/provenanceutils.h
 /usr/local/include/provenancePovJSON.h
