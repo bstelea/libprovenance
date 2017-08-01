@@ -1,4 +1,4 @@
-create provenancelib.a
+create libprovenance.a
 addlib provenance.a
 addlib ../threadpool/thpool.a
 save
