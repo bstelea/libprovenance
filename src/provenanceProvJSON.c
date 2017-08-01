@@ -30,7 +30,7 @@
 #include <linux/camflow.h>
 #include <sys/utsname.h>
 
-#include "provenancelib.h"
+#include "provenance.h"
 #include "provenancePovJSON.h"
 #include "provenanceutils.h"
 

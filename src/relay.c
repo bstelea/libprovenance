@@ -22,7 +22,7 @@
 #include <time.h>
 
 #include "thpool.h"
-#include "provenancelib.h"
+#include "provenance.h"
 
 #define RUN_PID_FILE "/run/provenance-service.pid"
 

@@ -26,7 +26,7 @@
 #include <unistd.h>
 #include <netdb.h>
 
-#include "provenancelib.h"
+#include "provenance.h"
 #include "provenancefilter.h"
 
 static inline int __provenance_change_filter( bool add, const char* file, uint64_t filter, uint64_t mask ){
