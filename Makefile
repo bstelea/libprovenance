@@ -25,4 +25,4 @@ rpm:
 	cp ~/rpmbuild/RPMS/x86_64/* ./output
 
 publish:
-	cd ./output && package_cloud push camflow/provenance/fedora/25 camflow-provenance-lib-$(version)-1.x86_64.rpm
+	cd ./output && package_cloud push camflow/provenance/fedora/26 camflow-provenance-lib-$(version)-1.x86_64.rpm
