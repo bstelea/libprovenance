@@ -174,13 +174,20 @@ static inline bool __append(char destination[MAX_PROVJSON_BUFFER_LENGTH], char* 
 
 #define str_is_empty(str) (str[0]=='\0')
 
-#define cat_prov(prefix, data, lock, size)     if(!str_is_empty(data)){ \
-                                              content=true; \
-                                              strncat(json, prefix, size); \
-                                              strncat(json, data, size); \
-                                              memset(data, '\0', MAX_PROVJSON_BUFFER_LENGTH); \
-                                            } \
-                                            pthread_mutex_unlock(&lock);
+static inline bool cat_prov(char *json,
+                            const char *prefix,
+                            char *data,
+                            pthread_mutex_t *lock){
+  bool rc = false;
+  if(!str_is_empty(data)){
+    strncat(json, prefix, MAX_PROVJSON_BUFFER_LENGTH);
+    strncat(json, data, MAX_PROVJSON_BUFFER_LENGTH);
+    memset(data, 0, MAX_PROVJSON_BUFFER_LENGTH);
+    rc = true;
+  }
+  pthread_mutex_unlock(lock);
+  return rc;
+}
 
 // we create the JSON string to be sent to the call back
 static inline char* ready_to_print(){
@@ -203,15 +210,15 @@ static inline char* ready_to_print(){
   strncat(json, JSON_START, JSON_LENGTH);
   strncat(json, prefix_json(), JSON_LENGTH);
 
-  cat_prov(JSON_ACTIVITY, activity, l_activity, MAX_PROVJSON_BUFFER_LENGTH);
-  cat_prov(JSON_AGENT, agent, l_agent, MAX_PROVJSON_BUFFER_LENGTH);
-  cat_prov(JSON_ENTITY, entity, l_entity, MAX_PROVJSON_BUFFER_LENGTH);
-  cat_prov(JSON_MESSAGE, message, l_message, MAX_PROVJSON_BUFFER_LENGTH);
-  cat_prov(JSON_RELATION, relation, l_relation, MAX_PROVJSON_BUFFER_LENGTH);
-  cat_prov(JSON_USED, used, l_used, MAX_PROVJSON_BUFFER_LENGTH);
-  cat_prov(JSON_GENERATED, generated, l_generated, MAX_PROVJSON_BUFFER_LENGTH);
-  cat_prov(JSON_INFORMED, informed, l_informed, MAX_PROVJSON_BUFFER_LENGTH);
-  cat_prov(JSON_DERIVED, derived, l_derived, MAX_PROVJSON_BUFFER_LENGTH);
+  content |= cat_prov(json, JSON_ACTIVITY, activity, &l_activity);
+  content |= cat_prov(json, JSON_AGENT, agent, &l_agent);
+  content |= cat_prov(json, JSON_ENTITY, entity, &l_entity);
+  content |= cat_prov(json, JSON_MESSAGE, message, &l_message);
+  content |= cat_prov(json, JSON_RELATION, relation, &l_relation);
+  content |= cat_prov(json, JSON_USED, used, &l_used);
+  content |= cat_prov(json, JSON_GENERATED, generated, &l_generated);
+  content |= cat_prov(json, JSON_INFORMED, informed, &l_informed);
+  content |= cat_prov(json, JSON_DERIVED, derived, &l_derived);
 
   if(!content){
     free(json);
