@@ -77,25 +77,21 @@ static char* informed;
 static char* derived;
 static char* message;
 
+static inline void init_buffer(char **buffer){
+  *buffer = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH);
+  memset(*buffer, 0, MAX_PROVJSON_BUFFER_LENGTH);
+}
+
 void init_buffers(void){
-  activity = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH);
-  activity[0]='\0';
-  agent = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH);
-  agent[0]='\0';
-  entity = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH);
-  entity[0]='\0';
-  relation = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH);
-  relation[0]='\0';
-  used = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH);
-  used[0]='\0';
-  generated = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH);
-  generated[0]='\0';
-  informed = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH);
-  informed[0]='\0';
-  derived = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH);
-  derived[0]='\0';
-  message = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH);
-  message[0]='\0';
+  init_buffer(&activity);
+  init_buffer(&agent);
+  init_buffer(&entity);
+  init_buffer(&relation);
+  init_buffer(&used);
+  init_buffer(&generated);
+  init_buffer(&informed);
+  init_buffer(&derived);
+  init_buffer(&message);
 }
 
 bool writing_out = false;
