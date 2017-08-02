@@ -78,23 +78,23 @@ static char* derived;
 static char* message;
 
 void init_buffers(void){
-  activity = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH*sizeof(char));
+  activity = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH);
   activity[0]='\0';
-  agent = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH*sizeof(char));
+  agent = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH);
   agent[0]='\0';
-  entity = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH*sizeof(char));
+  entity = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH);
   entity[0]='\0';
-  relation = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH*sizeof(char));
+  relation = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH);
   relation[0]='\0';
-  used = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH*sizeof(char));
+  used = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH);
   used[0]='\0';
-  generated = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH*sizeof(char));
+  generated = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH);
   generated[0]='\0';
-  informed = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH*sizeof(char));
+  informed = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH);
   informed[0]='\0';
-  derived = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH*sizeof(char));
+  derived = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH);
   derived[0]='\0';
-  message = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH*sizeof(char));
+  message = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH);
   message[0]='\0';
 }
 
