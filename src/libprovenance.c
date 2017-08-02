@@ -20,8 +20,10 @@
 #include <unistd.h>
 #include <sys/xattr.h>
 #include <linux/xattr.h>
+#include <pwd.h>
+#include <grp.h>
 
-#include "provenancelib.h"
+#include "provenance.h"
 #include "provenanceutils.h"
 #include "uthash.h"
 
@@ -457,15 +459,15 @@ static int __param_to_ipv4_filter(const char* param, struct prov_ipv4_filter* fi
   return rc;\
 }
 
-declare_set_ipv4_fcn(provenance_ingress_ipv4_track, PROV_IPV4_INGRESS_FILE, PROV_NET_TRACKED);
-declare_set_ipv4_fcn(provenance_ingress_ipv4_propagate, PROV_IPV4_INGRESS_FILE, PROV_NET_TRACKED|PROV_NET_PROPAGATE);
-declare_set_ipv4_fcn(provenance_ingress_ipv4_record, PROV_IPV4_INGRESS_FILE, PROV_NET_TRACKED|PROV_NET_RECORD);
-declare_set_ipv4_fcn(provenance_ingress_ipv4_delete, PROV_IPV4_INGRESS_FILE, PROV_NET_DELETE);
+declare_set_ipv4_fcn(provenance_ingress_ipv4_track, PROV_IPV4_INGRESS_FILE, PROV_SET_TRACKED);
+declare_set_ipv4_fcn(provenance_ingress_ipv4_propagate, PROV_IPV4_INGRESS_FILE, PROV_SET_TRACKED|PROV_SET_PROPAGATE);
+declare_set_ipv4_fcn(provenance_ingress_ipv4_record, PROV_IPV4_INGRESS_FILE, PROV_SET_TRACKED|PROV_SET_RECORD);
+declare_set_ipv4_fcn(provenance_ingress_ipv4_delete, PROV_IPV4_INGRESS_FILE, PROV_SET_DELETE);
 
-declare_set_ipv4_fcn(provenance_egress_ipv4_track, PROV_IPV4_EGRESS_FILE, PROV_NET_TRACKED);
-declare_set_ipv4_fcn(provenance_egress_ipv4_propagate, PROV_IPV4_EGRESS_FILE, PROV_NET_TRACKED|PROV_NET_PROPAGATE);
-declare_set_ipv4_fcn(provenance_egress_ipv4_record, PROV_IPV4_EGRESS_FILE, PROV_NET_TRACKED|PROV_NET_RECORD);
-declare_set_ipv4_fcn(provenance_egress_ipv4_delete, PROV_IPV4_EGRESS_FILE, PROV_NET_DELETE);
+declare_set_ipv4_fcn(provenance_egress_ipv4_track, PROV_IPV4_EGRESS_FILE, PROV_SET_TRACKED);
+declare_set_ipv4_fcn(provenance_egress_ipv4_propagate, PROV_IPV4_EGRESS_FILE, PROV_SET_TRACKED|PROV_SET_PROPAGATE);
+declare_set_ipv4_fcn(provenance_egress_ipv4_record, PROV_IPV4_EGRESS_FILE, PROV_SET_TRACKED|PROV_SET_RECORD);
+declare_set_ipv4_fcn(provenance_egress_ipv4_delete, PROV_IPV4_EGRESS_FILE, PROV_SET_DELETE);
 
 declare_get_ipv4_fcn(provenance_ingress_ipv4, PROV_IPV4_INGRESS_FILE);
 declare_get_ipv4_fcn(provenance_egress_ipv4, PROV_IPV4_EGRESS_FILE);
@@ -545,21 +547,20 @@ int provenance_secid_to_secctx( uint32_t secid, char* secctx, uint32_t len){
   return rc;\
 }
 
-#define declare_get_secctx_fcn(fcn_name) int fcn_name ( struct secinfo* filters, size_t length ){\
-  int rc;\
-  int fd = open(PROV_SECCTX_FILTER, O_RDONLY);\
-  if( fd < 0 ){\
-    return fd;\
-  }\
-  rc = read(fd, filters, length);\
-  close(fd);\
-  return rc;\
-}
+declare_set_secctx_fcn(provenance_secctx_track, PROV_SET_TRACKED);
+declare_set_secctx_fcn(provenance_secctx_propagate, PROV_SET_TRACKED|PROV_SET_PROPAGATE);
+declare_set_secctx_fcn(provenance_secctx_delete, PROV_SET_DELETE);
 
-declare_set_secctx_fcn(provenance_secctx_track, PROV_SEC_TRACKED);
-declare_set_secctx_fcn(provenance_secctx_propagate, PROV_SEC_TRACKED|PROV_SEC_PROPAGATE);
-declare_set_secctx_fcn(provenance_secctx_delete, PROV_SEC_DELETE);
-declare_get_secctx_fcn(provenance_secctx);
+int provenance_secctx( struct secinfo* filters, size_t length ){
+  int rc;
+  int fd = open(PROV_SECCTX_FILTER, O_RDONLY);
+  if( fd < 0 ){
+    return fd;
+  }
+  rc = read(fd, filters, length);
+  close(fd);
+  return rc;
+}
 
 #define declare_set_cgroup_fcn(fcn_name, operation) int fcn_name (const uint32_t cid){\
   struct nsinfo filter;\
@@ -586,9 +587,9 @@ declare_get_secctx_fcn(provenance_secctx);
   return rc;\
 }
 
-declare_set_cgroup_fcn(provenance_cgroup_track, PROV_NS_TRACKED);
-declare_set_cgroup_fcn(provenance_cgroup_propagate, PROV_NS_TRACKED|PROV_NS_PROPAGATE);
-declare_set_cgroup_fcn(provenance_cgroup_delete, PROV_NS_DELETE);
+declare_set_cgroup_fcn(provenance_cgroup_track, PROV_SET_TRACKED);
+declare_set_cgroup_fcn(provenance_cgroup_propagate, PROV_SET_TRACKED|PROV_SET_PROPAGATE);
+declare_set_cgroup_fcn(provenance_cgroup_delete, PROV_SET_DELETE);
 
 declare_get_ns_fcn(provenance_ns);
 
@@ -598,6 +599,71 @@ int provenance_policy_hash(uint8_t* buffer, size_t length){
   if(fd<0)
     return fd;
   rc = read(fd, buffer, length);
+  close(fd);
+  return rc;
+}
+
+#define declare_set_user_fcn(fcn_name, operation) int fcn_name (const char* uname){\
+  struct userinfo filter;\
+  struct passwd *pwd;\
+  int rc;\
+  int fd = open(PROV_UID_FILTER, O_WRONLY);\
+  if( fd < 0 )\
+    return fd;\
+  pwd = getpwnam(uname);\
+  if(!pwd)\
+    return -EINVAL;\
+  filter.uid=pwd->pw_uid;\
+  filter.op = operation;\
+  rc = write(fd, &filter, sizeof(struct userinfo));\
+  close(fd);\
+  return rc;\
+}
+
+declare_set_user_fcn(provenance_user_track, PROV_SET_TRACKED);
+declare_set_user_fcn(provenance_user_propagate, PROV_SET_TRACKED|PROV_SET_PROPAGATE);
+declare_set_user_fcn(provenance_user_delete, PROV_SET_DELETE);
+
+int provenance_user(struct userinfo* filters, size_t length ){
+  int rc;
+  int fd = open(PROV_UID_FILTER, O_RDONLY);
+  if( fd < 0 ){
+    return fd;
+  }
+  rc = read(fd, filters, length);
+  close(fd);
+  return rc;
+}
+
+
+#define declare_set_group_fcn(fcn_name, operation) int fcn_name (const char* uname){\
+  struct groupinfo filter;\
+  struct group *gr;\
+  int rc;\
+  int fd = open(PROV_GID_FILTER, O_WRONLY);\
+  if( fd < 0 )\
+    return fd;\
+  gr = getgrnam(uname);\
+  if(!gr)\
+    return -EINVAL;\
+  filter.gid=gr->gr_gid;\
+  filter.op = operation;\
+  rc = write(fd, &filter, sizeof(struct groupinfo));\
+  close(fd);\
+  return rc;\
+}
+
+declare_set_group_fcn(provenance_group_track, PROV_SET_TRACKED);
+declare_set_group_fcn(provenance_group_propagate, PROV_SET_TRACKED|PROV_SET_PROPAGATE);
+declare_set_group_fcn(provenance_group_delete, PROV_SET_DELETE);
+
+int provenance_group(struct groupinfo* filters, size_t length ){
+  int rc;
+  int fd = open(PROV_GID_FILTER, O_RDONLY);
+  if( fd < 0 ){
+    return fd;
+  }
+  rc = read(fd, filters, length);
   close(fd);
   return rc;
 }

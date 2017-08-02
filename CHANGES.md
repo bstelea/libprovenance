@@ -2,6 +2,7 @@
 
 | Library version | Date       |
 | --------------- | ---------- |
+| 0.3.3           | 02/08/2017 |
 | 0.3.2           | 23/06/2017 |
 | 0.3.1           | 22/05/2017 |
 | 0.3.0           | 15/04/2017 |
@@ -23,6 +24,14 @@
 | 0.1.2           | 26/05/2016 |
 | 0.1.1           | 03/04/2016 |
 | 0.1.0           | 28/03/2016 |
+
+### v0.3.3
+```
+- make sure log relationship are properly labeled.
+- reduce amount of duplicated information between edges and vertices.
+- fix issue where allowed/disallowed where reversed in relation.
+- fix issue with packet not having the attribute cf:type.
+```
 
 ### v0.3.2
 ```

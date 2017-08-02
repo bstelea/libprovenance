@@ -30,7 +30,7 @@
 #include <linux/camflow.h>
 #include <sys/utsname.h>
 
-#include "provenancelib.h"
+#include "provenance.h"
 #include "provenancePovJSON.h"
 #include "provenanceutils.h"
 
@@ -476,8 +476,6 @@ static inline void __relation_identifier(const struct relation_identifier* e){
   __add_uint32_attribute("cf:machine_id", e->machine_id, true);
 }
 
-static char* bool_str[] = {"false", "true"};
-
 static char* __relation_to_json(struct relation_struct* e, const char* snd, const char* rcv){
   RELATION_PREP_IDs(e);
   prov_prep_taint((union prov_elt*)e);
@@ -487,17 +485,12 @@ static char* __relation_to_json(struct relation_struct* e, const char* snd, cons
   __add_string_attribute("cf:taint", taint, true);
   __add_uint64_attribute("cf:jiffies", e->jiffies, true);
   __add_label_attribute(NULL, relation_str(e->identifier.relation_id.type), true);
-  __add_string_attribute("cf:allowed", bool_str[e->allowed], true);
+  if(e->allowed==FLOW_ALLOWED)
+    __add_string_attribute("cf:allowed", "true", true);
+  else
+    __add_string_attribute("cf:allowed", "false", true);
   __add_string_attribute(snd, sender, true);
-  __add_uint64_attribute("cf:snd_id", e->snd.node_id.id, true);
-  __add_uint64hex_attribute("cf:snd_type", e->snd.node_id.type, true);
-  __add_uint32_attribute("cf:snd_boot_id", e->snd.node_id.boot_id, true);
-  __add_uint32_attribute("cf:snd_machine_id", e->snd.node_id.machine_id, true);
   __add_string_attribute(rcv, receiver, true);
-  __add_uint64_attribute("cf:rcv_id", e->rcv.node_id.id, true);
-  __add_uint64hex_attribute("cf:rcv_type", e->rcv.node_id.type, true);
-  __add_uint32_attribute("cf:rcv_boot_id", e->rcv.node_id.boot_id, true);
-  __add_uint32_attribute("cf:rcv_machine_id", e->rcv.node_id.machine_id, true);
   if(e->set==FILE_INFO_SET && e->offset>0)
     __add_int64_attribute("cf:offset", e->offset, true); // just offset for now
   __close_json_entry(buffer);
@@ -548,12 +541,12 @@ char* task_to_json(struct task_prov_struct* n){
   __add_uint32_attribute("cf:gid", n->gid, true);
   __add_uint32_attribute("cf:pid", n->pid, true);
   __add_uint32_attribute("cf:vpid", n->vpid, true);
-  __add_uint32_attribute("cf:uts_namspace", n->utsns, true);
-  __add_uint32_attribute("cf:ipc_namespace", n->ipcns, true);
-  __add_uint32_attribute("cf:mnt_namespace", n->mntns, true);
-  __add_uint32_attribute("cf:pid_namespace", n->pidns, true);
-  __add_uint32_attribute("cf:net_namespace", n->netns, true);
-  __add_uint32_attribute("cf:cgroup_namespace", n->cgroupns, true);
+  __add_uint32_attribute("cf:utsns", n->utsns, true);
+  __add_uint32_attribute("cf:ipcns", n->ipcns, true);
+  __add_uint32_attribute("cf:mntns", n->mntns, true);
+  __add_uint32_attribute("cf:pidns", n->pidns, true);
+  __add_uint32_attribute("cf:netns", n->netns, true);
+  __add_uint32_attribute("cf:cgroupns", n->cgroupns, true);
   __add_string_attribute("cf:secctx", secctx, true);
   __add_label_attribute("task", utoa(n->identifier.node_id.version, tmp, DECIMAL), true);
   __close_json_entry(buffer);
@@ -665,7 +658,10 @@ char* pckcnt_to_json(struct pckcnt_struct* n){
   __add_string_attribute("cf:content", cntenc, true);
   free(cntenc);
   __add_uint32_attribute("cf:length", n->length, true);
-  __add_string_attribute("cf:truncated", bool_str[n->truncated], true);
+  if(n->truncated==PROV_TRUNCATED)
+    __add_string_attribute("cf:truncated", "true", true);
+  else
+    __add_string_attribute("cf:truncated", "false", true);
   __add_label_attribute("content", NULL, true);
   __close_json_entry(buffer);
   return buffer;
@@ -708,6 +704,7 @@ char* packet_to_json(struct pck_struct* p){
   __add_ipv4_attribute("cf:sender", p->identifier.packet_id.snd_ip, p->identifier.packet_id.snd_port, true);
   __add_ipv4_attribute("cf:receiver", p->identifier.packet_id.rcv_ip, p->identifier.packet_id.rcv_port, true);
   __add_string_attribute("prov:type", "packet", true);
+  __add_uint64hex_attribute("cf:type", p->identifier.packet_id.type, true);
   __add_string_attribute("cf:taint", taint, true);
   __add_uint64_attribute("cf:jiffies", p->jiffies, true);
   strncat(buffer, ",\"prov:label\":\"[packet] ", BUFFER_LENGTH);
@@ -798,6 +795,30 @@ char* pathname_to_json(struct file_name_struct* n){
   }
   __add_string_attribute("cf:pathname", n->name, true);
   __add_label_attribute("path", n->name, true);
+  __close_json_entry(buffer);
+  return buffer;
+}
+
+char* arg_to_json(struct arg_struct* n){
+  int i;
+  NODE_PREP_IDs(n);
+  prov_prep_taint((union prov_elt*)n);
+  __node_start(id, &(n->identifier.node_id), taint, n->jiffies);
+  for(i=0; i<n->length; i++){
+    if(n->value[i]=='\\')
+      n->value[i]='/';
+    if(n->value[i]=='\n')
+      n->value[i]=' ';
+  }
+  __add_string_attribute("cf:value", n->value, true);
+  if(n->truncated==PROV_TRUNCATED)
+    __add_string_attribute("cf:truncated", "true", true);
+  else
+    __add_string_attribute("cf:truncated", "false", true);
+  if(n->identifier.node_id.type == ENT_ARG)
+    __add_label_attribute("argv", n->value, true);
+  else
+    __add_label_attribute("envp", n->value, true);
   __close_json_entry(buffer);
   return buffer;
 }

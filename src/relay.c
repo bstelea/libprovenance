@@ -22,7 +22,7 @@
 #include <time.h>
 
 #include "thpool.h"
-#include "provenancelib.h"
+#include "provenance.h"
 
 #define RUN_PID_FILE "/run/provenance-service.pid"
 
@@ -239,7 +239,7 @@ void node_record(union prov_elt *msg){
         prov_ops.log_iattr(&(msg->iattr_info));
       break;
     default:
-      record_error("Error: unknown type %llu\n", prov_type(msg));
+      record_error("Error: unknown type %llx\n", prov_type(msg));
       break;
   }
 }
@@ -305,8 +305,13 @@ void long_prov_record(union long_prov_elt* msg){
       if(prov_ops.log_packet_content!=NULL)
         prov_ops.log_packet_content(&(msg->pckcnt_info));
       break;
+    case ENT_ARG:
+    case ENT_ENV:
+      if(prov_ops.log_arg!=NULL)
+        prov_ops.log_arg(&(msg->arg_info));
+      break;
     default:
-      record_error("Error: unknown long type %llu\n", prov_type(msg));
+      record_error("Error: unknown long type %llx\n", prov_type(msg));
       break;
   }
 }
