@@ -77,25 +77,21 @@ static char* informed;
 static char* derived;
 static char* message;
 
+static inline void init_buffer(char **buffer){
+  *buffer = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH);
+  memset(*buffer, 0, MAX_PROVJSON_BUFFER_LENGTH);
+}
+
 void init_buffers(void){
-  activity = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH*sizeof(char));
-  activity[0]='\0';
-  agent = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH*sizeof(char));
-  agent[0]='\0';
-  entity = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH*sizeof(char));
-  entity[0]='\0';
-  relation = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH*sizeof(char));
-  relation[0]='\0';
-  used = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH*sizeof(char));
-  used[0]='\0';
-  generated = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH*sizeof(char));
-  generated[0]='\0';
-  informed = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH*sizeof(char));
-  informed[0]='\0';
-  derived = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH*sizeof(char));
-  derived[0]='\0';
-  message = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH*sizeof(char));
-  message[0]='\0';
+  init_buffer(&activity);
+  init_buffer(&agent);
+  init_buffer(&entity);
+  init_buffer(&relation);
+  init_buffer(&used);
+  init_buffer(&generated);
+  init_buffer(&informed);
+  init_buffer(&derived);
+  init_buffer(&message);
 }
 
 bool writing_out = false;
@@ -178,13 +174,20 @@ static inline bool __append(char destination[MAX_PROVJSON_BUFFER_LENGTH], char* 
 
 #define str_is_empty(str) (str[0]=='\0')
 
-#define cat_prov(prefix, data, lock, size)     if(!str_is_empty(data)){ \
-                                              content=true; \
-                                              strncat(json, prefix, size); \
-                                              strncat(json, data, size); \
-                                              memset(data, '\0', MAX_PROVJSON_BUFFER_LENGTH); \
-                                            } \
-                                            pthread_mutex_unlock(&lock);
+static inline bool cat_prov(char *json,
+                            const char *prefix,
+                            char *data,
+                            pthread_mutex_t *lock){
+  bool rc = false;
+  if(!str_is_empty(data)){
+    strncat(json, prefix, MAX_PROVJSON_BUFFER_LENGTH);
+    strncat(json, data, MAX_PROVJSON_BUFFER_LENGTH);
+    memset(data, 0, MAX_PROVJSON_BUFFER_LENGTH);
+    rc = true;
+  }
+  pthread_mutex_unlock(lock);
+  return rc;
+}
 
 // we create the JSON string to be sent to the call back
 static inline char* ready_to_print(){
@@ -207,15 +210,15 @@ static inline char* ready_to_print(){
   strncat(json, JSON_START, JSON_LENGTH);
   strncat(json, prefix_json(), JSON_LENGTH);
 
-  cat_prov(JSON_ACTIVITY, activity, l_activity, MAX_PROVJSON_BUFFER_LENGTH);
-  cat_prov(JSON_AGENT, agent, l_agent, MAX_PROVJSON_BUFFER_LENGTH);
-  cat_prov(JSON_ENTITY, entity, l_entity, MAX_PROVJSON_BUFFER_LENGTH);
-  cat_prov(JSON_MESSAGE, message, l_message, MAX_PROVJSON_BUFFER_LENGTH);
-  cat_prov(JSON_RELATION, relation, l_relation, MAX_PROVJSON_BUFFER_LENGTH);
-  cat_prov(JSON_USED, used, l_used, MAX_PROVJSON_BUFFER_LENGTH);
-  cat_prov(JSON_GENERATED, generated, l_generated, MAX_PROVJSON_BUFFER_LENGTH);
-  cat_prov(JSON_INFORMED, informed, l_informed, MAX_PROVJSON_BUFFER_LENGTH);
-  cat_prov(JSON_DERIVED, derived, l_derived, MAX_PROVJSON_BUFFER_LENGTH);
+  content |= cat_prov(json, JSON_ACTIVITY, activity, &l_activity);
+  content |= cat_prov(json, JSON_AGENT, agent, &l_agent);
+  content |= cat_prov(json, JSON_ENTITY, entity, &l_entity);
+  content |= cat_prov(json, JSON_MESSAGE, message, &l_message);
+  content |= cat_prov(json, JSON_RELATION, relation, &l_relation);
+  content |= cat_prov(json, JSON_USED, used, &l_used);
+  content |= cat_prov(json, JSON_GENERATED, generated, &l_generated);
+  content |= cat_prov(json, JSON_INFORMED, informed, &l_informed);
+  content |= cat_prov(json, JSON_DERIVED, derived, &l_derived);
 
   if(!content){
     free(json);
@@ -801,6 +804,7 @@ char* pathname_to_json(struct file_name_struct* n){
 
 char* arg_to_json(struct arg_struct* n){
   int i;
+  char* tmp;
   NODE_PREP_IDs(n);
   prov_prep_taint((union prov_elt*)n);
   __node_start(id, &(n->identifier.node_id), taint, n->jiffies);
@@ -809,17 +813,24 @@ char* arg_to_json(struct arg_struct* n){
       n->value[i]='/';
     if(n->value[i]=='\n')
       n->value[i]=' ';
+    if(n->value[i]=='\t')
+      n->value[i]=' ';
   }
-  __add_string_attribute("cf:value", n->value, true);
+  tmp = repl_str(n->value, "\"", "\\\"");
+  if(tmp==NULL)
+    tmp = n->value;
+  __add_string_attribute("cf:value", tmp, true);
   if(n->truncated==PROV_TRUNCATED)
     __add_string_attribute("cf:truncated", "true", true);
   else
     __add_string_attribute("cf:truncated", "false", true);
   if(n->identifier.node_id.type == ENT_ARG)
-    __add_label_attribute("argv", n->value, true);
+    __add_label_attribute("argv", tmp, true);
   else
-    __add_label_attribute("envp", n->value, true);
+    __add_label_attribute("envp", tmp, true);
   __close_json_entry(buffer);
+  if(tmp != n->value)
+    free(tmp);
   return buffer;
 }
 
