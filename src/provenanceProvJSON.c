@@ -804,6 +804,7 @@ char* pathname_to_json(struct file_name_struct* n){
 
 char* arg_to_json(struct arg_struct* n){
   int i;
+  char* tmp;
   NODE_PREP_IDs(n);
   prov_prep_taint((union prov_elt*)n);
   __node_start(id, &(n->identifier.node_id), taint, n->jiffies);
@@ -812,17 +813,24 @@ char* arg_to_json(struct arg_struct* n){
       n->value[i]='/';
     if(n->value[i]=='\n')
       n->value[i]=' ';
+    if(n->value[i]=='\t')
+      n->value[i]=' ';
   }
-  __add_string_attribute("cf:value", n->value, true);
+  tmp = repl_str(n->value, "\"", "\\\"");
+  if(tmp==NULL)
+    tmp = n->value;
+  __add_string_attribute("cf:value", tmp, true);
   if(n->truncated==PROV_TRUNCATED)
     __add_string_attribute("cf:truncated", "true", true);
   else
     __add_string_attribute("cf:truncated", "false", true);
   if(n->identifier.node_id.type == ENT_ARG)
-    __add_label_attribute("argv", n->value, true);
+    __add_label_attribute("argv", tmp, true);
   else
-    __add_label_attribute("envp", n->value, true);
+    __add_label_attribute("envp", tmp, true);
   __close_json_entry(buffer);
+  if(tmp != n->value)
+    free(tmp);
   return buffer;
 }
 
