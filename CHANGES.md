@@ -28,7 +28,7 @@
 
 ### v0.3.4
 ```
-- 
+- Fix forbidden character in env and arg.
 ```
 
 ### v0.3.3
