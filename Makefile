@@ -27,7 +27,7 @@ rpm:
 
 travis_checkout_dev:
 	git clone https://github.com/CamFlow/camflow-dev.git
-	cd camflow-dev && git checkout $BRANCH
+	cd camflow-dev && git checkout $(BRANCH)
 
 travis_update_files: travis_checkout_dev
 	sed -i -e 's/#include <linux\/provenance.h>/#include "..\/camflow-dev\/include\/uapi\/linux\/provenance.h"/g' ./include/provenance.h
