@@ -29,7 +29,7 @@
 
 ### v0.3.5
 ```
-- 
+- Update to test coverage.
 ```
 
 ### v0.3.4

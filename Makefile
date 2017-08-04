@@ -1,4 +1,5 @@
 version=0.3.5
+BRANCH?=master
 
 all:
 	cd ./threadpool && $(MAKE) all
@@ -25,7 +26,6 @@ rpm:
 	cp ~/rpmbuild/RPMS/x86_64/* ./output
 
 travis_checkout_dev:
-	export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
 	git clone https://github.com/CamFlow/camflow-dev.git
 	cd camflow-dev && git checkout $BRANCH
 
