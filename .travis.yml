@@ -19,8 +19,10 @@ script:
   - git checkout $BRANCH
   - cd ..
   - make prepare
-  - sed -i -e 's/INCLUDES = -I..\/threadpool -I..\/include -I..\/uthash\/uthash\/src/INCLUDES = -I..\/threadpool -I..\/include -I..\/uthash\/uthash\/src -I.\/camflow-dev\/include\/uapi -I.\/camflow-dev\/include\/uapi\/linux/g' .//src/Makefile
-  - cat ./src/Makefile
+  - sed -i -e 's/#include <linux/provenance.h>/#include "../camflow-dev/include/uapi/linux/provenance.h"/g' ./include/provenance.h
+  - sed -i -e 's/#include <linux/provenance.h>/#include "../camflow-dev/include/uapi/linux/provenance.h"/g' ./include/provenancefitler.h
+  - sed -i -e 's/#include <linux/provenance.h>/#include "../camflow-dev/include/uapi/linux/provenance.h"/g' ./include/provenanceutils.h
+  - sed -i -e 's/#include <linux/camflow.h>/#include "../camflow-dev/include/uapi/linux/camflow.h"/g' ./src/provenanceProvJSON.c
   - make all
   - make install
 
