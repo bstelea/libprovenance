@@ -19,7 +19,7 @@ script:
   - git checkout $BRANCH
   - cd ..
   - make prepare
-  - sed -i -e 's/INCLUDES = -I..\/threadpool -I..\/include -I..\/uthash\/uthash\/src/INCLUDES = -I..\/threadpool -I..\/include -I..\/uthash\/uthash\/src -I.\/camflow-dev\/include\/uapi/g' .//src/Makefile
+  - sed -i -e 's/INCLUDES = -I..\/threadpool -I..\/include -I..\/uthash\/uthash\/src/INCLUDES = -I..\/threadpool -I..\/include -I..\/uthash\/uthash\/src -I.\/camflow-dev\/include\/uapi -I.\/camflow-dev\/include\/uapi\/linux/g' .//src/Makefile
   - cat ./src/Makefile
   - make all
   - make install
