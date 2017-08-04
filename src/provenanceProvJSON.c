@@ -29,6 +29,7 @@
 #include <math.h>
 #include <linux/camflow.h>
 #include <sys/utsname.h>
+#include <bsd/string.h>
 
 #include "provenance.h"
 #include "provenancePovJSON.h"
@@ -132,8 +133,8 @@ static inline bool __append(char destination[MAX_PROVJSON_BUFFER_LENGTH], char* 
   }
   // add the comma
   if(destination[0]!='\0')
-    strncat(destination, ",", MAX_PROVJSON_BUFFER_LENGTH - strlen(destination) - 1);
-  strncat(destination, source, MAX_PROVJSON_BUFFER_LENGTH - strlen(destination) - 1); // copy up to free space
+    strlcat(destination, ",", MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(destination, source, MAX_PROVJSON_BUFFER_LENGTH); // copy up to free space
   return true;
 }
 
@@ -149,7 +150,7 @@ static inline bool __append(char destination[MAX_PROVJSON_BUFFER_LENGTH], char* 
 #define JSON_DERIVED "}, \"wasDerivedFrom\":{"
 #define JSON_END "}}"
 
-#define JSON_LENGTH (strlen(JSON_START)\
+#define jsonlen() (strlen(JSON_START)\
                       +strlen(JSON_ACTIVITY)\
                       +strlen(JSON_AGENT)\
                       +strlen(JSON_ENTITY)\
@@ -177,11 +178,12 @@ static inline bool __append(char destination[MAX_PROVJSON_BUFFER_LENGTH], char* 
 static inline bool cat_prov(char *json,
                             const char *prefix,
                             char *data,
-                            pthread_mutex_t *lock){
+                            pthread_mutex_t *lock,
+                            size_t len){
   bool rc = false;
   if(!str_is_empty(data)){
-    strncat(json, prefix, MAX_PROVJSON_BUFFER_LENGTH);
-    strncat(json, data, MAX_PROVJSON_BUFFER_LENGTH);
+    strlcat(json, prefix, len);
+    strlcat(json, data, len);
     memset(data, 0, MAX_PROVJSON_BUFFER_LENGTH);
     rc = true;
   }
@@ -193,6 +195,7 @@ static inline bool cat_prov(char *json,
 static inline char* ready_to_print(){
   char* json;
   bool content=false;
+  size_t len = jsonlen();
 
   pthread_mutex_lock(&l_derived);
   pthread_mutex_lock(&l_informed);
@@ -204,28 +207,28 @@ static inline char* ready_to_print(){
   pthread_mutex_lock(&l_agent);
   pthread_mutex_lock(&l_activity);
 
-  json = (char*)malloc(JSON_LENGTH * sizeof(char));
+  json = (char*)malloc(len);
   json[0]='\0';
 
-  strncat(json, JSON_START, JSON_LENGTH);
-  strncat(json, prefix_json(), JSON_LENGTH);
+  strlcat(json, JSON_START, len);
+  strlcat(json, prefix_json(), len);
 
-  content |= cat_prov(json, JSON_ACTIVITY, activity, &l_activity);
-  content |= cat_prov(json, JSON_AGENT, agent, &l_agent);
-  content |= cat_prov(json, JSON_ENTITY, entity, &l_entity);
-  content |= cat_prov(json, JSON_MESSAGE, message, &l_message);
-  content |= cat_prov(json, JSON_RELATION, relation, &l_relation);
-  content |= cat_prov(json, JSON_USED, used, &l_used);
-  content |= cat_prov(json, JSON_GENERATED, generated, &l_generated);
-  content |= cat_prov(json, JSON_INFORMED, informed, &l_informed);
-  content |= cat_prov(json, JSON_DERIVED, derived, &l_derived);
+  content |= cat_prov(json, JSON_ACTIVITY, activity, &l_activity, len);
+  content |= cat_prov(json, JSON_AGENT, agent, &l_agent, len);
+  content |= cat_prov(json, JSON_ENTITY, entity, &l_entity, len);
+  content |= cat_prov(json, JSON_MESSAGE, message, &l_message, len);
+  content |= cat_prov(json, JSON_RELATION, relation, &l_relation, len);
+  content |= cat_prov(json, JSON_USED, used, &l_used, len);
+  content |= cat_prov(json, JSON_GENERATED, generated, &l_generated, len);
+  content |= cat_prov(json, JSON_INFORMED, informed, &l_informed, len);
+  content |= cat_prov(json, JSON_DERIVED, derived, &l_derived, len);
 
   if(!content){
     free(json);
     return NULL;
   }
 
-  strncat(json, JSON_END, JSON_LENGTH);
+  strlcat(json, JSON_END, len);
   return json;
 }
 
@@ -302,7 +305,6 @@ void append_derived(char* json_element){
 }
 
 static __thread char buffer[MAX_PROVJSON_BUFFER_LENGTH];
-#define BUFFER_LENGTH (MAX_PROVJSON_BUFFER_LENGTH-strnlen(buffer, MAX_PROVJSON_BUFFER_LENGTH))
 
 static __thread char id[PROV_ID_STR_LEN];
 static __thread char sender[PROV_ID_STR_LEN];
@@ -331,64 +333,64 @@ static inline void prov_prep_taint(union prov_elt *n){
 static inline void __init_json_entry(const char* id)
 {
   buffer[0]='\0';
-  strncat(buffer, "\"", BUFFER_LENGTH);
-  strncat(buffer, id, BUFFER_LENGTH);
-  strncat(buffer, "\":{", BUFFER_LENGTH);
+  strlcat(buffer, "\"", MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, id, MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, "\":{", MAX_PROVJSON_BUFFER_LENGTH);
 }
 
 static inline void __add_attribute(const char* name, bool comma){
   if(comma){
-    strncat(buffer, ",\"", BUFFER_LENGTH);
+    strlcat(buffer, ",\"", MAX_PROVJSON_BUFFER_LENGTH);
   }else{
-    strncat(buffer, "\"", BUFFER_LENGTH);
+    strlcat(buffer, "\"", MAX_PROVJSON_BUFFER_LENGTH);
   }
-  strncat(buffer, name, BUFFER_LENGTH);
-  strncat(buffer, "\":", BUFFER_LENGTH);
+  strlcat(buffer, name, MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, "\":", MAX_PROVJSON_BUFFER_LENGTH);
 }
 
 static inline void __add_uint32_attribute(const char* name, const uint32_t value, bool comma){
   char tmp[32];
   __add_attribute(name, comma);
-  strncat(buffer, utoa(value, tmp, DECIMAL), BUFFER_LENGTH);
+  strlcat(buffer, utoa(value, tmp, DECIMAL), MAX_PROVJSON_BUFFER_LENGTH);
 }
 
 
 static inline void __add_int32_attribute(const char* name, const int32_t value, bool comma){
   char tmp[32];
   __add_attribute(name, comma);
-  strncat(buffer, itoa(value, tmp, DECIMAL), BUFFER_LENGTH);
+  strlcat(buffer, itoa(value, tmp, DECIMAL), MAX_PROVJSON_BUFFER_LENGTH);
 }
 
 static inline void __add_uint32hex_attribute(const char* name, const uint32_t value, bool comma){
   char tmp[32];
   __add_attribute(name, comma);
-  strncat(buffer, "\"0x", BUFFER_LENGTH);
-  strncat(buffer, utoa(value, tmp, HEX), BUFFER_LENGTH);
-  strncat(buffer, "\"", BUFFER_LENGTH);
+  strlcat(buffer, "\"0x", MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, utoa(value, tmp, HEX), MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, "\"", MAX_PROVJSON_BUFFER_LENGTH);
 }
 
 static inline void __add_uint64_attribute(const char* name, const uint64_t value, bool comma){
   char tmp[64];
   __add_attribute(name, comma);
-  strncat(buffer, "\"", BUFFER_LENGTH);
-  strncat(buffer, ulltoa(value, tmp, DECIMAL), BUFFER_LENGTH);
-  strncat(buffer, "\"", BUFFER_LENGTH);
+  strlcat(buffer, "\"", MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, ulltoa(value, tmp, DECIMAL), MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, "\"", MAX_PROVJSON_BUFFER_LENGTH);
 }
 
 static inline void __add_uint64hex_attribute(const char* name, const uint64_t value, bool comma){
   char tmp[64];
   __add_attribute(name, comma);
-  strncat(buffer, "\"", BUFFER_LENGTH);
-  strncat(buffer, ulltoa(value, tmp, HEX), BUFFER_LENGTH);
-  strncat(buffer, "\"", BUFFER_LENGTH);
+  strlcat(buffer, "\"", MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, ulltoa(value, tmp, HEX), MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, "\"", MAX_PROVJSON_BUFFER_LENGTH);
 }
 
 static inline void __add_int64_attribute(const char* name, const int64_t value, bool comma){
   char tmp[64];
   __add_attribute(name, comma);
-  strncat(buffer, "\"", BUFFER_LENGTH);
-  strncat(buffer, lltoa(value, tmp, DECIMAL), BUFFER_LENGTH);
-  strncat(buffer, "\"", BUFFER_LENGTH);
+  strlcat(buffer, "\"", MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, lltoa(value, tmp, DECIMAL), MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, "\"", MAX_PROVJSON_BUFFER_LENGTH);
 }
 
 static inline void __add_string_attribute(const char* name, const char* value, bool comma){
@@ -396,59 +398,59 @@ static inline void __add_string_attribute(const char* name, const char* value, b
     return;
   }
   __add_attribute(name, comma);
-  strncat(buffer, "\"", BUFFER_LENGTH);
-  strncat(buffer, value, BUFFER_LENGTH);
-  strncat(buffer, "\"", BUFFER_LENGTH);
+  strlcat(buffer, "\"", MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, value, MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, "\"", MAX_PROVJSON_BUFFER_LENGTH);
 }
 
 static inline void __add_json_attribute(const char* name, const char* value, bool comma){
   __add_attribute(name, comma);
-  strncat(buffer, value, BUFFER_LENGTH);
+  strlcat(buffer, value, MAX_PROVJSON_BUFFER_LENGTH);
 }
 
 static inline void __add_date_attribute(bool comma){
   __add_attribute("cf:date", comma);
-  strncat(buffer, "\"", BUFFER_LENGTH);
+  strlcat(buffer, "\"", MAX_PROVJSON_BUFFER_LENGTH);
   pthread_rwlock_rdlock(&date_lock);
-  strncat(buffer, date, BUFFER_LENGTH);
+  strlcat(buffer, date, MAX_PROVJSON_BUFFER_LENGTH);
   pthread_rwlock_unlock(&date_lock);
-  strncat(buffer, "\"", BUFFER_LENGTH);
+  strlcat(buffer, "\"", MAX_PROVJSON_BUFFER_LENGTH);
 }
 
 static inline void __add_label_attribute(const char* type, const char* text, bool comma){
   __add_attribute("prov:label", comma);
   if(type!=NULL){
-    strncat(buffer, "\"[", BUFFER_LENGTH);
-    strncat(buffer, type, BUFFER_LENGTH);
-    strncat(buffer, "] ", BUFFER_LENGTH);
+    strlcat(buffer, "\"[", MAX_PROVJSON_BUFFER_LENGTH);
+    strlcat(buffer, type, MAX_PROVJSON_BUFFER_LENGTH);
+    strlcat(buffer, "] ", MAX_PROVJSON_BUFFER_LENGTH);
   }else{
-    strncat(buffer, "\"", BUFFER_LENGTH);
+    strlcat(buffer, "\"", MAX_PROVJSON_BUFFER_LENGTH);
   }
   if(text!=NULL)
-    strncat(buffer, text, BUFFER_LENGTH);
-  strncat(buffer, "\"", BUFFER_LENGTH);
+    strlcat(buffer, text, MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, "\"", MAX_PROVJSON_BUFFER_LENGTH);
 }
 
 static inline char* __format_ipv4(char* buffer, size_t s, uint32_t ip, uint32_t port){
     char tmp[8];
     buffer[0]='\0';
-    strncat(buffer, uint32_to_ipv4str(ip), s-strlen(buffer));
-    strncat(buffer, ":", s-strlen(buffer));
-    strncat(buffer, utoa(htons(port), tmp, DECIMAL), s-strlen(buffer));
+    strlcat(buffer, uint32_to_ipv4str(ip), s);
+    strlcat(buffer, ":", s);
+    strlcat(buffer, utoa(htons(port), tmp, DECIMAL), s);
     return buffer;
 }
 
 static inline void __add_ipv4_attribute(const char* name, const uint32_t ip, const uint32_t port, bool comma){
   char tmp[64];
   __add_attribute(name, comma);
-  strncat(buffer, "\"", BUFFER_LENGTH);
-  strncat(buffer, __format_ipv4(tmp, 64, ip, port), BUFFER_LENGTH);
-  strncat(buffer, "\"", BUFFER_LENGTH);
+  strlcat(buffer, "\"", MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, __format_ipv4(tmp, 64, ip, port), MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, "\"", MAX_PROVJSON_BUFFER_LENGTH);
 }
 
 static inline void __close_json_entry(char* buffer)
 {
-  strncat(buffer, "}", BUFFER_LENGTH);
+  strlcat(buffer, "}", MAX_PROVJSON_BUFFER_LENGTH);
 }
 
 static inline void __node_identifier(const struct node_identifier* n){
@@ -526,8 +528,8 @@ char* disc_to_json(struct disc_node_struct* n){
   __node_start(id, &(n->identifier.node_id), taint, n->jiffies);
   __add_string_attribute("cf:hasParent", parent_id, true);
   if(n->length > 0){
-    strncat(buffer, ",", BUFFER_LENGTH);
-    strncat(buffer, n->content, BUFFER_LENGTH);
+    strlcat(buffer, ",", MAX_PROVJSON_BUFFER_LENGTH);
+    strlcat(buffer, n->content, MAX_PROVJSON_BUFFER_LENGTH);
   }
   __close_json_entry(buffer);
   return buffer;
@@ -710,13 +712,13 @@ char* packet_to_json(struct pck_struct* p){
   __add_uint64hex_attribute("cf:type", p->identifier.packet_id.type, true);
   __add_string_attribute("cf:taint", taint, true);
   __add_uint64_attribute("cf:jiffies", p->jiffies, true);
-  strncat(buffer, ",\"prov:label\":\"[packet] ", BUFFER_LENGTH);
-  strncat(buffer, __format_ipv4(tmp, 256, p->identifier.packet_id.snd_ip, p->identifier.packet_id.snd_port), BUFFER_LENGTH);
-  strncat(buffer, "->", BUFFER_LENGTH);
-  strncat(buffer, __format_ipv4(tmp, 256, p->identifier.packet_id.rcv_ip, p->identifier.packet_id.rcv_port), BUFFER_LENGTH);
-  strncat(buffer, " (", BUFFER_LENGTH);
-  strncat(buffer, utoa(p->identifier.packet_id.id, tmp, DECIMAL), BUFFER_LENGTH);
-  strncat(buffer, ")\"", BUFFER_LENGTH);
+  strlcat(buffer, ",\"prov:label\":\"[packet] ", MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, __format_ipv4(tmp, 256, p->identifier.packet_id.snd_ip, p->identifier.packet_id.snd_port), MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, "->", MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, __format_ipv4(tmp, 256, p->identifier.packet_id.rcv_ip, p->identifier.packet_id.rcv_port), MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, " (", MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, utoa(p->identifier.packet_id.id, tmp, DECIMAL), MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, ")\"", MAX_PROVJSON_BUFFER_LENGTH);
   __close_json_entry(buffer);
   return buffer;
 }
@@ -843,33 +845,33 @@ char* machine_description_json(char* buffer){
   uname(&machine_info);
 
   buffer[0]='\0';
-  strncat(buffer, "{\"prefix\":{", BUFFER_LENGTH);
-  strncat(buffer, prefix_json(), BUFFER_LENGTH);
-  strncat(buffer, "}", BUFFER_LENGTH);
-  strncat(buffer, ",\"entity\":{", BUFFER_LENGTH);
-  strncat(buffer, "\"", BUFFER_LENGTH);
-  strncat(buffer, utoa(machine_id, tmp, DECIMAL), BUFFER_LENGTH);
-  strncat(buffer, "\":{", BUFFER_LENGTH);
-  strncat(buffer, "\"prov:label\":\"[machine] ", BUFFER_LENGTH);
-  strncat(buffer, utoa(machine_id, tmp, DECIMAL), BUFFER_LENGTH);
-  strncat(buffer, "\",\"cf:camflow\":\"", BUFFER_LENGTH);
-  strncat(buffer, CAMFLOW_VERSION_STR, BUFFER_LENGTH);
-  strncat(buffer, "\",\"cf:sysname\":\"", BUFFER_LENGTH);
-  strncat(buffer, machine_info.sysname, BUFFER_LENGTH);
-  strncat(buffer, "\",\"cf:nodename\":\"", BUFFER_LENGTH);
-  strncat(buffer, machine_info.nodename, BUFFER_LENGTH);
-  strncat(buffer, "\",\"cf:release\":\"", BUFFER_LENGTH);
-  strncat(buffer, machine_info.release, BUFFER_LENGTH);
-  strncat(buffer, "\",\"cf:version\":\"", BUFFER_LENGTH);
-  strncat(buffer, machine_info.version, BUFFER_LENGTH);
-  strncat(buffer, "\",\"cf:machine\":\"", BUFFER_LENGTH);
-  strncat(buffer, machine_info.machine, BUFFER_LENGTH);
-  strncat(buffer, "\", \"cf:date", BUFFER_LENGTH);
-  strncat(buffer, "\":\"", BUFFER_LENGTH);
+  strlcat(buffer, "{\"prefix\":{", MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, prefix_json(), MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, "}", MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, ",\"entity\":{", MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, "\"", MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, utoa(machine_id, tmp, DECIMAL), MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, "\":{", MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, "\"prov:label\":\"[machine] ", MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, utoa(machine_id, tmp, DECIMAL), MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, "\",\"cf:camflow\":\"", MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, CAMFLOW_VERSION_STR, MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, "\",\"cf:sysname\":\"", MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, machine_info.sysname, MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, "\",\"cf:nodename\":\"", MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, machine_info.nodename, MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, "\",\"cf:release\":\"", MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, machine_info.release, MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, "\",\"cf:version\":\"", MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, machine_info.version, MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, "\",\"cf:machine\":\"", MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, machine_info.machine, MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, "\", \"cf:date", MAX_PROVJSON_BUFFER_LENGTH);
+  strlcat(buffer, "\":\"", MAX_PROVJSON_BUFFER_LENGTH);
   update_time();
   pthread_rwlock_rdlock(&date_lock);
-  strncat(buffer, date, BUFFER_LENGTH);
+  strlcat(buffer, date, MAX_PROVJSON_BUFFER_LENGTH);
   pthread_rwlock_unlock(&date_lock);
-  strncat(buffer, "\"}}}", BUFFER_LENGTH);
+  strlcat(buffer, "\"}}}", MAX_PROVJSON_BUFFER_LENGTH);
   return buffer;
 }

@@ -10,6 +10,7 @@ addons:
 
 before_install:
   - sudo apt-get update -qq
+  - sudo apt-get install libbsd-dev
 
 script:
   - sonar-scanner -X -Dsonar.login=$SONAR_TOKEN -Dsonar.host.url=https://sonarqube.com
