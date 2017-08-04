@@ -17,6 +17,7 @@
 #include <linux/provenance.h>
 #include <zlib.h>
 #include <arpa/inet.h>
+#include <stddef.h>
 
 #define hexifyBound(in) (in*2+1)
 size_t hexify(uint8_t *in, size_t in_size, char *out, size_t out_size);
@@ -410,9 +411,9 @@ static inline char *repl_str(const char *str, const char *from, const char *to) 
 	const char *pstr2, *pstr = str;
 	size_t i, count = 0;
 	#if (__STDC_VERSION__ >= 199901L)
-	uintptr_t *pos_cache_tmp, *pos_cache = NULL;
+	size_t *pos_cache_tmp, *pos_cache = NULL;
 	#else
-	ptrdiff_t *pos_cache_tmp, *pos_cache = NULL;
+	size_t *pos_cache_tmp, *pos_cache = NULL;
 	#endif
 	size_t cache_sz = 0;
 	size_t cpylen, orglen, retlen, tolen, fromlen = strlen(from);
