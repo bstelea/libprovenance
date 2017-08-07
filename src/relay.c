@@ -25,11 +25,6 @@
 #include "provenance.h"
 
 #define RUN_PID_FILE "/run/provenance-service.pid"
-
-/*
-* TODO look at code to avoid duplication across normal and "long" relay
-*/
-
 #define NUMBER_CPUS           256 /* support 256 core max */
 
 /* internal variables */
@@ -271,9 +266,10 @@ static void callback_job(void* data, const size_t prov_size)
   if(prov_ops.received_prov!=NULL)
     prov_ops.received_prov(msg);
   // dealing with filter
-  if(prov_ops.filter!=NULL)
-    if(prov_ops.filter((prov_entry_t*)msg)) // message has been fitlered
-      return;
+  if(prov_ops.filter==NULL)
+    return;
+  if(prov_ops.filter((prov_entry_t*)msg)) // message has been fitlered
+    return;
   prov_record(msg);
 }
 
@@ -336,8 +332,9 @@ static void long_callback_job(void* data, const size_t prov_size)
     prov_ops.received_long_prov(msg);
   // dealing with filter
   if(prov_ops.filter!=NULL)
-    if(prov_ops.filter((prov_entry_t*)msg)) // message has been fitlered
-      return;
+    return;
+  if(prov_ops.filter((prov_entry_t*)msg)) // message has been fitlered
+    return;
   long_prov_record(msg);
 }
 
