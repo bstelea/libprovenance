@@ -25,11 +25,6 @@
 #include "provenance.h"
 
 #define RUN_PID_FILE "/run/provenance-service.pid"
-
-/*
-* TODO look at code to avoid duplication across normal and "long" relay
-*/
-
 #define NUMBER_CPUS           256 /* support 256 core max */
 
 /* internal variables */
