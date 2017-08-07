@@ -331,7 +331,7 @@ static void long_callback_job(void* data, const size_t prov_size)
   if(prov_ops.received_long_prov!=NULL)
     prov_ops.received_long_prov(msg);
   // dealing with filter
-  if(prov_ops.filter!=NULL)
+  if(prov_ops.filter==NULL)
     return;
   if(prov_ops.filter((prov_entry_t*)msg)) // message has been fitlered
     return;
