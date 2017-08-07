@@ -410,7 +410,7 @@ static inline char *repl_str(const char *str, const char *from, const char *to) 
 	char *pret;
   char *ret = NULL;
 	const char *pstr2;
-  char *pstr = str;
+  const char *pstr = str;
 	size_t i, count = 0;
 	size_t *pos_cache_tmp;
   size_t *pos_cache = NULL;
