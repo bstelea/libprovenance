@@ -29,7 +29,6 @@
 
 ### v0.3.5
 ```
-- Replace strncat by strlcat from libbsd.
 - Update to test coverage.
 ```
 
