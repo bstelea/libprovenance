@@ -267,9 +267,10 @@ static void callback_job(void* data, const size_t prov_size)
     prov_ops.received_prov(msg);
   // dealing with filter
   if(prov_ops.filter==NULL)
-    return;
+    goto out;
   if(prov_ops.filter((prov_entry_t*)msg)) // message has been fitlered
     return;
+out:
   prov_record(msg);
 }
 
@@ -332,9 +333,10 @@ static void long_callback_job(void* data, const size_t prov_size)
     prov_ops.received_long_prov(msg);
   // dealing with filter
   if(prov_ops.filter==NULL)
-    return;
+    goto out;
   if(prov_ops.filter((prov_entry_t*)msg)) // message has been fitlered
     return;
+out:
   long_prov_record(msg);
 }
 
