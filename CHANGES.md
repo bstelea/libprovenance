@@ -30,6 +30,7 @@
 
 ### v0.3.6
 ```
+- Add accept_socket relationship.
 - Add setattr_inode relationship.
 ```
 
