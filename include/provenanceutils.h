@@ -50,7 +50,9 @@ static const char RL_STR_SETATTR []               = "setattr";
 static const char RL_STR_SETATTR_INODE []         = "setattr_inode";
 static const char RL_STR_ACCEPT_SOCKET []         = "accept_socket";
 static const char RL_STR_SETXATTR []              = "setxattr";
+static const char RL_STR_SETXATTR_INODE []        = "setxattr_inode";
 static const char RL_STR_RMVXATTR []              = "removexattr";
+static const char RL_STR_RMVXATTR_INODE []        = "removexattr_inode";
 static const char RL_STR_NAMED []                 = "named";
 static const char RL_STR_NAMED_PROCESS []         = "named_process";
 static const char RL_STR_EXEC []                  = "exec";
@@ -60,6 +62,7 @@ static const char RL_STR_VERSION_PROCESS []       = "version_activity";
 static const char RL_STR_SEARCH []                = "search";
 static const char RL_STR_GETATTR []               = "getattr";
 static const char RL_STR_GETXATTR []              = "getxattr";
+static const char RL_STR_GETXATTR_INODE []        = "getxattr_inode";
 static const char RL_STR_LSTXATTR []              = "listxattr";
 static const char RL_STR_READLINK []              = "readlink";
 static const char RL_STR_MMAP_READ []             = "mmap_read";
@@ -116,8 +119,12 @@ static inline const char* relation_str(uint64_t type){
       return RL_STR_ACCEPT_SOCKET;
     case RL_SETXATTR:
       return RL_STR_SETXATTR;
+    case RL_SETXATTR_INODE:
+      return RL_STR_SETXATTR_INODE;
     case RL_RMVXATTR:
       return RL_STR_RMVXATTR;
+    case RL_RMVXATTR_INODE:
+      return RL_STR_RMVXATTR_INODE;
     case RL_NAMED:
       return RL_STR_NAMED;
     case RL_NAMED_PROCESS:
@@ -136,6 +143,8 @@ static inline const char* relation_str(uint64_t type){
       return RL_STR_GETATTR;
     case RL_GETXATTR:
       return RL_STR_GETXATTR;
+    case RL_GETXATTR_INODE:
+      return RL_STR_GETXATTR_INODE;
     case RL_LSTXATTR:
       return RL_STR_LSTXATTR;
     case RL_READLINK:
@@ -201,7 +210,9 @@ static inline const uint64_t relation_id(char* str){
   MATCH_AND_RETURN(str, RL_STR_SETATTR_INODE, RL_SETATTR_INODE);
   MATCH_AND_RETURN(str, RL_STR_ACCEPT_SOCKET, RL_ACCEPT_SOCKET);
   MATCH_AND_RETURN(str, RL_STR_SETXATTR, RL_SETXATTR);
+  MATCH_AND_RETURN(str, RL_STR_SETXATTR_INODE, RL_SETXATTR_INODE);
   MATCH_AND_RETURN(str, RL_STR_RMVXATTR, RL_RMVXATTR);
+  MATCH_AND_RETURN(str, RL_STR_RMVXATTR_INODE, RL_RMVXATTR_INODE);
   MATCH_AND_RETURN(str, RL_STR_READLINK, RL_READLINK);
   MATCH_AND_RETURN(str, RL_STR_NAMED, RL_NAMED);
   MATCH_AND_RETURN(str, RL_STR_NAMED_PROCESS, RL_NAMED_PROCESS);
@@ -212,6 +223,7 @@ static inline const uint64_t relation_id(char* str){
   MATCH_AND_RETURN(str, RL_STR_SEARCH, RL_SEARCH);
   MATCH_AND_RETURN(str, RL_STR_GETATTR, RL_GETATTR);
   MATCH_AND_RETURN(str, RL_STR_GETXATTR, RL_GETXATTR);
+  MATCH_AND_RETURN(str, RL_STR_GETXATTR_INODE, RL_GETXATTR_INODE);
   MATCH_AND_RETURN(str, RL_STR_LSTXATTR, RL_LSTXATTR);
   MATCH_AND_RETURN(str, RL_STR_MMAP_READ, RL_MMAP_READ);
   MATCH_AND_RETURN(str, RL_STR_MMAP_EXEC, RL_MMAP_EXEC);
