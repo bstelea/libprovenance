@@ -454,7 +454,6 @@ static inline void __close_json_entry(char* buffer)
 static inline void __node_identifier(const struct node_identifier* n){
   __add_uint64_attribute("cf:id", n->id, false);
   __add_string_attribute("prov:type", node_str(n->type), true);
-  __add_uint64hex_attribute("cf:type", n->type, true);
   __add_uint32_attribute("cf:boot_id", n->boot_id, true);
   __add_uint32_attribute("cf:machine_id", n->machine_id, true);
   __add_uint32_attribute("cf:version", n->version, true);
@@ -474,7 +473,6 @@ static inline void __node_start(const char* id,
 static inline void __relation_identifier(const struct relation_identifier* e){
   __add_uint64_attribute("cf:id", e->id, false);
   __add_string_attribute("prov:type", relation_str(e->type), true);
-  __add_uint64hex_attribute("cf:type", e->type, true);
   __add_uint32_attribute("cf:boot_id", e->boot_id, true);
   __add_uint32_attribute("cf:machine_id", e->machine_id, true);
 }
@@ -707,7 +705,6 @@ char* packet_to_json(struct pck_struct* p){
   __add_ipv4_attribute("cf:sender", p->identifier.packet_id.snd_ip, p->identifier.packet_id.snd_port, true);
   __add_ipv4_attribute("cf:receiver", p->identifier.packet_id.rcv_ip, p->identifier.packet_id.rcv_port, true);
   __add_string_attribute("prov:type", "packet", true);
-  __add_uint64hex_attribute("cf:type", p->identifier.packet_id.type, true);
   __add_string_attribute("cf:taint", taint, true);
   __add_uint64_attribute("cf:jiffies", p->jiffies, true);
   strncat(buffer, ",\"prov:label\":\"[packet] ", BUFFER_LENGTH);
