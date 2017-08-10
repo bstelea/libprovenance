@@ -453,7 +453,7 @@ static inline void __close_json_entry(char* buffer)
 
 static inline void __node_identifier(const struct node_identifier* n){
   __add_uint64_attribute("cf:id", n->id, false);
-  __add_string_attribute("prov:type", node_str(n->type), true);
+  __add_string_attribute("prov:type", node_id_to_str(n->type), true);
   __add_uint32_attribute("cf:boot_id", n->boot_id, true);
   __add_uint32_attribute("cf:machine_id", n->machine_id, true);
   __add_uint32_attribute("cf:version", n->version, true);
@@ -472,7 +472,7 @@ static inline void __node_start(const char* id,
 
 static inline void __relation_identifier(const struct relation_identifier* e){
   __add_uint64_attribute("cf:id", e->id, false);
-  __add_string_attribute("prov:type", relation_str(e->type), true);
+  __add_string_attribute("prov:type", relation_id_to_str(e->type), true);
   __add_uint32_attribute("cf:boot_id", e->boot_id, true);
   __add_uint32_attribute("cf:machine_id", e->machine_id, true);
 }
@@ -485,7 +485,7 @@ static char* __relation_to_json(struct relation_struct* e, const char* snd, cons
   __add_date_attribute(true);
   __add_string_attribute("cf:taint", taint, true);
   __add_uint64_attribute("cf:jiffies", e->jiffies, true);
-  __add_label_attribute(NULL, relation_str(e->identifier.relation_id.type), true);
+  __add_label_attribute(NULL, relation_id_to_str(e->identifier.relation_id.type), true);
   if(e->allowed==FLOW_ALLOWED)
     __add_string_attribute("cf:allowed", "true", true);
   else
@@ -611,7 +611,7 @@ char* inode_to_json(struct inode_prov_struct* n){
   __add_string_attribute("cf:secctx", secctx, true);
   __add_uint32_attribute("cf:ino", n->ino, true);
   __add_string_attribute("cf:uuid", uuid_to_str(n->sb_uuid, uuid, UUID_STR_SIZE), true);
-  __add_label_attribute(node_str(n->identifier.node_id.type), utoa(n->identifier.node_id.version, tmp, DECIMAL), true);
+  __add_label_attribute(node_id_to_str(n->identifier.node_id.type), utoa(n->identifier.node_id.version, tmp, DECIMAL), true);
   __close_json_entry(buffer);
   return buffer;
 }

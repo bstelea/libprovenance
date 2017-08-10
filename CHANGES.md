@@ -30,6 +30,7 @@
 
 ### v0.3.6
 ```
+- Reducing dependencies between kernel version and userspace software.
 - Add accept_socket relationship.
 - Add setattr_inode relationship.
 ```

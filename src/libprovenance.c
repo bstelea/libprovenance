@@ -480,7 +480,7 @@ struct secentry {
 
 static __thread struct secentry *hash = NULL;
 
-bool exists_entry(uint32_t secid) {
+bool sec_exists_entry(uint32_t secid) {
   struct secentry *se=NULL;
   HASH_FIND_INT(hash, &secid, se);
   if(!se)
@@ -488,9 +488,9 @@ bool exists_entry(uint32_t secid) {
   return true;
 }
 
-static void add_entry(uint32_t secid, const char* secctx){
+static void sec_add_entry(uint32_t secid, const char* secctx){
   struct secentry *se;
-  if( exists_entry(secid) )
+  if( sec_exists_entry(secid) )
     return;
   se = malloc(sizeof(struct secentry));
   se->id=secid;
@@ -498,7 +498,7 @@ static void add_entry(uint32_t secid, const char* secctx){
   HASH_ADD_INT(hash, id, se);
 }
 
-bool find_entry(uint32_t secid, char* secctx) {
+bool sec_find_entry(uint32_t secid, char* secctx) {
   struct secentry *se=NULL;
   HASH_FIND_INT(hash, &secid, se);
   if(!se)
@@ -512,7 +512,7 @@ int provenance_secid_to_secctx( uint32_t secid, char* secctx, uint32_t len){
   int rc;
   int fd;
 
-  if( find_entry(secid, secctx) )
+  if( sec_find_entry(secid, secctx) )
     return 0;
   fd = open(PROV_SECCTX, O_RDONLY);
   if( fd < 0 )
@@ -526,10 +526,122 @@ int provenance_secid_to_secctx( uint32_t secid, char* secctx, uint32_t len){
     return rc;
   }
   if(len<strlen(info.secctx))
-    return -1;
+    return -ENOMEM;
   strncpy(secctx, info.secctx, len);
-  add_entry(secid, secctx);
+  sec_add_entry(secid, secctx);
   return rc;
+}
+
+struct typeentry {
+    uint64_t id;
+    char str[256];
+    UT_hash_handle hh; /* makes this structure hashable */
+};
+
+static __thread struct typeentry *thash = NULL;
+
+bool type_exists_entry(uint64_t typeid) {
+  struct typeentry *te=NULL;
+  HASH_FIND(hh, thash, &typeid, sizeof(uint64_t), te);
+  if(!te)
+    return false;
+  return true;
+}
+
+static void type_add_entry(uint64_t typeid, const char* name){
+  struct typeentry *te;
+  if( sec_exists_entry(typeid) )
+    return;
+  te = malloc(sizeof(struct typeentry));
+  te->id=typeid;
+  strncpy(te->str, name, 256);
+  HASH_ADD(hh, thash, id, sizeof(uint64_t), te);
+}
+
+bool type_find_entry(uint64_t typeid, char* name) {
+  struct typeentry *te=NULL;
+  HASH_FIND(hh, thash, &typeid, sizeof(uint64_t), te);
+  if(!te)
+    return false;
+  strncpy(name, te->str, 256);
+  return true;
+}
+
+static inline int provenance_type_id_to_str(uint64_t id,
+                                char* name,
+                                uint32_t len,
+                                uint8_t is_relation){
+  struct prov_type info;
+  int rc;
+  int fd;
+
+  if( type_find_entry(id, name) )
+    return 0;
+  fd = open(PROV_TYPE, O_RDONLY);
+  if( fd < 0 )
+    return fd;
+  memset(&info, 0, sizeof(struct prov_type));
+  info.id=id;
+  info.is_relation = is_relation;
+  rc = read(fd, &info, sizeof(struct prov_type));
+  close(fd);
+  if(rc<0){
+    name[0]='\0';
+    return rc;
+  }
+  if(len<strlen(info.str))
+    return -ENOMEM;
+  strncpy(name, info.str, len);
+  type_add_entry(id, name);
+  return rc;
+}
+
+static __thread char name_buff[256];
+char* relation_id_to_str(uint64_t id){
+  int rc;
+  provenance_type_id_to_str(id, name_buff, 256, 1);
+  return name_buff;
+}
+
+char* node_id_to_str(uint64_t id){
+  int rc;
+  provenance_type_id_to_str(id, name_buff, 256, 0);
+  return name_buff;
+}
+
+static inline int provenance_type_str_to_id(uint64_t *id,
+                                const char* name,
+                                uint32_t len,
+                                uint8_t is_relation){
+  struct prov_type info;
+  int rc;
+  int fd;
+
+  fd = open(PROV_TYPE, O_RDONLY);
+  if( fd < 0 )
+    return fd;
+  memset(&info, 0, sizeof(struct prov_type));
+  strncpy(info.str, name, len);
+  info.is_relation = is_relation;
+  rc = read(fd, &info, sizeof(struct prov_type));
+  close(fd);
+  if(rc<0){
+    *id = 0;
+  }
+  *id = info.id;
+  return rc;
+}
+
+uint64_t relation_str_to_id(const char* name, uint32_t len){
+  uint64_t id;
+  provenance_type_str_to_id(&id, name, len, 1);
+  return id;
+}
+
+uint64_t node_str_to_id(const char* name, uint32_t len){
+  uint64_t id;
+  provenance_type_str_to_id(&id, name, len, 0);
+  return id;
 }
 
 #define declare_set_secctx_fcn(fcn_name, operation) int fcn_name (const char* secctx){\
