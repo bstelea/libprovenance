@@ -549,6 +549,15 @@ char* task_to_json(struct task_prov_struct* n){
   __add_uint32_attribute("cf:netns", n->netns, true);
   __add_uint32_attribute("cf:cgroupns", n->cgroupns, true);
   __add_string_attribute("cf:secctx", secctx, true);
+  __add_uint64_attribute("cf:utime", n->utime, true);
+  __add_uint64_attribute("cf:stime", n->stime, true);
+  __add_uint64_attribute("cf:vm", n->vm, true);
+  __add_uint64_attribute("cf:rss", n->rss, true);
+  __add_uint64_attribute("cf:hw_vm", n->hw_vm, true);
+  __add_uint64_attribute("cf:hw_rss", n->hw_rss, true);
+  __add_uint64_attribute("cf:rbytes", n->rbytes, true);
+  __add_uint64_attribute("cf:wbytes", n->wbytes, true);
+  __add_uint64_attribute("cf:cancel_wbytes", n->cancel_wbytes, true);
   __add_label_attribute("task", utoa(n->identifier.node_id.version, tmp, DECIMAL), true);
   __close_json_entry(buffer);
   return buffer;

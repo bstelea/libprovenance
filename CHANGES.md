@@ -30,6 +30,7 @@
 
 ### v0.3.6
 ```
+- Record process performance information.
 - Shutdown properly.
 - Reducing dependencies between kernel version and userspace software.
 - Add accept_socket relationship.
