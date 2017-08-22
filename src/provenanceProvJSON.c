@@ -401,6 +401,17 @@ static inline void __add_string_attribute(const char* name, const char* value, b
   strncat(buffer, "\"", BUFFER_LENGTH);
 }
 
+static inline void __add_reference(const char* name, const char* id, bool comma){
+  if(id[0]=='\0'){ // value is not set
+    return;
+  }
+  __add_attribute(name, comma);
+  strncat(buffer, "\"cf:", BUFFER_LENGTH);
+  strncat(buffer, id, BUFFER_LENGTH);
+  strncat(buffer, "\"", BUFFER_LENGTH);
+}
+
+
 static inline void __add_json_attribute(const char* name, const char* value, bool comma){
   __add_attribute(name, comma);
   strncat(buffer, value, BUFFER_LENGTH);
@@ -490,8 +501,8 @@ static char* __relation_to_json(struct relation_struct* e, const char* snd, cons
     __add_string_attribute("cf:allowed", "true", true);
   else
     __add_string_attribute("cf:allowed", "false", true);
-  __add_string_attribute(snd, sender, true);
-  __add_string_attribute(rcv, receiver, true);
+  __add_reference(snd, sender, true);
+  __add_reference(rcv, receiver, true);
   if(e->set==FILE_INFO_SET && e->offset>0)
     __add_int64_attribute("cf:offset", e->offset, true); // just offset for now
   __close_json_entry(buffer);
@@ -522,7 +533,7 @@ char* disc_to_json(struct disc_node_struct* n){
   DISC_PREP_IDs(n);
   prov_prep_taint((union prov_elt*)n);
   __node_start(id, &(n->identifier.node_id), taint, n->jiffies);
-  __add_string_attribute("cf:hasParent", parent_id, true);
+  __add_reference("cf:hasParent", parent_id, true);
   if(n->length > 0){
     strncat(buffer, ",", BUFFER_LENGTH);
     strncat(buffer, n->content, BUFFER_LENGTH);
