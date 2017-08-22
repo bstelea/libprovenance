@@ -331,7 +331,7 @@ static inline void prov_prep_taint(union prov_elt *n){
 static inline void __init_json_entry(const char* id)
 {
   buffer[0]='\0';
-  strncat(buffer, "\"", BUFFER_LENGTH);
+  strncat(buffer, "\"cf:", BUFFER_LENGTH);
   strncat(buffer, id, BUFFER_LENGTH);
   strncat(buffer, "\":{", BUFFER_LENGTH);
 }
