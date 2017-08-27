@@ -316,4 +316,10 @@ int provenance_ns(struct nsinfo* filters, size_t length);
 
 int provenance_policy_hash(uint8_t* buffer, size_t length);
 
+char* relation_id_to_str(uint64_t id);
+char* node_id_to_str(uint64_t id);
+
+uint64_t relation_str_to_id(const char* name, uint32_t len);
+uint64_t node_str_to_id(const char* name, uint32_t len);
+
 #endif /* __PROVENANCELIB_H */

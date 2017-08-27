@@ -2,6 +2,7 @@
 
 | Library version | Date       |
 | --------------- | ---------- |
+| 0.3.6           | 27/08/2017 |
 | 0.3.5           | 07/08/2017 |
 | 0.3.4           | 03/08/2017 |
 | 0.3.3           | 02/08/2017 |
@@ -27,9 +28,17 @@
 | 0.1.1           | 03/04/2016 |
 | 0.1.0           | 28/03/2016 |
 
+### v0.3.6
+```
+- Record process performance information.
+- Shutdown properly.
+- Reducing dependencies between kernel version and userspace software.
+- Add accept_socket relationship.
+- Add setattr_inode relationship.
+```
+
 ### v0.3.5
 ```
-- Replace strncat by strlcat from libbsd.
 - Update to test coverage.
 ```
 

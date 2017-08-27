@@ -36,6 +36,7 @@ static int long_relay_file[NUMBER_CPUS];
 /* worker pool */
 static threadpool worker_thpool=NULL;
 static uint32_t machine_id=0;
+static uint8_t running = 1;
 
 /* internal functions */
 static int open_files(void);
@@ -112,6 +113,8 @@ int provenance_register(struct provenance_ops* ops)
 
 void provenance_stop()
 {
+  running = 0; // worker thread will stop
+  sleep(1); // give them a bit of times
   close_files();
   destroy_worker_pool();
 }
@@ -391,7 +394,7 @@ static void reader_job(void *data)
       continue; /* something bad happened */
     }
     ___read_relay(relay_file[cpu], sizeof(union prov_elt), callback_job);
-  }while(1);
+  }while(running);
 }
 
 #define US	1000L
@@ -419,5 +422,5 @@ static void long_reader_job(void *data)
       continue; /* something bad happened */
     }
     ___read_relay(long_relay_file[cpu], sizeof(union long_prov_elt), long_callback_job);
-  }while(1);
+  }while(running);
 }
