@@ -31,6 +31,7 @@
 
 ### v0.3.7
 ```
+- Remove unknown relation.
 - Fix to terminate and change appearing in "relation category" (now properly in informed).
 - Namespace machine id.
 ```
