@@ -60,7 +60,6 @@ static pthread_mutex_t l_flush =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 static pthread_mutex_t l_activity =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 static pthread_mutex_t l_agent =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 static pthread_mutex_t l_entity =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-static pthread_mutex_t l_relation =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 static pthread_mutex_t l_used =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 static pthread_mutex_t l_generated =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 static pthread_mutex_t l_informed =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
@@ -70,7 +69,6 @@ static pthread_mutex_t l_message =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 static char* activity;
 static char* agent;
 static char* entity;
-static char* relation;
 static char* used;
 static char* generated;
 static char* informed;
@@ -86,7 +84,6 @@ void init_buffers(void){
   init_buffer(&activity);
   init_buffer(&agent);
   init_buffer(&entity);
-  init_buffer(&relation);
   init_buffer(&used);
   init_buffer(&generated);
   init_buffer(&informed);
@@ -142,7 +139,6 @@ static inline bool __append(char destination[MAX_PROVJSON_BUFFER_LENGTH], char* 
 #define JSON_AGENT "}, \"agent\":{"
 #define JSON_ENTITY "}, \"entity\":{"
 #define JSON_MESSAGE "}, \"message\":{"
-#define JSON_RELATION "}, \"relation\":{"
 #define JSON_USED "}, \"used\":{"
 #define JSON_GENERATED "}, \"wasGeneratedBy\":{"
 #define JSON_INFORMED "}, \"wasInformedBy\":{"
@@ -154,7 +150,6 @@ static inline bool __append(char destination[MAX_PROVJSON_BUFFER_LENGTH], char* 
                       +strlen(JSON_AGENT)\
                       +strlen(JSON_ENTITY)\
                       +strlen(JSON_MESSAGE)\
-                      +strlen(JSON_RELATION)\
                       +strlen(JSON_USED)\
                       +strlen(JSON_GENERATED)\
                       +strlen(JSON_INFORMED)\
@@ -165,7 +160,6 @@ static inline bool __append(char destination[MAX_PROVJSON_BUFFER_LENGTH], char* 
                       +strlen(agent)\
                       +strlen(entity)\
                       +strlen(message)\
-                      +strlen(relation)\
                       +strlen(used)\
                       +strlen(generated)\
                       +strlen(derived)\
@@ -198,7 +192,6 @@ static inline char* ready_to_print(){
   pthread_mutex_lock(&l_informed);
   pthread_mutex_lock(&l_generated);
   pthread_mutex_lock(&l_used);
-  pthread_mutex_lock(&l_relation);
   pthread_mutex_lock(&l_message);
   pthread_mutex_lock(&l_entity);
   pthread_mutex_lock(&l_agent);
@@ -214,7 +207,6 @@ static inline char* ready_to_print(){
   content |= cat_prov(json, JSON_AGENT, agent, &l_agent);
   content |= cat_prov(json, JSON_ENTITY, entity, &l_entity);
   content |= cat_prov(json, JSON_MESSAGE, message, &l_message);
-  content |= cat_prov(json, JSON_RELATION, relation, &l_relation);
   content |= cat_prov(json, JSON_USED, used, &l_used);
   content |= cat_prov(json, JSON_GENERATED, generated, &l_generated);
   content |= cat_prov(json, JSON_INFORMED, informed, &l_informed);
@@ -279,10 +271,6 @@ void append_entity(char* json_element){
 
 void append_message(char* json_element){
   json_append(&l_message, message, json_element);
-}
-
-void append_relation(char* json_element){
-  json_append(&l_relation, relation, json_element);
 }
 
 void append_used(char* json_element){
@@ -401,6 +389,14 @@ static inline void __add_string_attribute(const char* name, const char* value, b
   strncat(buffer, "\"", BUFFER_LENGTH);
 }
 
+static inline void __add_machine_id(uint32_t value, bool comma){
+  char tmp[32];
+  __add_attribute("cf:machine_id", comma);
+  strncat(buffer, "\"cf:", BUFFER_LENGTH);
+  strncat(buffer, utoa(value, tmp, DECIMAL), BUFFER_LENGTH);
+  strncat(buffer, "\"", BUFFER_LENGTH);
+}
+
 static inline void __add_reference(const char* name, const char* id, bool comma){
   if(id[0]=='\0'){ // value is not set
     return;
@@ -466,7 +462,7 @@ static inline void __node_identifier(const struct node_identifier* n){
   __add_uint64_attribute("cf:id", n->id, false);
   __add_string_attribute("prov:type", node_id_to_str(n->type), true);
   __add_uint32_attribute("cf:boot_id", n->boot_id, true);
-  __add_uint32_attribute("cf:machine_id", n->machine_id, true);
+  __add_machine_id(n->machine_id, true);
   __add_uint32_attribute("cf:version", n->version, true);
 }
 
@@ -485,7 +481,7 @@ static inline void __relation_identifier(const struct relation_identifier* e){
   __add_uint64_attribute("cf:id", e->id, false);
   __add_string_attribute("prov:type", relation_id_to_str(e->type), true);
   __add_uint32_attribute("cf:boot_id", e->boot_id, true);
-  __add_uint32_attribute("cf:machine_id", e->machine_id, true);
+  __add_machine_id(e->machine_id, true);
 }
 
 static char* __relation_to_json(struct relation_struct* e, const char* snd, const char* rcv){
@@ -507,10 +503,6 @@ static char* __relation_to_json(struct relation_struct* e, const char* snd, cons
     __add_int64_attribute("cf:offset", e->offset, true); // just offset for now
   __close_json_entry(buffer);
   return buffer;
-}
-
-char* relation_to_json(struct relation_struct* e){
-  return __relation_to_json(e, "cf:sender", "cf:receiver");
 }
 
 char* used_to_json(struct relation_struct* e){
@@ -864,7 +856,7 @@ char* machine_description_json(char* buffer){
   strncat(buffer, prefix_json(), BUFFER_LENGTH);
   strncat(buffer, "}", BUFFER_LENGTH);
   strncat(buffer, ",\"entity\":{", BUFFER_LENGTH);
-  strncat(buffer, "\"", BUFFER_LENGTH);
+  strncat(buffer, "\"cf:", BUFFER_LENGTH);
   strncat(buffer, utoa(machine_id, tmp, DECIMAL), BUFFER_LENGTH);
   strncat(buffer, "\":{", BUFFER_LENGTH);
   strncat(buffer, "\"prov:label\":\"[machine] ", BUFFER_LENGTH);
