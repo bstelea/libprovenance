@@ -31,7 +31,7 @@
 
 ### v0.3.7
 ```
-- Quick fix to terminate appearing in "relation category".
+- Fix to terminate and change appearing in "relation category" (now properly in informed).
 - Namespace machine id.
 ```
 

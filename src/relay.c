@@ -177,33 +177,18 @@ static void destroy_worker_pool(void)
 static __thread int initialised=0;
 
 void relation_record(union prov_elt *msg){
-  if(prov_type(msg) == RL_TERMINATE_PROCESS && prov_ops.log_informed!=NULL){
-        prov_ops.log_informed(&(msg->relation_info));
-        return;
-  }
-  uint64_t w3c_type = W3C_TYPE(prov_type(msg));
-  switch(w3c_type){
-    case RL_DERIVED:
-      if(prov_ops.log_derived!=NULL)
-        prov_ops.log_derived(&(msg->relation_info));
-      break;
-    case RL_GENERATED:
-      if(prov_ops.log_generated!=NULL)
-        prov_ops.log_generated(&(msg->relation_info));
-      break;
-    case RL_USED:
-      if(prov_ops.log_used!=NULL)
-        prov_ops.log_used(&(msg->relation_info));
-      break;
-    case RL_INFORMED:
-      if(prov_ops.log_informed!=NULL)
-        prov_ops.log_informed(&(msg->relation_info));
-      break;
-    default:
-      if(prov_ops.log_unknown_relation!=NULL)
-        prov_ops.log_unknown_relation(&(msg->relation_info));
-      break;
-  }
+  uint64_t type = prov_type(msg);
+
+  if( IS_USED(type) &&  prov_ops.log_used!=NULL)
+    prov_ops.log_derived(&(msg->relation_info));
+  else if( IS_INFORMED(type) && prov_ops.log_informed!=NULL)
+    prov_ops.log_informed(&(msg->relation_info));
+  else if( IS_GENERATED(type) && prov_ops.log_generated!=NULL)
+    prov_ops.log_generated(&(msg->relation_info));
+  else if(IS_DERIVED(type) && prov_ops.log_derived!=NULL)
+    prov_ops.log_derived(&(msg->relation_info));
+  else
+    record_error("Error: unknown relation type %llx\n", prov_type(msg));
 }
 
 void node_record(union prov_elt *msg){
@@ -241,7 +226,7 @@ void node_record(union prov_elt *msg){
         prov_ops.log_iattr(&(msg->iattr_info));
       break;
     default:
-      record_error("Error: unknown type %llx\n", prov_type(msg));
+      record_error("Error: unknown node type %llx\n", prov_type(msg));
       break;
   }
 }
@@ -315,7 +300,7 @@ void long_prov_record(union long_prov_elt* msg){
         prov_ops.log_arg(&(msg->arg_info));
       break;
     default:
-      record_error("Error: unknown long type %llx\n", prov_type(msg));
+      record_error("Error: unknown node long type %llx\n", prov_type(msg));
       break;
   }
 }
