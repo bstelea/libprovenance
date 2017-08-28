@@ -177,6 +177,10 @@ static void destroy_worker_pool(void)
 static __thread int initialised=0;
 
 void relation_record(union prov_elt *msg){
+  if(prov_type(msg) == RL_TERMINATE_PROCESS && prov_ops.log_informed!=NULL){
+        prov_ops.log_informed(&(msg->relation_info));
+        return;
+  }
   uint64_t w3c_type = W3C_TYPE(prov_type(msg));
   switch(w3c_type){
     case RL_DERIVED:
