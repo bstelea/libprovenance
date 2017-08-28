@@ -401,6 +401,14 @@ static inline void __add_string_attribute(const char* name, const char* value, b
   strncat(buffer, "\"", BUFFER_LENGTH);
 }
 
+static inline void __add_machine_id(uint32_t value, bool comma){
+  char tmp[32];
+  __add_attribute("cf:machine_id", comma);
+  strncat(buffer, "\"cf:", BUFFER_LENGTH);
+  strncat(buffer, utoa(value, tmp, DECIMAL), BUFFER_LENGTH);
+  strncat(buffer, "\"", BUFFER_LENGTH);
+}
+
 static inline void __add_reference(const char* name, const char* id, bool comma){
   if(id[0]=='\0'){ // value is not set
     return;
@@ -466,7 +474,7 @@ static inline void __node_identifier(const struct node_identifier* n){
   __add_uint64_attribute("cf:id", n->id, false);
   __add_string_attribute("prov:type", node_id_to_str(n->type), true);
   __add_uint32_attribute("cf:boot_id", n->boot_id, true);
-  __add_uint32_attribute("cf:machine_id", n->machine_id, true);
+  __add_machine_id(n->machine_id, true);
   __add_uint32_attribute("cf:version", n->version, true);
 }
 
@@ -485,7 +493,7 @@ static inline void __relation_identifier(const struct relation_identifier* e){
   __add_uint64_attribute("cf:id", e->id, false);
   __add_string_attribute("prov:type", relation_id_to_str(e->type), true);
   __add_uint32_attribute("cf:boot_id", e->boot_id, true);
-  __add_uint32_attribute("cf:machine_id", e->machine_id, true);
+  __add_machine_id(e->machine_id, true);
 }
 
 static char* __relation_to_json(struct relation_struct* e, const char* snd, const char* rcv){
@@ -864,7 +872,7 @@ char* machine_description_json(char* buffer){
   strncat(buffer, prefix_json(), BUFFER_LENGTH);
   strncat(buffer, "}", BUFFER_LENGTH);
   strncat(buffer, ",\"entity\":{", BUFFER_LENGTH);
-  strncat(buffer, "\"", BUFFER_LENGTH);
+  strncat(buffer, "\"cf:", BUFFER_LENGTH);
   strncat(buffer, utoa(machine_id, tmp, DECIMAL), BUFFER_LENGTH);
   strncat(buffer, "\":{", BUFFER_LENGTH);
   strncat(buffer, "\"prov:label\":\"[machine] ", BUFFER_LENGTH);
