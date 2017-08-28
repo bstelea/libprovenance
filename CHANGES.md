@@ -31,7 +31,7 @@
 
 ### v0.3.7
 ```
--
+- Namespace machine id.
 ```
 
 ### v0.3.6
