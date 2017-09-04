@@ -30,6 +30,6 @@ rm -r -f "$RPM_BUILD_ROOT"
 /usr/include/provenance.h
 /usr/include/provenancefilter.h
 /usr/include/provenanceutils.h
-/usr/include/provenancePovJSON.h
+/usr/include/provenanceProvJSON.h
 
 %post -p /sbin/ldconfig
