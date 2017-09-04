@@ -32,7 +32,7 @@
 
 ### v0.3.8
 ```
-- 
+- Distribute as a shared library.
 ```
 
 ### v0.3.7
