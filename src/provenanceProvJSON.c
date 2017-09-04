@@ -29,6 +29,7 @@
 #include <math.h>
 #include <linux/camflow.h>
 #include <sys/utsname.h>
+#include <linux/provenance_types.h>
 
 #include "provenance.h"
 #include "provenancePovJSON.h"

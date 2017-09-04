@@ -20,6 +20,7 @@
 #include <unistd.h>
 #include <stdarg.h>
 #include <time.h>
+#include <linux/provenance_types.h>
 
 #include "thpool.h"
 #include "provenance.h"
