@@ -32,6 +32,7 @@
 
 ### v0.3.8
 ```
+- One hook per disclosed vertex type (entity, activity, agent).
 - Distribute as a shared library.
 ```
 

@@ -33,7 +33,9 @@ struct provenance_ops{
   void (*log_task)(struct task_prov_struct*);
   void (*log_inode)(struct inode_prov_struct*);
   void (*log_str)(struct str_struct*);
-  void (*log_disc)(struct disc_node_struct*);
+  void (*log_act_disc)(struct disc_node_struct*);
+  void (*log_agt_disc)(struct disc_node_struct*);
+  void (*log_ent_disc)(struct disc_node_struct*);
   void (*log_msg)(struct msg_msg_struct*);
   void (*log_shm)(struct shm_struct*);
   void (*log_packet)(struct pck_struct*);
