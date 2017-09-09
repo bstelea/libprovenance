@@ -101,6 +101,17 @@ bool provenance_get_all( void );
 
 /*
 * @v boolean value
+* activate provenance node compression.
+*/
+int provenance_should_compress(bool v);
+
+/*
+* return either or not provenance is compressed.
+*/
+bool provenance_does_compress( void );
+
+/*
+* @v boolean value
 * Hide the current process from provenance capture. Should be mostly used by the
 * provenance capture service itself. Will fail if the current process is not
 * root.

@@ -32,6 +32,7 @@
 
 ### v0.3.8
 ```
+- Add option to set node compression.
 - Fix provenanceProvJSON.h header name.
 - One hook per disclosed vertex type (entity, activity, agent).
 - Distribute as a shared library.
