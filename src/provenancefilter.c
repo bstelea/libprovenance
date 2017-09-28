@@ -25,6 +25,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <netdb.h>
+#include <linux/provenance_types.h>
 
 #include "provenance.h"
 #include "provenancefilter.h"

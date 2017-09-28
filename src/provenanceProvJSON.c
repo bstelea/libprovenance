@@ -29,9 +29,10 @@
 #include <math.h>
 #include <linux/camflow.h>
 #include <sys/utsname.h>
+#include <linux/provenance_types.h>
 
 #include "provenance.h"
-#include "provenancePovJSON.h"
+#include "provenanceProvJSON.h"
 #include "provenanceutils.h"
 
 #define MAX_PROVJSON_BUFFER_EXP     13

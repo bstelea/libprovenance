@@ -20,6 +20,7 @@
 #include <unistd.h>
 #include <stdarg.h>
 #include <time.h>
+#include <linux/provenance_types.h>
 
 #include "thpool.h"
 #include "provenance.h"
@@ -285,10 +286,16 @@ void long_prov_record(union long_prov_elt* msg){
         prov_ops.log_xattr(&(msg->xattr_info));
       break;
     case ENT_DISC:
+      if(prov_ops.log_ent_disc!=NULL)
+        prov_ops.log_ent_disc(&(msg->disc_node_info));
+      break;
     case ACT_DISC:
+      if(prov_ops.log_act_disc!=NULL)
+        prov_ops.log_act_disc(&(msg->disc_node_info));
+      break;
     case AGT_DISC:
-      if(prov_ops.log_disc!=NULL)
-        prov_ops.log_disc(&(msg->disc_node_info));
+      if(prov_ops.log_agt_disc!=NULL)
+        prov_ops.log_agt_disc(&(msg->disc_node_info));
       break;
     case ENT_PCKCNT:
       if(prov_ops.log_packet_content!=NULL)

@@ -22,6 +22,7 @@
 #include <linux/xattr.h>
 #include <pwd.h>
 #include <grp.h>
+#include <linux/provenance_types.h>
 
 #include "provenance.h"
 #include "provenanceutils.h"
@@ -73,6 +74,9 @@ declare_get_boolean_fcn(provenance_get_enable, PROV_ENABLE_FILE);
 
 declare_set_boolean_fcn(provenance_set_all, PROV_ALL_FILE);
 declare_get_boolean_fcn(provenance_get_all, PROV_ALL_FILE);
+
+declare_set_boolean_fcn(provenance_should_compress, PROV_COMPRESS_FILE);
+declare_get_boolean_fcn(provenance_does_compress, PROV_COMPRESS_FILE);
 
 #define declare_self_set_flag(fcn_name, element, operation) int fcn_name (bool v){ \
   struct prov_process_config cfg;\

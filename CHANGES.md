@@ -2,6 +2,7 @@
 
 | Library version | Date       |
 | --------------- | ---------- |
+| 0.3.8           | 28/09/2017 |
 | 0.3.7           | 28/08/2017 |
 | 0.3.6           | 27/08/2017 |
 | 0.3.5           | 07/08/2017 |
@@ -28,6 +29,14 @@
 | 0.1.2           | 26/05/2016 |
 | 0.1.1           | 03/04/2016 |
 | 0.1.0           | 28/03/2016 |
+
+### v0.3.8
+```
+- Add option to set node compression.
+- Fix provenanceProvJSON.h header name.
+- One hook per disclosed vertex type (entity, activity, agent).
+- Distribute as a shared library.
+```
 
 ### v0.3.7
 ```
