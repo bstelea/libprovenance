@@ -334,4 +334,6 @@ char* node_id_to_str(uint64_t id);
 uint64_t relation_str_to_id(const char* name, uint32_t len);
 uint64_t node_str_to_id(const char* name, uint32_t len);
 
+int provenance_version(char* version, size_t len);
+
 #endif /* __PROVENANCELIB_H */

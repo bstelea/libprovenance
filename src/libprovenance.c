@@ -783,3 +783,14 @@ int provenance_group(struct groupinfo* filters, size_t length ){
   close(fd);
   return rc;
 }
+
+int provenance_version(char* version, size_t len){
+  int rc;
+  int fd = open(PROV_VERSION, O_RDONLY);
+  if( fd < 0 ){
+    return fd;
+  }
+  rc = read(fd, version, len);
+  close(fd);
+  return rc;
+}

@@ -33,7 +33,7 @@
 
 ### v0.3.9
 ```
--
+- Provide API to read CamFlow version from kernel.
 ```
 
 ### v0.3.8
