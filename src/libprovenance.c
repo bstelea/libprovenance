@@ -228,8 +228,44 @@ int provenance_read_file(const char path[PATH_MAX], union prov_elt* inode_info){
   return getxattr(path, XATTR_NAME_PROVENANCE, inode_info, sizeof(union prov_elt));
 }
 
+int provenance_file_id(const char path[PATH_MAX], char* buff, size_t len){
+  int rc;
+  union prov_elt inode_info;
+  char id[PROV_ID_STR_LEN];
+
+  if(len < PROV_ID_STR_LEN)
+    return -ENOMEM;
+
+  rc = getxattr(path, XATTR_NAME_PROVENANCE, &inode_info, sizeof(union prov_elt));
+  if(rc < 0)
+    return rc;
+    rc = ID_ENCODE(prov_id_buffer(&inode_info), PROV_IDENTIFIER_BUFFER_LENGTH, id, PROV_ID_STR_LEN);
+    if (rc < 0)
+      return rc;
+    sprintf(buff, "cf:%s", id);
+    return 0;
+}
+
 int fprovenance_read_file(int fd, union prov_elt* inode_info){
   return fgetxattr(fd, XATTR_NAME_PROVENANCE, inode_info, sizeof(union prov_elt));
+}
+
+int fprovenance_file_id(int fd, char* buff, size_t len){
+  int rc;
+  union prov_elt inode_info;
+  char id[PROV_ID_STR_LEN];
+
+  if(len < PROV_ID_STR_LEN+3)
+    return -ENOMEM;
+
+  rc = fgetxattr(fd, XATTR_NAME_PROVENANCE, &inode_info, sizeof(union prov_elt));
+  if (rc < 0)
+    return rc;
+  rc = ID_ENCODE(prov_id_buffer(&inode_info), PROV_IDENTIFIER_BUFFER_LENGTH, id, PROV_ID_STR_LEN);
+  if (rc < 0)
+    return rc;
+  sprintf(buff, "cf:%s", id);
+  return 0;
 }
 
 static inline int __provenance_write_file(const char path[PATH_MAX], union prov_elt* inode_info){

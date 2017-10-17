@@ -208,7 +208,13 @@ int provenance_flush(void);
 * @inode_info point to an inode_info structure
 * retrieve provenance information of the file associated with name.
 */
-int provenance_read_file(const char name[PATH_MAX], union prov_elt* inode_info);
+int provenance_read_file(const char path[PATH_MAX], union prov_elt* inode_info);
+
+int provenance_file_id(const char path[PATH_MAX], char* buff, size_t len);
+
+int fprovenance_read_file(int fd, union prov_elt* inode_info);
+
+int fprovenance_file_id(int fd, char* buff, size_t len);
 
 /*
 * @name file name
