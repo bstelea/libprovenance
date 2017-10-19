@@ -342,4 +342,6 @@ uint64_t node_str_to_id(const char* name, uint32_t len);
 
 int provenance_version(char* version, size_t len);
 
+int provenance_create_channel(char name[PATH_MAX]);
+
 #endif /* __PROVENANCELIB_H */

@@ -812,9 +812,8 @@ declare_set_group_fcn(provenance_group_delete, PROV_SET_DELETE);
 int provenance_group(struct groupinfo* filters, size_t length ){
   int rc;
   int fd = open(PROV_GID_FILTER, O_RDONLY);
-  if( fd < 0 ){
+  if( fd < 0 )
     return fd;
-  }
   rc = read(fd, filters, length);
   close(fd);
   return rc;
@@ -823,10 +822,23 @@ int provenance_group(struct groupinfo* filters, size_t length ){
 int provenance_version(char* version, size_t len){
   int rc;
   int fd = open(PROV_VERSION, O_RDONLY);
-  if( fd < 0 ){
+  if( fd < 0 )
     return fd;
-  }
   rc = read(fd, version, len);
+  close(fd);
+  return rc;
+}
+
+int provenance_create_channel(char name[PATH_MAX]){
+  int rc;
+  char buffer[PATH_MAX];
+
+  int fd = open(PROV_CHANNEL, O_WRONLY);
+  if( fd < 0 )
+    return fd;
+  if(strlen(name) > PATH_MAX)
+    return -ENOMEM;
+  rc = write(fd, name, sizeof(struct groupinfo));
   close(fd);
   return rc;
 }
