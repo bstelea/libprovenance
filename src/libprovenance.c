@@ -833,12 +833,12 @@ int provenance_create_channel(char name[PATH_MAX]){
   int rc;
   char buffer[PATH_MAX];
 
+  if(strlen(name) > PATH_MAX)
+    return -ENOMEM;
   int fd = open(PROV_CHANNEL, O_WRONLY);
   if( fd < 0 )
     return fd;
-  if(strlen(name) > PATH_MAX)
-    return -ENOMEM;
-  rc = write(fd, name, sizeof(struct groupinfo));
+  rc = write(fd, name, PATH_MAX);
   close(fd);
   return rc;
 }
