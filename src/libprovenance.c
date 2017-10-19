@@ -838,7 +838,7 @@ int provenance_create_channel(char name[PATH_MAX]){
   int fd = open(PROV_CHANNEL, O_WRONLY);
   if( fd < 0 )
     return fd;
-  rc = write(fd, name, PATH_MAX);
+  rc = write(fd, name, strlen(name)+1);
   close(fd);
   return rc;
 }
