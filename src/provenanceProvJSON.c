@@ -546,6 +546,8 @@ char* task_to_json(struct task_prov_struct* n){
   __add_uint32_attribute("cf:gid", n->gid, true);
   __add_uint32_attribute("cf:pid", n->pid, true);
   __add_uint32_attribute("cf:vpid", n->vpid, true);
+  __add_uint32_attribute("cf:ppid", n->ppid, true);
+  __add_uint32_attribute("cf:tgid", n->tgid, true);
   __add_uint32_attribute("cf:utsns", n->utsns, true);
   __add_uint32_attribute("cf:ipcns", n->ipcns, true);
   __add_uint32_attribute("cf:mntns", n->mntns, true);
