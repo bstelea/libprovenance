@@ -40,7 +40,7 @@ static uint32_t machine_id=0;
 static uint8_t running = 1;
 
 /* internal functions */
-static int open_files(void);
+static int open_files(char *name);
 static int close_files(void);
 static int create_worker_pool(void);
 static void destroy_worker_pool(void);
@@ -74,7 +74,7 @@ int provenance_record_pid( void ){
   return err;
 }
 
-int provenance_register(struct provenance_ops* ops)
+int provenance_relay_register(struct provenance_ops* ops, char* name)
 {
   int err;
 
@@ -96,7 +96,7 @@ int provenance_register(struct provenance_ops* ops)
   }
 
   /* open relay files */
-  if(open_files()){
+  if(open_files(name)){
     return -1;
   }
 
@@ -112,7 +112,7 @@ int provenance_register(struct provenance_ops* ops)
   return 0;
 }
 
-void provenance_stop()
+void provenance_relay_stop()
 {
   running = 0; // worker thread will stop
   sleep(1); // give them a bit of times
@@ -120,20 +120,32 @@ void provenance_stop()
   destroy_worker_pool();
 }
 
-static int open_files(void)
+static int open_files(char* name)
 {
   int i;
-  char tmp[4096]; // to store file name
+  char tmp[PATH_MAX]; // to store file name
+  char *path;
+  char *long_path;
+
+  if(name == NULL){
+    path = PROV_RELAY_NAME;
+    long_path = PROV_LONG_RELAY_NAME;
+  }else{
+    path = malloc(PATH_MAX);
+    snprintf(path, PATH_MAX, "%s%s", PROV_CHANNEL_ROOT, name);
+    long_path = malloc(PATH_MAX);
+    snprintf(long_path, PATH_MAX, "%slong_%s", PROV_CHANNEL_ROOT, name);
+  }
 
   tmp[0]='\0';
   for(i=0; i<ncpus; i++){
-    snprintf(tmp, 4096-strlen(tmp), "%s%d", PROV_RELAY_NAME, i);
+    snprintf(tmp, PATH_MAX, "%s%d", path, i);
     relay_file[i] = open(tmp, O_RDONLY | O_NONBLOCK);
     if(relay_file[i]<0){
       record_error("Could not open files (%d)\n", relay_file[i]);
       return -1;
     }
-    snprintf(tmp, 4096-strlen(tmp), "%s%d", PROV_LONG_RELAY_NAME, i);
+    snprintf(tmp, PATH_MAX, "%s%d", PROV_LONG_RELAY_NAME, i);
     long_relay_file[i] = open(tmp, O_RDONLY | O_NONBLOCK);
     if(long_relay_file[i]<0){
       record_error("Could not open files (%d)\n", long_relay_file[i]);

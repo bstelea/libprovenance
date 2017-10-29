@@ -65,12 +65,12 @@ bool provenance_is_present(void);
 * start and register callback. Note that there is no concurrency guarantee made.
 * The application developper is expected to deal with concurrency issue.
 */
-int provenance_register(struct provenance_ops* ops);
+int provenance_relay_register(struct provenance_ops* ops, char* name);
 
 /*
 * shutdown tightly the things that are running behind the scene.
 */
-void provenance_stop(void);
+void provenance_relay_stop(void);
 
 /* security file manipulation */
 

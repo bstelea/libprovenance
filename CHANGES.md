@@ -33,6 +33,7 @@
 
 ### v0.3.9
 ```
+- Support mutliple relay channel.
 - Provide API to read CamFlow version from kernel.
 ```
 
