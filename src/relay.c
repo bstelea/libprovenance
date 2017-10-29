@@ -57,18 +57,16 @@ static inline void record_error(const char* fmt, ...){
 	va_start(args, fmt);
 	vsnprintf(tmp, 2048, fmt, args);
 	va_end(args);
-  if(prov_ops.log_error!=NULL){
+  if(prov_ops.log_error!=NULL)
     prov_ops.log_error(tmp);
-  }
 }
 
 int provenance_record_pid( void ){
   int err;
   pid_t pid = getpid();
   FILE *f = fopen(RUN_PID_FILE, "w");
-  if(f==NULL){
+  if(f==NULL)
     return -1;
-  }
   err = fprintf(f, "%d", pid);
   fclose(f);
   return err;
@@ -83,22 +81,23 @@ int provenance_relay_register(struct provenance_ops* ops, char* name)
   /* the provenance usher will not appear in trace */
   err = provenance_set_opaque(true);
   if(err)
-  {
     return err;
-  }
+
   /* copy ops function pointers */
   memcpy(&prov_ops, ops, sizeof(struct provenance_ops));
 
   /* count how many CPU */
   ncpus = sysconf(_SC_NPROCESSORS_ONLN);
-  if(ncpus>NUMBER_CPUS){
+  if(ncpus>NUMBER_CPUS)
     return -1;
-  }
+
+  /* create channel */
+  if(name != NULL)
+    provenance_create_channel(name);
 
   /* open relay files */
-  if(open_files(name)){
+  if(open_files(name))
     return -1;
-  }
 
   /* create callback threads */
   if(create_worker_pool()){
@@ -106,9 +105,8 @@ int provenance_relay_register(struct provenance_ops* ops, char* name)
     return -1;
   }
 
-  if(provenance_record_pid() < 0){
+  if(provenance_record_pid() < 0)
     return -1;
-  }
   return 0;
 }
 
