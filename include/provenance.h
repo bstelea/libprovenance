@@ -65,7 +65,7 @@ bool provenance_is_present(void);
 * start and register callback. Note that there is no concurrency guarantee made.
 * The application developper is expected to deal with concurrency issue.
 */
-int provenance_relay_register(struct provenance_ops* ops, char* name);
+int provenance_relay_register(struct provenance_ops* ops, const char* name);
 
 /*
 * shutdown tightly the things that are running behind the scene.
@@ -342,6 +342,6 @@ uint64_t node_str_to_id(const char* name, uint32_t len);
 
 int provenance_version(char* version, size_t len);
 
-int provenance_create_channel(char name[PATH_MAX]);
+int provenance_create_channel(const char name[PATH_MAX]);
 
 #endif /* __PROVENANCELIB_H */

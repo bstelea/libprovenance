@@ -829,7 +829,7 @@ int provenance_version(char* version, size_t len){
   return rc;
 }
 
-int provenance_create_channel(char name[PATH_MAX]){
+int provenance_create_channel(const char name[PATH_MAX]){
   int rc;
   char buffer[PATH_MAX];
 

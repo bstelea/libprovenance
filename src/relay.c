@@ -40,7 +40,7 @@ static uint32_t machine_id=0;
 static uint8_t running = 1;
 
 /* internal functions */
-static int open_files(char *name);
+static int open_files(const char *name);
 static int close_files(void);
 static int create_worker_pool(void);
 static void destroy_worker_pool(void);
@@ -72,7 +72,7 @@ int provenance_record_pid( void ){
   return err;
 }
 
-int provenance_relay_register(struct provenance_ops* ops, char* name)
+int provenance_relay_register(struct provenance_ops* ops, const char* name)
 {
   int err;
 
@@ -118,7 +118,7 @@ void provenance_relay_stop()
   destroy_worker_pool();
 }
 
-static int open_files(char* name)
+static int open_files(const char* name)
 {
   int i;
   char tmp[PATH_MAX]; // to store file name
