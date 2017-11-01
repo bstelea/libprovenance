@@ -266,8 +266,11 @@ static void callback_job(void* data, const size_t prov_size)
     prov_ops.init();
     initialised=1;
   }
+  
   if(prov_ops.received_prov!=NULL)
     prov_ops.received_prov(msg);
+  if(prov_ops.is_query)
+    return;
   // dealing with filter
   if(prov_ops.filter==NULL)
     goto out;
@@ -338,8 +341,11 @@ static void long_callback_job(void* data, const size_t prov_size)
     prov_ops.init();
     initialised=1;
   }
+
   if(prov_ops.received_long_prov!=NULL)
     prov_ops.received_long_prov(msg);
+  if(prov_ops.is_query)
+    return;
   // dealing with filter
   if(prov_ops.filter==NULL)
     goto out;

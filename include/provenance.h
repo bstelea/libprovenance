@@ -47,6 +47,8 @@ struct provenance_ops{
   void (*log_arg)(struct arg_struct*);
   /* callback for library errors */
   void (*log_error)(char*);
+  /* is it filter only? for query framework */
+  bool is_query;
 };
 
 void prov_record(union prov_elt* msg);
