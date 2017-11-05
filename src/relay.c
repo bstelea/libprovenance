@@ -190,13 +190,13 @@ static __thread int initialised=0;
 void relation_record(union prov_elt *msg){
   uint64_t type = prov_type(msg);
 
-  if( IS_USED(type) &&  prov_ops.log_used!=NULL)
+  if(prov_is_used(type) &&  prov_ops.log_used!=NULL)
     prov_ops.log_used(&(msg->relation_info));
-  else if( IS_INFORMED(type) && prov_ops.log_informed!=NULL)
+  else if(prov_is_informed(type) && prov_ops.log_informed!=NULL)
     prov_ops.log_informed(&(msg->relation_info));
-  else if( IS_GENERATED(type) && prov_ops.log_generated!=NULL)
+  else if(prov_is_generated(type) && prov_ops.log_generated!=NULL)
     prov_ops.log_generated(&(msg->relation_info));
-  else if(IS_DERIVED(type) && prov_ops.log_derived!=NULL)
+  else if(prov_is_derived(type) && prov_ops.log_derived!=NULL)
     prov_ops.log_derived(&(msg->relation_info));
   else
     record_error("Error: unknown relation type %llx\n", prov_type(msg));
@@ -266,7 +266,7 @@ static void callback_job(void* data, const size_t prov_size)
     prov_ops.init();
     initialised=1;
   }
-  
+
   if(prov_ops.received_prov!=NULL)
     prov_ops.received_prov(msg);
   if(prov_ops.is_query)
