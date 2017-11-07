@@ -320,11 +320,13 @@ int provenance_secctx( struct secinfo* filters, size_t length );
 
 int provenance_user_track(const char* name);
 int provenance_user_propagate(const char* name);
+int provenance_user_opaque(const char* name);
 int provenance_user_delete(const char* name);
 int provenance_user(struct userinfo* filters, size_t length );
 
 int provenance_group_track(const char* name);
 int provenance_group_propagate(const char* name);
+int provenance_group_opaque(const char* name);
 int provenance_group_delete(const char* name);
 int provenance_group(struct groupinfo* filters, size_t length );
 

@@ -774,6 +774,7 @@ int provenance_policy_hash(uint8_t* buffer, size_t length){
 
 declare_set_user_fcn(provenance_user_track, PROV_SET_TRACKED);
 declare_set_user_fcn(provenance_user_propagate, PROV_SET_TRACKED|PROV_SET_PROPAGATE);
+declare_set_user_fcn(provenance_user_opaque, PROV_SET_OPAQUE);
 declare_set_user_fcn(provenance_user_delete, PROV_SET_DELETE);
 
 int provenance_user(struct userinfo* filters, size_t length ){
@@ -807,6 +808,7 @@ int provenance_user(struct userinfo* filters, size_t length ){
 
 declare_set_group_fcn(provenance_group_track, PROV_SET_TRACKED);
 declare_set_group_fcn(provenance_group_propagate, PROV_SET_TRACKED|PROV_SET_PROPAGATE);
+declare_set_group_fcn(provenance_group_opaque, PROV_SET_OPAQUE);
 declare_set_group_fcn(provenance_group_delete, PROV_SET_DELETE);
 
 int provenance_group(struct groupinfo* filters, size_t length ){
