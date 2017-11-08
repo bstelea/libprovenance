@@ -701,6 +701,7 @@ uint64_t node_str_to_id(const char* name, uint32_t len){
 
 declare_set_secctx_fcn(provenance_secctx_track, PROV_SET_TRACKED);
 declare_set_secctx_fcn(provenance_secctx_propagate, PROV_SET_TRACKED|PROV_SET_PROPAGATE);
+declare_set_secctx_fcn(provenance_secctx_opaque, PROV_SET_OPAQUE);
 declare_set_secctx_fcn(provenance_secctx_delete, PROV_SET_DELETE);
 
 int provenance_secctx( struct secinfo* filters, size_t length ){
