@@ -33,6 +33,8 @@
 
 ### v0.3.9
 ```
+- Flags recorded for relations.
+- No more flags attribute on xattr.
 - Add provenance_secctx_opaque
 - Add support for opaque groups and users.
 - Support mutliple relay channel.

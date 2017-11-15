@@ -502,6 +502,7 @@ static char* __relation_to_json(struct relation_struct* e, const char* snd, cons
   __add_reference(rcv, receiver, true);
   if(e->set==FILE_INFO_SET && e->offset>0)
     __add_int64_attribute("cf:offset", e->offset, true); // just offset for now
+  __add_uint64hex_attribute("cf:flags", e->flags, true);
   __close_json_entry(buffer);
   return buffer;
 }
@@ -656,7 +657,6 @@ char* xattr_to_json(struct xattr_prov_struct* n){
   __add_string_attribute("cf:name", n->name, true);
   if(n->size>0){
     __add_uint32_attribute("cf:size", n->size, true);
-    __add_uint32hex_attribute("cf:flags", n->flags, true);
     // TODO record value when present
   }
   __add_label_attribute("xattr", n->name, true);
