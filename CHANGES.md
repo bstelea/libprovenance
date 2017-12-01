@@ -33,6 +33,7 @@
 
 ### v0.3.9
 ```
+- Expand compression handling.
 - Flags recorded for relations.
 - No more flags attribute on xattr.
 - Add provenance_secctx_opaque

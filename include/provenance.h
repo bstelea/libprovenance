@@ -86,7 +86,7 @@ int provenance_set_enable(bool v);
 /*
 * return either or not the provenance capture is active.
 */
-bool provenance_get_enable( void );
+bool provenance_get_enable(void);
 
 /*
 * @v boolean value
@@ -99,18 +99,18 @@ int provenance_set_all(bool v);
 /*
 * return either or not provenance on all kernel object is active.
 */
-bool provenance_get_all( void );
+bool provenance_get_all(void);
 
 /*
 * @v boolean value
 * activate provenance node compression.
 */
-int provenance_should_compress(bool v);
+int provenance_should_compress_node(bool v);
 
 /*
 * return either or not provenance is compressed.
 */
-bool provenance_does_compress( void );
+bool provenance_does_compress_node(void);
 
 /*
 * @v boolean value
