@@ -75,8 +75,11 @@ declare_get_boolean_fcn(provenance_get_enable, PROV_ENABLE_FILE);
 declare_set_boolean_fcn(provenance_set_all, PROV_ALL_FILE);
 declare_get_boolean_fcn(provenance_get_all, PROV_ALL_FILE);
 
-declare_set_boolean_fcn(provenance_should_compress_node, PROV_COMPRESS_FILE);
-declare_get_boolean_fcn(provenance_does_compress_node, PROV_COMPRESS_FILE);
+declare_set_boolean_fcn(provenance_should_compress_node, PROV_COMPRESS_NODE_FILE);
+declare_get_boolean_fcn(provenance_does_compress_node, PROV_COMPRESS_NODE_FILE);
+
+declare_set_boolean_fcn(provenance_should_compress_edge, PROV_COMPRESS_EDGE_FILE);
+declare_get_boolean_fcn(provenance_does_compress_edge, PROV_COMPRESS_EDGE_FILE);
 
 #define declare_self_set_flag(fcn_name, element, operation) int fcn_name (bool v){ \
   struct prov_process_config cfg;\

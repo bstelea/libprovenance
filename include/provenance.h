@@ -108,9 +108,20 @@ bool provenance_get_all(void);
 int provenance_should_compress_node(bool v);
 
 /*
-* return either or not provenance is compressed.
+* return either or not nodes are compressed.
 */
 bool provenance_does_compress_node(void);
+
+/*
+* @v boolean value
+* activate provenance edge compression.
+*/
+int provenance_should_compress_edge(bool v);
+
+/*
+* return either or not edges are compressed.
+*/
+bool provenance_does_compress_edge(void);
 
 /*
 * @v boolean value
