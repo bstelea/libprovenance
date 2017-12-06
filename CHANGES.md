@@ -33,6 +33,7 @@
 
 ### v0.3.9
 ```
+- Export library version.
 - Expand compression handling.
 - Flags recorded for relations.
 - No more flags attribute on xattr.

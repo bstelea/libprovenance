@@ -835,6 +835,13 @@ int provenance_version(char* version, size_t len){
   return rc;
 }
 
+int provenance_lib_version(char* version, size_t len){
+  if(len < strlen(PROVLIB_VERSION_STR))
+    return -ENOMEM;
+  strncpy(version, PROVLIB_VERSION_STR, len);
+  return 0;
+}
+
 int provenance_create_channel(const char name[PATH_MAX]){
   int rc;
   char buffer[PATH_MAX];

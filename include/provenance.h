@@ -19,6 +19,16 @@
 #include <sys/socket.h>
 #include <linux/provenance.h>
 
+#define xstr(s) str(s)
+#define str(s) # s
+
+#define PROVLIB_VERSION_MAJOR 0
+#define PROVLIB_VERSION_MINOR 3
+#define PROVLIB_VERSION_PATCH 9
+#define PROVLIB_VERSION_STR   "v"xstr(PROVLIB_VERSION_MAJOR)\
+    "."xstr(PROVLIB_VERSION_MINOR)\
+    "."xstr(PROVLIB_VERSION_PATCH)\
+
 struct provenance_ops{
   void (*init)(void);
   bool (*filter)(prov_entry_t* msg);
@@ -357,6 +367,8 @@ uint64_t relation_str_to_id(const char* name, uint32_t len);
 uint64_t node_str_to_id(const char* name, uint32_t len);
 
 int provenance_version(char* version, size_t len);
+
+int provenance_lib_version(char* version, size_t len);
 
 int provenance_create_channel(const char name[PATH_MAX]);
 
