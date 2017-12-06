@@ -867,6 +867,9 @@ char* machine_description_json(char* buffer){
   strncat(buffer, "\",\"cf:camflow\":\"", BUFFER_LENGTH);
   provenance_version(tmp, 64);
   strncat(buffer, tmp, BUFFER_LENGTH);
+  strncat(buffer, "\",\"cf:libprovenance\":\"", BUFFER_LENGTH);
+  provenance_lib_version(tmp, 64);
+  strncat(buffer, tmp, BUFFER_LENGTH);
   strncat(buffer, "\",\"cf:sysname\":\"", BUFFER_LENGTH);
   strncat(buffer, machine_info.sysname, BUFFER_LENGTH);
   strncat(buffer, "\",\"cf:nodename\":\"", BUFFER_LENGTH);
