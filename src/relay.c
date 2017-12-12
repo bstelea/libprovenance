@@ -40,7 +40,7 @@ static uint32_t machine_id=0;
 static uint8_t running = 1;
 
 /* internal functions */
-static int open_files(void);
+static int open_files(const char *name);
 static int close_files(void);
 static int create_worker_pool(void);
 static void destroy_worker_pool(void);
@@ -57,24 +57,22 @@ static inline void record_error(const char* fmt, ...){
 	va_start(args, fmt);
 	vsnprintf(tmp, 2048, fmt, args);
 	va_end(args);
-  if(prov_ops.log_error!=NULL){
+  if(prov_ops.log_error!=NULL)
     prov_ops.log_error(tmp);
-  }
 }
 
 int provenance_record_pid( void ){
   int err;
   pid_t pid = getpid();
   FILE *f = fopen(RUN_PID_FILE, "w");
-  if(f==NULL){
+  if(f==NULL)
     return -1;
-  }
   err = fprintf(f, "%d", pid);
   fclose(f);
   return err;
 }
 
-int provenance_register(struct provenance_ops* ops)
+int provenance_relay_register(struct provenance_ops* ops, const char* name)
 {
   int err;
 
@@ -83,22 +81,23 @@ int provenance_register(struct provenance_ops* ops)
   /* the provenance usher will not appear in trace */
   err = provenance_set_opaque(true);
   if(err)
-  {
     return err;
-  }
+
   /* copy ops function pointers */
   memcpy(&prov_ops, ops, sizeof(struct provenance_ops));
 
   /* count how many CPU */
   ncpus = sysconf(_SC_NPROCESSORS_ONLN);
-  if(ncpus>NUMBER_CPUS){
+  if(ncpus>NUMBER_CPUS)
     return -1;
-  }
+
+  /* create channel */
+  if(name != NULL)
+    provenance_create_channel(name);
 
   /* open relay files */
-  if(open_files()){
+  if(open_files(name))
     return -1;
-  }
 
   /* create callback threads */
   if(create_worker_pool()){
@@ -106,13 +105,12 @@ int provenance_register(struct provenance_ops* ops)
     return -1;
   }
 
-  if(provenance_record_pid() < 0){
+  if(provenance_record_pid() < 0)
     return -1;
-  }
   return 0;
 }
 
-void provenance_stop()
+void provenance_relay_stop()
 {
   running = 0; // worker thread will stop
   sleep(1); // give them a bit of times
@@ -120,20 +118,32 @@ void provenance_stop()
   destroy_worker_pool();
 }
 
-static int open_files(void)
+static int open_files(const char* name)
 {
   int i;
-  char tmp[4096]; // to store file name
+  char tmp[PATH_MAX]; // to store file name
+  char *path;
+  char *long_path;
+
+  if(name == NULL){
+    path = PROV_RELAY_NAME;
+    long_path = PROV_LONG_RELAY_NAME;
+  }else{
+    path = malloc(PATH_MAX);
+    snprintf(path, PATH_MAX, "%s%s", PROV_CHANNEL_ROOT, name);
+    long_path = malloc(PATH_MAX);
+    snprintf(long_path, PATH_MAX, "%slong_%s", PROV_CHANNEL_ROOT, name);
+  }
 
   tmp[0]='\0';
   for(i=0; i<ncpus; i++){
-    snprintf(tmp, 4096-strlen(tmp), "%s%d", PROV_RELAY_NAME, i);
+    snprintf(tmp, PATH_MAX, "%s%d", path, i);
     relay_file[i] = open(tmp, O_RDONLY | O_NONBLOCK);
     if(relay_file[i]<0){
       record_error("Could not open files (%d)\n", relay_file[i]);
       return -1;
     }
-    snprintf(tmp, 4096-strlen(tmp), "%s%d", PROV_LONG_RELAY_NAME, i);
+    snprintf(tmp, PATH_MAX, "%s%d", PROV_LONG_RELAY_NAME, i);
     long_relay_file[i] = open(tmp, O_RDONLY | O_NONBLOCK);
     if(long_relay_file[i]<0){
       record_error("Could not open files (%d)\n", long_relay_file[i]);
@@ -180,13 +190,13 @@ static __thread int initialised=0;
 void relation_record(union prov_elt *msg){
   uint64_t type = prov_type(msg);
 
-  if( IS_USED(type) &&  prov_ops.log_used!=NULL)
+  if(prov_is_used(type) &&  prov_ops.log_used!=NULL)
     prov_ops.log_used(&(msg->relation_info));
-  else if( IS_INFORMED(type) && prov_ops.log_informed!=NULL)
+  else if(prov_is_informed(type) && prov_ops.log_informed!=NULL)
     prov_ops.log_informed(&(msg->relation_info));
-  else if( IS_GENERATED(type) && prov_ops.log_generated!=NULL)
+  else if(prov_is_generated(type) && prov_ops.log_generated!=NULL)
     prov_ops.log_generated(&(msg->relation_info));
-  else if(IS_DERIVED(type) && prov_ops.log_derived!=NULL)
+  else if(prov_is_derived(type) && prov_ops.log_derived!=NULL)
     prov_ops.log_derived(&(msg->relation_info));
   else
     record_error("Error: unknown relation type %llx\n", prov_type(msg));
@@ -256,8 +266,11 @@ static void callback_job(void* data, const size_t prov_size)
     prov_ops.init();
     initialised=1;
   }
+
   if(prov_ops.received_prov!=NULL)
     prov_ops.received_prov(msg);
+  if(prov_ops.is_query)
+    return;
   // dealing with filter
   if(prov_ops.filter==NULL)
     goto out;
@@ -328,8 +341,11 @@ static void long_callback_job(void* data, const size_t prov_size)
     prov_ops.init();
     initialised=1;
   }
+
   if(prov_ops.received_long_prov!=NULL)
     prov_ops.received_long_prov(msg);
+  if(prov_ops.is_query)
+    return;
   // dealing with filter
   if(prov_ops.filter==NULL)
     goto out;

@@ -75,8 +75,11 @@ declare_get_boolean_fcn(provenance_get_enable, PROV_ENABLE_FILE);
 declare_set_boolean_fcn(provenance_set_all, PROV_ALL_FILE);
 declare_get_boolean_fcn(provenance_get_all, PROV_ALL_FILE);
 
-declare_set_boolean_fcn(provenance_should_compress, PROV_COMPRESS_FILE);
-declare_get_boolean_fcn(provenance_does_compress, PROV_COMPRESS_FILE);
+declare_set_boolean_fcn(provenance_should_compress_node, PROV_COMPRESS_NODE_FILE);
+declare_get_boolean_fcn(provenance_does_compress_node, PROV_COMPRESS_NODE_FILE);
+
+declare_set_boolean_fcn(provenance_should_compress_edge, PROV_COMPRESS_EDGE_FILE);
+declare_get_boolean_fcn(provenance_does_compress_edge, PROV_COMPRESS_EDGE_FILE);
 
 #define declare_self_set_flag(fcn_name, element, operation) int fcn_name (bool v){ \
   struct prov_process_config cfg;\
@@ -228,8 +231,44 @@ int provenance_read_file(const char path[PATH_MAX], union prov_elt* inode_info){
   return getxattr(path, XATTR_NAME_PROVENANCE, inode_info, sizeof(union prov_elt));
 }
 
+int provenance_file_id(const char path[PATH_MAX], char* buff, size_t len){
+  int rc;
+  union prov_elt inode_info;
+  char id[PROV_ID_STR_LEN];
+
+  if(len < PROV_ID_STR_LEN)
+    return -ENOMEM;
+
+  rc = getxattr(path, XATTR_NAME_PROVENANCE, &inode_info, sizeof(union prov_elt));
+  if(rc < 0)
+    return rc;
+    rc = ID_ENCODE(prov_id_buffer(&inode_info), PROV_IDENTIFIER_BUFFER_LENGTH, id, PROV_ID_STR_LEN);
+    if (rc < 0)
+      return rc;
+    sprintf(buff, "cf:%s", id);
+    return 0;
+}
+
 int fprovenance_read_file(int fd, union prov_elt* inode_info){
   return fgetxattr(fd, XATTR_NAME_PROVENANCE, inode_info, sizeof(union prov_elt));
+}
+
+int fprovenance_file_id(int fd, char* buff, size_t len){
+  int rc;
+  union prov_elt inode_info;
+  char id[PROV_ID_STR_LEN];
+
+  if(len < PROV_ID_STR_LEN+3)
+    return -ENOMEM;
+
+  rc = fgetxattr(fd, XATTR_NAME_PROVENANCE, &inode_info, sizeof(union prov_elt));
+  if (rc < 0)
+    return rc;
+  rc = ID_ENCODE(prov_id_buffer(&inode_info), PROV_IDENTIFIER_BUFFER_LENGTH, id, PROV_ID_STR_LEN);
+  if (rc < 0)
+    return rc;
+  sprintf(buff, "cf:%s", id);
+  return 0;
 }
 
 static inline int __provenance_write_file(const char path[PATH_MAX], union prov_elt* inode_info){
@@ -665,6 +704,7 @@ uint64_t node_str_to_id(const char* name, uint32_t len){
 
 declare_set_secctx_fcn(provenance_secctx_track, PROV_SET_TRACKED);
 declare_set_secctx_fcn(provenance_secctx_propagate, PROV_SET_TRACKED|PROV_SET_PROPAGATE);
+declare_set_secctx_fcn(provenance_secctx_opaque, PROV_SET_OPAQUE);
 declare_set_secctx_fcn(provenance_secctx_delete, PROV_SET_DELETE);
 
 int provenance_secctx( struct secinfo* filters, size_t length ){
@@ -738,6 +778,7 @@ int provenance_policy_hash(uint8_t* buffer, size_t length){
 
 declare_set_user_fcn(provenance_user_track, PROV_SET_TRACKED);
 declare_set_user_fcn(provenance_user_propagate, PROV_SET_TRACKED|PROV_SET_PROPAGATE);
+declare_set_user_fcn(provenance_user_opaque, PROV_SET_OPAQUE);
 declare_set_user_fcn(provenance_user_delete, PROV_SET_DELETE);
 
 int provenance_user(struct userinfo* filters, size_t length ){
@@ -771,15 +812,46 @@ int provenance_user(struct userinfo* filters, size_t length ){
 
 declare_set_group_fcn(provenance_group_track, PROV_SET_TRACKED);
 declare_set_group_fcn(provenance_group_propagate, PROV_SET_TRACKED|PROV_SET_PROPAGATE);
+declare_set_group_fcn(provenance_group_opaque, PROV_SET_OPAQUE);
 declare_set_group_fcn(provenance_group_delete, PROV_SET_DELETE);
 
 int provenance_group(struct groupinfo* filters, size_t length ){
   int rc;
   int fd = open(PROV_GID_FILTER, O_RDONLY);
-  if( fd < 0 ){
+  if( fd < 0 )
     return fd;
-  }
   rc = read(fd, filters, length);
+  close(fd);
+  return rc;
+}
+
+int provenance_version(char* version, size_t len){
+  int rc;
+  int fd = open(PROV_VERSION, O_RDONLY);
+  if( fd < 0 )
+    return fd;
+  rc = read(fd, version, len);
+  close(fd);
+  return rc;
+}
+
+int provenance_lib_version(char* version, size_t len){
+  if(len < strlen(PROVLIB_VERSION_STR))
+    return -ENOMEM;
+  strncpy(version, PROVLIB_VERSION_STR, len);
+  return 0;
+}
+
+int provenance_create_channel(const char name[PATH_MAX]){
+  int rc;
+  char buffer[PATH_MAX];
+
+  if(strlen(name) > PATH_MAX)
+    return -ENOMEM;
+  int fd = open(PROV_CHANNEL, O_WRONLY);
+  if( fd < 0 )
+    return fd;
+  rc = write(fd, name, strlen(name)+1);
   close(fd);
   return rc;
 }

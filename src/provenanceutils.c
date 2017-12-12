@@ -125,7 +125,7 @@ int base64encode(const void* data_buf, size_t dataLength, char* result, size_t r
       }
    }
    if(resultIndex >= resultSize)
-    return 1;   /* indicate failure: buffer too small */
+    return -1;   /* indicate failure: buffer too small */
    result[resultIndex] = 0;
    return 0;   /* indicate success */
 }

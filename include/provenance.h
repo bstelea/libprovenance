@@ -19,6 +19,16 @@
 #include <sys/socket.h>
 #include <linux/provenance.h>
 
+#define xstr(s) str(s)
+#define str(s) # s
+
+#define PROVLIB_VERSION_MAJOR 0
+#define PROVLIB_VERSION_MINOR 3
+#define PROVLIB_VERSION_PATCH 9
+#define PROVLIB_VERSION_STR   "v"xstr(PROVLIB_VERSION_MAJOR)\
+    "."xstr(PROVLIB_VERSION_MINOR)\
+    "."xstr(PROVLIB_VERSION_PATCH)\
+
 struct provenance_ops{
   void (*init)(void);
   bool (*filter)(prov_entry_t* msg);
@@ -47,6 +57,8 @@ struct provenance_ops{
   void (*log_arg)(struct arg_struct*);
   /* callback for library errors */
   void (*log_error)(char*);
+  /* is it filter only? for query framework */
+  bool is_query;
 };
 
 void prov_record(union prov_elt* msg);
@@ -65,12 +77,12 @@ bool provenance_is_present(void);
 * start and register callback. Note that there is no concurrency guarantee made.
 * The application developper is expected to deal with concurrency issue.
 */
-int provenance_register(struct provenance_ops* ops);
+int provenance_relay_register(struct provenance_ops* ops, const char* name);
 
 /*
 * shutdown tightly the things that are running behind the scene.
 */
-void provenance_stop(void);
+void provenance_relay_stop(void);
 
 /* security file manipulation */
 
@@ -84,7 +96,7 @@ int provenance_set_enable(bool v);
 /*
 * return either or not the provenance capture is active.
 */
-bool provenance_get_enable( void );
+bool provenance_get_enable(void);
 
 /*
 * @v boolean value
@@ -97,18 +109,29 @@ int provenance_set_all(bool v);
 /*
 * return either or not provenance on all kernel object is active.
 */
-bool provenance_get_all( void );
+bool provenance_get_all(void);
 
 /*
 * @v boolean value
 * activate provenance node compression.
 */
-int provenance_should_compress(bool v);
+int provenance_should_compress_node(bool v);
 
 /*
-* return either or not provenance is compressed.
+* return either or not nodes are compressed.
 */
-bool provenance_does_compress( void );
+bool provenance_does_compress_node(void);
+
+/*
+* @v boolean value
+* activate provenance edge compression.
+*/
+int provenance_should_compress_edge(bool v);
+
+/*
+* return either or not edges are compressed.
+*/
+bool provenance_does_compress_edge(void);
 
 /*
 * @v boolean value
@@ -208,7 +231,13 @@ int provenance_flush(void);
 * @inode_info point to an inode_info structure
 * retrieve provenance information of the file associated with name.
 */
-int provenance_read_file(const char name[PATH_MAX], union prov_elt* inode_info);
+int provenance_read_file(const char path[PATH_MAX], union prov_elt* inode_info);
+
+int provenance_file_id(const char path[PATH_MAX], char* buff, size_t len);
+
+int fprovenance_read_file(int fd, union prov_elt* inode_info);
+
+int fprovenance_file_id(int fd, char* buff, size_t len);
 
 /*
 * @name file name
@@ -307,16 +336,19 @@ int provenance_secid_to_secctx( uint32_t secid, char* secctx, uint32_t len);
 
 int provenance_secctx_track(const char* secctx);
 int provenance_secctx_propagate(const char* secctx);
+int provenance_secctx_opaque(const char* secctx);
 int provenance_secctx_delete(const char* secctx);
 int provenance_secctx( struct secinfo* filters, size_t length );
 
 int provenance_user_track(const char* name);
 int provenance_user_propagate(const char* name);
+int provenance_user_opaque(const char* name);
 int provenance_user_delete(const char* name);
 int provenance_user(struct userinfo* filters, size_t length );
 
 int provenance_group_track(const char* name);
 int provenance_group_propagate(const char* name);
+int provenance_group_opaque(const char* name);
 int provenance_group_delete(const char* name);
 int provenance_group(struct groupinfo* filters, size_t length );
 
@@ -333,5 +365,11 @@ char* node_id_to_str(uint64_t id);
 
 uint64_t relation_str_to_id(const char* name, uint32_t len);
 uint64_t node_str_to_id(const char* name, uint32_t len);
+
+int provenance_version(char* version, size_t len);
+
+int provenance_lib_version(char* version, size_t len);
+
+int provenance_create_channel(const char name[PATH_MAX]);
 
 #endif /* __PROVENANCELIB_H */

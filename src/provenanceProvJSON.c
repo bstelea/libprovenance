@@ -502,6 +502,7 @@ static char* __relation_to_json(struct relation_struct* e, const char* snd, cons
   __add_reference(rcv, receiver, true);
   if(e->set==FILE_INFO_SET && e->offset>0)
     __add_int64_attribute("cf:offset", e->offset, true); // just offset for now
+  __add_uint64hex_attribute("cf:flags", e->flags, true);
   __close_json_entry(buffer);
   return buffer;
 }
@@ -546,6 +547,8 @@ char* task_to_json(struct task_prov_struct* n){
   __add_uint32_attribute("cf:gid", n->gid, true);
   __add_uint32_attribute("cf:pid", n->pid, true);
   __add_uint32_attribute("cf:vpid", n->vpid, true);
+  __add_uint32_attribute("cf:ppid", n->ppid, true);
+  __add_uint32_attribute("cf:tgid", n->tgid, true);
   __add_uint32_attribute("cf:utsns", n->utsns, true);
   __add_uint32_attribute("cf:ipcns", n->ipcns, true);
   __add_uint32_attribute("cf:mntns", n->mntns, true);
@@ -654,7 +657,6 @@ char* xattr_to_json(struct xattr_prov_struct* n){
   __add_string_attribute("cf:name", n->name, true);
   if(n->size>0){
     __add_uint32_attribute("cf:size", n->size, true);
-    __add_uint32hex_attribute("cf:flags", n->flags, true);
     // TODO record value when present
   }
   __add_label_attribute("xattr", n->name, true);
@@ -863,7 +865,11 @@ char* machine_description_json(char* buffer){
   strncat(buffer, "\"prov:label\":\"[machine] ", BUFFER_LENGTH);
   strncat(buffer, utoa(machine_id, tmp, DECIMAL), BUFFER_LENGTH);
   strncat(buffer, "\",\"cf:camflow\":\"", BUFFER_LENGTH);
-  strncat(buffer, CAMFLOW_VERSION_STR, BUFFER_LENGTH);
+  provenance_version(tmp, 64);
+  strncat(buffer, tmp, BUFFER_LENGTH);
+  strncat(buffer, "\",\"cf:libprovenance\":\"", BUFFER_LENGTH);
+  provenance_lib_version(tmp, 64);
+  strncat(buffer, tmp, BUFFER_LENGTH);
   strncat(buffer, "\",\"cf:sysname\":\"", BUFFER_LENGTH);
   strncat(buffer, machine_info.sysname, BUFFER_LENGTH);
   strncat(buffer, "\",\"cf:nodename\":\"", BUFFER_LENGTH);

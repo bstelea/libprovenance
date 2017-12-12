@@ -2,6 +2,7 @@
 
 | Library version | Date       |
 | --------------- | ---------- |
+| 0.3.9           | 12/12/2017 |
 | 0.3.8           | 28/09/2017 |
 | 0.3.7           | 28/08/2017 |
 | 0.3.6           | 27/08/2017 |
@@ -29,6 +30,18 @@
 | 0.1.2           | 26/05/2016 |
 | 0.1.1           | 03/04/2016 |
 | 0.1.0           | 28/03/2016 |
+
+### v0.3.9
+```
+- Export library version.
+- Expand compression handling.
+- Flags recorded for relations.
+- No more flags attribute on xattr.
+- Add provenance_secctx_opaque
+- Add support for opaque groups and users.
+- Support mutliple relay channel.
+- Provide API to read CamFlow version from kernel.
+```
 
 ### v0.3.8
 ```
