@@ -43,4 +43,4 @@ travis_update_files: travis_checkout_dev
 travis: travis_update_files prepare all install
 
 publish:
-	cd ./output && package_cloud push camflow/provenance/fedora/26 libprovenance-$(version)-1.x86_64.rpm
+	cd ./output && package_cloud push camflow/provenance/fedora/27 libprovenance-$(version)-1.x86_64.rpm
