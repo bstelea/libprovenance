@@ -27,6 +27,7 @@
 #include <pthread.h>
 #include <time.h>
 #include <math.h>
+#include <fcntl.h>
 #include <linux/camflow.h>
 #include <sys/utsname.h>
 #include <linux/provenance_types.h>
@@ -846,13 +847,22 @@ char* arg_to_json(struct arg_struct* n){
   return buffer;
 }
 
+#define LSM_LIST "/sys/kernel/security/lsm"
+
 char* machine_description_json(char* buffer){
   char tmp[64];
   uint32_t machine_id;
   struct utsname machine_info;
+  int lsm_fd;
+  char lsm_list[2048];
+
+  memset(lsm_list, 0, 2048);
 
   provenance_get_machine_id(&machine_id);
   uname(&machine_info);
+
+  lsm_fd = open(LSM_LIST, O_RDONLY);
+  read(lsm_fd, lsm_list, 2048);
 
   buffer[0]='\0';
   strncat(buffer, "{\"prefix\":{", BUFFER_LENGTH);
@@ -880,6 +890,8 @@ char* machine_description_json(char* buffer){
   strncat(buffer, machine_info.version, BUFFER_LENGTH);
   strncat(buffer, "\",\"cf:machine\":\"", BUFFER_LENGTH);
   strncat(buffer, machine_info.machine, BUFFER_LENGTH);
+  strncat(buffer, "\",\"cf:lsm_list\":\"", BUFFER_LENGTH);
+  strncat(buffer, lsm_list, BUFFER_LENGTH);
   strncat(buffer, "\", \"cf:date", BUFFER_LENGTH);
   strncat(buffer, "\":\"", BUFFER_LENGTH);
   update_time();
