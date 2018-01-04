@@ -34,6 +34,7 @@
 
 ### v0.3.10
 ```
+- Modify how IPV4 address serialisation is handled.
 - Record list of loaded LSM.
 ```
 
