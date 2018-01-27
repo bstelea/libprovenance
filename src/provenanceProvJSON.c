@@ -1,8 +1,8 @@
 /*
 *
-* Author: Thomas Pasquier <tfjmp@seas.harvard.edu>
+* Author: Thomas Pasquier <tfjmp2@cl.cam.ac.uk>
 *
-* Copyright (C) 2016 Harvard University
+* Copyright (C) 2015-2018 University of Cambridge, Harvard University
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License version 2, as
@@ -27,6 +27,7 @@
 #include <pthread.h>
 #include <time.h>
 #include <math.h>
+#include <fcntl.h>
 #include <linux/camflow.h>
 #include <sys/utsname.h>
 #include <linux/provenance_types.h>
@@ -437,20 +438,20 @@ static inline void __add_label_attribute(const char* type, const char* text, boo
   strncat(buffer, "\"", BUFFER_LENGTH);
 }
 
-static inline char* __format_ipv4(char* buffer, size_t s, uint32_t ip, uint32_t port){
+
+
+static inline void __add_ipv4(uint32_t ip, uint32_t port){
     char tmp[8];
-    buffer[0]='\0';
-    strncat(buffer, uint32_to_ipv4str(ip), s-strlen(buffer));
-    strncat(buffer, ":", s-strlen(buffer));
-    strncat(buffer, utoa(htons(port), tmp, DECIMAL), s-strlen(buffer));
-    return buffer;
+    strncat(buffer, uint32_to_ipv4str(ip), BUFFER_LENGTH);
+    strncat(buffer, ":", BUFFER_LENGTH);
+    strncat(buffer, utoa(htons(port), tmp, DECIMAL), BUFFER_LENGTH);
 }
 
 static inline void __add_ipv4_attribute(const char* name, const uint32_t ip, const uint32_t port, bool comma){
   char tmp[64];
   __add_attribute(name, comma);
   strncat(buffer, "\"", BUFFER_LENGTH);
-  strncat(buffer, __format_ipv4(tmp, 64, ip, port), BUFFER_LENGTH);
+  __add_ipv4(ip, port);
   strncat(buffer, "\"", BUFFER_LENGTH);
 }
 
@@ -723,9 +724,9 @@ char* packet_to_json(struct pck_struct* p){
   __add_string_attribute("cf:taint", taint, true);
   __add_uint64_attribute("cf:jiffies", p->jiffies, true);
   strncat(buffer, ",\"prov:label\":\"[packet] ", BUFFER_LENGTH);
-  strncat(buffer, __format_ipv4(tmp, 256, p->identifier.packet_id.snd_ip, p->identifier.packet_id.snd_port), BUFFER_LENGTH);
+  __add_ipv4(p->identifier.packet_id.snd_ip, p->identifier.packet_id.snd_port);
   strncat(buffer, "->", BUFFER_LENGTH);
-  strncat(buffer, __format_ipv4(tmp, 256, p->identifier.packet_id.rcv_ip, p->identifier.packet_id.rcv_port), BUFFER_LENGTH);
+  __add_ipv4(p->identifier.packet_id.rcv_ip, p->identifier.packet_id.rcv_port);
   strncat(buffer, " (", BUFFER_LENGTH);
   strncat(buffer, utoa(p->identifier.packet_id.id, tmp, DECIMAL), BUFFER_LENGTH);
   strncat(buffer, ")\"", BUFFER_LENGTH);
@@ -846,13 +847,22 @@ char* arg_to_json(struct arg_struct* n){
   return buffer;
 }
 
+#define LSM_LIST "/sys/kernel/security/lsm"
+
 char* machine_description_json(char* buffer){
   char tmp[64];
   uint32_t machine_id;
   struct utsname machine_info;
+  int lsm_fd;
+  char lsm_list[2048];
+
+  memset(lsm_list, 0, 2048);
 
   provenance_get_machine_id(&machine_id);
   uname(&machine_info);
+
+  lsm_fd = open(LSM_LIST, O_RDONLY);
+  read(lsm_fd, lsm_list, 2048);
 
   buffer[0]='\0';
   strncat(buffer, "{\"prefix\":{", BUFFER_LENGTH);
@@ -880,6 +890,8 @@ char* machine_description_json(char* buffer){
   strncat(buffer, machine_info.version, BUFFER_LENGTH);
   strncat(buffer, "\",\"cf:machine\":\"", BUFFER_LENGTH);
   strncat(buffer, machine_info.machine, BUFFER_LENGTH);
+  strncat(buffer, "\",\"cf:lsm_list\":\"", BUFFER_LENGTH);
+  strncat(buffer, lsm_list, BUFFER_LENGTH);
   strncat(buffer, "\", \"cf:date", BUFFER_LENGTH);
   strncat(buffer, "\":\"", BUFFER_LENGTH);
   update_time();

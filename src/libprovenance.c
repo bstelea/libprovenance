@@ -1,8 +1,8 @@
 /*
 *
-* Author: Thomas Pasquier <tfjmp2@cam.ac.uk>
+* Author: Thomas Pasquier <tfjmp2@cl.cam.ac.uk>
 *
-* Copyright (C) 2015 University of Cambridge
+* Copyright (C) 2015-2018 University of Cambridge, Harvard University
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License version 2, as

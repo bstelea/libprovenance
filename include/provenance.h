@@ -1,8 +1,8 @@
 /*
 *
-* Author: Thomas Pasquier <tfjmp2@cam.ac.uk>
+* Author: Thomas Pasquier <tfjmp2@cl.cam.ac.uk>
 *
-* Copyright (C) 2015 University of Cambridge
+* Copyright (C) 2015-2018 University of Cambridge, Harvard University
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License version 2, as
@@ -24,7 +24,7 @@
 
 #define PROVLIB_VERSION_MAJOR 0
 #define PROVLIB_VERSION_MINOR 3
-#define PROVLIB_VERSION_PATCH 9
+#define PROVLIB_VERSION_PATCH 10
 #define PROVLIB_VERSION_STR   "v"xstr(PROVLIB_VERSION_MAJOR)\
     "."xstr(PROVLIB_VERSION_MINOR)\
     "."xstr(PROVLIB_VERSION_PATCH)\
