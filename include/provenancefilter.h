@@ -1,6 +1,6 @@
 /*
 *
-* Author: Thomas Pasquier <tfjmp@seas.harvard.edu>
+* Author: Thomas Pasquier <tfjmp2@cl.cam.ac.uk>
 *
 * Copyright (C) 2015-2018 University of Cambridge, Harvard University
 *
@@ -9,7 +9,6 @@
 * published by the Free Software Foundation.
 *
 */
-
 #ifndef __PROVENANCEFILTER_H
 #define __PROVENANCEFILTER_H
 
