@@ -515,9 +515,10 @@ declare_set_ipv4_fcn(provenance_egress_ipv4_delete, PROV_IPV4_EGRESS_FILE, PROV_
 declare_get_ipv4_fcn(provenance_ingress_ipv4, PROV_IPV4_INGRESS_FILE);
 declare_get_ipv4_fcn(provenance_egress_ipv4, PROV_IPV4_EGRESS_FILE);
 
+#define NAME_BUFFER 400
 struct secentry {
     int id;            /* we'll use this field as the key */
-    char name[200];
+    char name[NAME_BUFFER];
     UT_hash_handle hh; /* makes this structure hashable */
 };
 
@@ -537,7 +538,7 @@ static void sec_add_entry(uint32_t secid, const char* secctx){
     return;
   se = malloc(sizeof(struct secentry));
   se->id=secid;
-  strncpy(se->name, secctx, 200);
+  strncpy(se->name, secctx, NAME_BUFFER);
   HASH_ADD_INT(hash, id, se);
 }
 
@@ -546,13 +547,13 @@ bool sec_find_entry(uint32_t secid, char* secctx) {
   HASH_FIND_INT(hash, &secid, se);
   if(!se)
     return false;
-  strncpy(secctx, se->name, 200);
+  strncpy(secctx, se->name, NAME_BUFFER);
   return true;
 }
 
 int provenance_secid_to_secctx( uint32_t secid, char* secctx, uint32_t len){
   struct secinfo info;
-  int rc;
+  int rc = 0;
   int fd;
 
   if( sec_find_entry(secid, secctx) )
