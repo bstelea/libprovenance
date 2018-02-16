@@ -537,7 +537,7 @@ char* disc_to_json(struct disc_node_struct* n){
   return buffer;
 }
 
-char* task_to_json(struct task_prov_struct* n){
+char* proc_to_json(struct proc_prov_struct* n){
   char tmp[33];
   char secctx[PATH_MAX];
   provenance_secid_to_secctx(n->secid, secctx, PATH_MAX);
@@ -546,9 +546,6 @@ char* task_to_json(struct task_prov_struct* n){
   __node_start(id, &(n->identifier.node_id), taint, n->jiffies);
   __add_uint32_attribute("cf:uid", n->uid, true);
   __add_uint32_attribute("cf:gid", n->gid, true);
-  __add_uint32_attribute("cf:pid", n->pid, true);
-  __add_uint32_attribute("cf:vpid", n->vpid, true);
-  __add_uint32_attribute("cf:ppid", n->ppid, true);
   __add_uint32_attribute("cf:tgid", n->tgid, true);
   __add_uint32_attribute("cf:utsns", n->utsns, true);
   __add_uint32_attribute("cf:ipcns", n->ipcns, true);
@@ -566,6 +563,20 @@ char* task_to_json(struct task_prov_struct* n){
   __add_uint64_attribute("cf:rbytes", n->rbytes, true);
   __add_uint64_attribute("cf:wbytes", n->wbytes, true);
   __add_uint64_attribute("cf:cancel_wbytes", n->cancel_wbytes, true);
+  __add_label_attribute("process", utoa(n->identifier.node_id.version, tmp, DECIMAL), true);
+  __close_json_entry(buffer);
+  return buffer;
+}
+
+char* task_to_json(struct task_prov_struct* n){
+  char tmp[33];
+  char secctx[PATH_MAX];
+  provenance_secid_to_secctx(n->secid, secctx, PATH_MAX);
+  NODE_PREP_IDs(n);
+  prov_prep_taint((union prov_elt*)n);
+  __node_start(id, &(n->identifier.node_id), taint, n->jiffies);
+  __add_uint32_attribute("cf:pid", n->pid, true);
+  __add_uint32_attribute("cf:vpid", n->vpid, true);
   __add_label_attribute("task", utoa(n->identifier.node_id.version, tmp, DECIMAL), true);
   __close_json_entry(buffer);
   return buffer;
