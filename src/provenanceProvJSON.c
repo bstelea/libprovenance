@@ -28,7 +28,6 @@
 #include <time.h>
 #include <math.h>
 #include <fcntl.h>
-#include <linux/camflow.h>
 #include <sys/utsname.h>
 #include <linux/provenance_types.h>
 
