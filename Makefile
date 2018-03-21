@@ -38,6 +38,7 @@ travis_update_files: travis_checkout_dev
 	sed -i -e 's/#include <linux\/xattr.h>/#include "..\/camflow-dev\/include\/uapi\/linux\/xattr.h"/g' ./src/libprovenance.c
 	sed -i -e 's/#include <linux\/provenance_types.h>/#include "..\/camflow-dev\/include\/uapi\/linux\/provenance_types.h"/g' ./src/libprovenance.c
 	sed -i -e 's/#include <linux\/provenance_types.h>/#include "..\/camflow-dev\/include\/uapi\/linux\/provenance_types.h"/g' ./src/provenanceProvJSON.c
+	sed -i -e 's/#include <linux\/provenance_types.h>/#include "..\/camflow-dev\/include\/uapi\/linux\/provenance_types.h"/g' ./src/provenanceProvSPADE.c
 	sed -i -e 's/#include <linux\/provenance_types.h>/#include "..\/camflow-dev\/include\/uapi\/linux\/provenance_types.h"/g' ./src/provenancefilter.c
 	sed -i -e 's/#include <linux\/provenance_types.h>/#include "..\/camflow-dev\/include\/uapi\/linux\/provenance_types.h"/g' ./src/relay.c
 
