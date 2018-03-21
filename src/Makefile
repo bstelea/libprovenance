@@ -1,4 +1,4 @@
-SRC = libprovenance.c provenanceProvJSON.c provenanceutils.c provenancefilter.c relay.c
+SRC = libprovenance.c provenanceProvJSON.c provenanceSPADEJSON.c provenanceutils.c provenancefilter.c relay.c
 OBJ = $(SRC:.c=.o)
 OUT = libprovenance.so
 INCLUDES = -I../threadpool -I../include -I../uthash/uthash/src
