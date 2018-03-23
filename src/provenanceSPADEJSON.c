@@ -39,6 +39,8 @@
 #define MAX_SPADEJSON_BUFFER_LENGTH  ((1 << MAX_SPADEJSON_BUFFER_EXP)*sizeof(uint8_t))
 
 static __thread char buffer[MAX_SPADEJSON_BUFFER_LENGTH];
+#define BUFFER_LENGTH (MAX_SPADEJSON_BUFFER_LENGTH-strnlen(buffer, MAX_SPADEJSON_BUFFER_LENGTH))
+static __thread char id[PROV_ID_STR_LEN];
 
 char* relation_to_spade_json(struct relation_struct* e) {
   return buffer;
@@ -60,62 +62,112 @@ char* derived_to_spade_json(struct relation_struct* e) {
   return buffer;
 }
 
+void init_node(char* type, char* id){
+  buffer[0]='\0';
+  strncat(buffer, "{\n\"type\": \"", BUFFER_LENGTH);
+  strncat(buffer, type, BUFFER_LENGTH);
+  strncat(buffer, "\",\n", BUFFER_LENGTH);
+  strncat(buffer, "\"id\": \"", BUFFER_LENGTH);
+  strncat(buffer, id, BUFFER_LENGTH);
+  strncat(buffer, "\",\n", BUFFER_LENGTH);
+  strncat(buffer, "\"annotations\": {\n", BUFFER_LENGTH);
+}
+
+void close_node( void ){
+  buffer[0]='\0';
+  strncat(buffer, "}\n}\n", BUFFER_LENGTH);
+}
+
+#define NODE_START(type) ID_ENCODE(n->identifier.buffer, PROV_IDENTIFIER_BUFFER_LENGTH, id, PROV_ID_STR_LEN);\
+                    init_node(type, id)
+
+#define NODE_END() close_node();
+
 char* disc_to_spade_json(struct disc_node_struct* n) {
+  buffer['0'];
   return buffer;
 }
 
 char* proc_to_spade_json(struct proc_prov_struct* n) {
+  NODE_START("Entity");
+  NODE_END();
   return buffer;
 }
 
 char* task_to_spade_json(struct task_prov_struct* n) {
+  NODE_START("Activity");
+  NODE_END();
   return buffer;
 }
 
 char* inode_to_spade_json(struct inode_prov_struct* n) {
+  NODE_START("Entity");
+  NODE_END();
   return buffer;
 }
 
 char* sb_to_spade_json(struct sb_struct* n) {
+  NODE_START("Entity");
+  NODE_END();
   return buffer;
 }
 
 char* msg_to_spade_json(struct msg_msg_struct* n) {
+  NODE_START("Entity");
+  NODE_END();
   return buffer;
 }
 
 char* shm_to_spade_json(struct shm_struct* n) {
+  NODE_START("Entity");
+  NODE_END();
   return buffer;
 }
 
 char* packet_to_spade_json(struct pck_struct* n) {
+  NODE_START("Entity");
+  NODE_END();
   return buffer;
 }
 
 char* str_msg_to_spade_json(struct str_struct* n) {
-
+  NODE_START("Entity");
+  NODE_END();
+  return buffer;
 }
 
 char* addr_to_spade_json(struct address_struct* n) {
+  NODE_START("Entity");
+  NODE_END();
   return buffer;
 }
 
 char* pathname_to_spade_json(struct file_name_struct* n) {
+  NODE_START("Entity");
+  NODE_END();
   return buffer;
 }
 
 char* iattr_to_spade_json(struct iattr_prov_struct* n) {
+  NODE_START("Entity");
+  NODE_END();
   return buffer;
 }
 
 char* xattr_to_spade_json(struct xattr_prov_struct* n) {
+  NODE_START("Entity");
+  NODE_END();
   return buffer;
 }
 
 char* pckcnt_to_spade_json(struct pckcnt_struct* n) {
+  NODE_START("Entity");
+  NODE_END();
   return buffer;
 }
 
 char* arg_to_spade_json(struct arg_struct* n) {
+  NODE_START("Entity");
+  NODE_END();
   return buffer;
 }
