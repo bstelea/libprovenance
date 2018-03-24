@@ -46,7 +46,7 @@ static __thread char to[PROV_ID_STR_LEN];
 
 static inline void __init_node(char* type, char* id){
   buffer[0]='\0';
-  strncat(buffer, "{\n\"type\": \"", BUFFER_LENGTH);
+  strncat(buffer, "\n{\n\"type\": \"", BUFFER_LENGTH);
   strncat(buffer, type, BUFFER_LENGTH);
   strncat(buffer, "\",\n", BUFFER_LENGTH);
   strncat(buffer, "\"id\": \"", BUFFER_LENGTH);
@@ -56,8 +56,7 @@ static inline void __init_node(char* type, char* id){
 }
 
 static inline void __close_node( void ){
-  buffer[0]='\0';
-  strncat(buffer, "}\n}\n", BUFFER_LENGTH);
+  strncat(buffer, "}\n},", BUFFER_LENGTH);
 }
 
 static inline void __init_relation(char* type,
@@ -66,19 +65,19 @@ static inline void __init_relation(char* type,
                     char* id
                   ) {
   buffer[0]='\0';
-  strncat(buffer, "{\n\"type\": \"", BUFFER_LENGTH);
+  strncat(buffer, "\n{\n\"type\": \"", BUFFER_LENGTH);
   strncat(buffer, type, BUFFER_LENGTH);
   strncat(buffer, "\",\n", BUFFER_LENGTH);
   strncat(buffer, "\"from\": \"", BUFFER_LENGTH);
-  strncat(buffer, id, BUFFER_LENGTH);
+  strncat(buffer, from, BUFFER_LENGTH);
   strncat(buffer, "\",\n", BUFFER_LENGTH);
   strncat(buffer, "\"to\": \"", BUFFER_LENGTH);
-  strncat(buffer, id, BUFFER_LENGTH);
+  strncat(buffer, to, BUFFER_LENGTH);
   strncat(buffer, "\",\n", BUFFER_LENGTH);
   strncat(buffer, "\"annotations\": {\n", BUFFER_LENGTH);
   strncat(buffer, "\"id\": \"", BUFFER_LENGTH);
   strncat(buffer, id, BUFFER_LENGTH);
-  strncat(buffer, "\",\n", BUFFER_LENGTH);
+  strncat(buffer, "\"\n", BUFFER_LENGTH);
 }
 
 #define NODE_START(type) ID_ENCODE(n->identifier.buffer, PROV_IDENTIFIER_BUFFER_LENGTH, id, PROV_ID_STR_LEN);\

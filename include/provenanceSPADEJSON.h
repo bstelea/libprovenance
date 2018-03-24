@@ -13,7 +13,6 @@
 #define __PROVENANCESPADEJSON_H
 
 /* struct to spade functions */
-/* TODO provide clean implementation? right now probably highly inneficient */
 char* used_to_spade_json(struct relation_struct* e);
 char* generated_to_spade_json(struct relation_struct* e);
 char* informed_to_spade_json(struct relation_struct* e);
