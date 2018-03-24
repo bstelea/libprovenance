@@ -41,28 +41,10 @@
 static __thread char buffer[MAX_SPADEJSON_BUFFER_LENGTH];
 #define BUFFER_LENGTH (MAX_SPADEJSON_BUFFER_LENGTH-strnlen(buffer, MAX_SPADEJSON_BUFFER_LENGTH))
 static __thread char id[PROV_ID_STR_LEN];
+static __thread char from[PROV_ID_STR_LEN];
+static __thread char to[PROV_ID_STR_LEN];
 
-char* relation_to_spade_json(struct relation_struct* e) {
-  return buffer;
-}
-
-char* used_to_spade_json(struct relation_struct* e) {
-  return buffer;
-}
-
-char* generated_to_spade_json(struct relation_struct* e) {
-  return buffer;
-}
-
-char* informed_to_spade_json(struct relation_struct* e) {
-  return buffer;
-}
-
-char* derived_to_spade_json(struct relation_struct* e) {
-  return buffer;
-}
-
-void init_node(char* type, char* id){
+static inline void __init_node(char* type, char* id){
   buffer[0]='\0';
   strncat(buffer, "{\n\"type\": \"", BUFFER_LENGTH);
   strncat(buffer, type, BUFFER_LENGTH);
@@ -73,15 +55,71 @@ void init_node(char* type, char* id){
   strncat(buffer, "\"annotations\": {\n", BUFFER_LENGTH);
 }
 
-void close_node( void ){
+static inline void __close_node( void ){
   buffer[0]='\0';
   strncat(buffer, "}\n}\n", BUFFER_LENGTH);
 }
 
-#define NODE_START(type) ID_ENCODE(n->identifier.buffer, PROV_IDENTIFIER_BUFFER_LENGTH, id, PROV_ID_STR_LEN);\
-                    init_node(type, id)
+static inline void __init_relation(char* type,
+                    char* from,
+                    char* to,
+                    char* id
+                  ) {
+  buffer[0]='\0';
+  strncat(buffer, "{\n\"type\": \"", BUFFER_LENGTH);
+  strncat(buffer, type, BUFFER_LENGTH);
+  strncat(buffer, "\",\n", BUFFER_LENGTH);
+  strncat(buffer, "\"from\": \"", BUFFER_LENGTH);
+  strncat(buffer, id, BUFFER_LENGTH);
+  strncat(buffer, "\",\n", BUFFER_LENGTH);
+  strncat(buffer, "\"to\": \"", BUFFER_LENGTH);
+  strncat(buffer, id, BUFFER_LENGTH);
+  strncat(buffer, "\",\n", BUFFER_LENGTH);
+  strncat(buffer, "\"annotations\": {\n", BUFFER_LENGTH);
+  strncat(buffer, "\"id\": \"", BUFFER_LENGTH);
+  strncat(buffer, id, BUFFER_LENGTH);
+  strncat(buffer, "\",\n", BUFFER_LENGTH);
+}
 
-#define NODE_END() close_node();
+#define NODE_START(type) ID_ENCODE(n->identifier.buffer, PROV_IDENTIFIER_BUFFER_LENGTH, id, PROV_ID_STR_LEN);\
+                    __init_node(type, id)
+
+#define NODE_END() __close_node()
+
+#define RELATION_START(type)  ID_ENCODE(e->identifier.buffer, PROV_IDENTIFIER_BUFFER_LENGTH, id, PROV_ID_STR_LEN);\
+                        ID_ENCODE(e->snd.buffer, PROV_IDENTIFIER_BUFFER_LENGTH, from, PROV_ID_STR_LEN);\
+                        ID_ENCODE(e->rcv.buffer, PROV_IDENTIFIER_BUFFER_LENGTH, to, PROV_ID_STR_LEN);\
+                        __init_relation(type, from, to, id)
+
+#define RELATION_END() __close_node()
+
+static inline char* __relation_to_spade_json(struct relation_struct* e) {
+  return buffer;
+}
+
+char* used_to_spade_json(struct relation_struct* e) {
+  RELATION_START("Used");
+  RELATION_END();
+  return buffer;
+}
+
+char* generated_to_spade_json(struct relation_struct* e) {
+  RELATION_START("WasGeneratedBy");
+  RELATION_END();
+  return buffer;
+}
+
+char* informed_to_spade_json(struct relation_struct* e) {
+  RELATION_START("WasInformedBy");
+  RELATION_END();
+  return buffer;
+}
+
+char* derived_to_spade_json(struct relation_struct* e) {
+  RELATION_START("WasDerivedFrom");
+  RELATION_END();
+  return buffer;
+}
 
 char* disc_to_spade_json(struct disc_node_struct* n) {
   buffer['0'];

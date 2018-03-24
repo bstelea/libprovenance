@@ -14,7 +14,6 @@
 
 /* struct to spade functions */
 /* TODO provide clean implementation? right now probably highly inneficient */
-char* relation_to_spade_json(struct relation_struct* e);
 char* used_to_spade_json(struct relation_struct* e);
 char* generated_to_spade_json(struct relation_struct* e);
 char* informed_to_spade_json(struct relation_struct* e);
