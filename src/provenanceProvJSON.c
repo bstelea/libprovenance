@@ -35,23 +35,8 @@
 #include "provenanceProvJSON.h"
 #include "provenanceutils.h"
 
-#define MAX_PROVJSON_BUFFER_EXP     13
-#define MAX_PROVJSON_BUFFER_LENGTH  ((1 << MAX_PROVJSON_BUFFER_EXP)*sizeof(uint8_t))
+#include "provenanceJSONcommon.h"
 
-static char date[256];
-pthread_rwlock_t  date_lock = PTHREAD_RWLOCK_INITIALIZER;
-
-// ideally should be derived from jiffies
-static void update_time( void ){
-  struct tm tm;
-  struct timeval tv;
-
-  pthread_rwlock_wrlock(&date_lock);
-  gettimeofday(&tv, NULL);
-  gmtime_r(&tv.tv_sec, &tm);
-  strftime(date, 30,"%Y:%m:%dT%H:%M:%S", &tm);
-  pthread_rwlock_unlock(&date_lock);
-}
 const static char prefix[] = "\"prov\" : \"http://www.w3.org/ns/prov\", \"cf\":\"http://www.camflow.org\"";
 const char* prefix_json(){
   return prefix;
@@ -77,8 +62,8 @@ static char* derived;
 static char* message;
 
 static inline void init_buffer(char **buffer){
-  *buffer = (char*)malloc(MAX_PROVJSON_BUFFER_LENGTH);
-  memset(*buffer, 0, MAX_PROVJSON_BUFFER_LENGTH);
+  *buffer = (char*)malloc(MAX_JSON_BUFFER_LENGTH);
+  memset(*buffer, 0, MAX_JSON_BUFFER_LENGTH);
 }
 
 void init_buffers(void){
@@ -124,14 +109,14 @@ void set_ProvJSON_callback( void (*fcn)(char* json) ){
   print_json = fcn;
 }
 
-static inline bool __append(char destination[MAX_PROVJSON_BUFFER_LENGTH], char* source){
-  if (strlen(source) + 2 > MAX_PROVJSON_BUFFER_LENGTH - strlen(destination) - 1){ // not enough space
+static inline bool __append(char destination[MAX_JSON_BUFFER_LENGTH], char* source){
+  if (strlen(source) + 2 > MAX_JSON_BUFFER_LENGTH - strlen(destination) - 1){ // not enough space
     return false;
   }
   // add the comma
   if(destination[0]!='\0')
-    strncat(destination, ",", MAX_PROVJSON_BUFFER_LENGTH - strlen(destination) - 1);
-  strncat(destination, source, MAX_PROVJSON_BUFFER_LENGTH - strlen(destination) - 1); // copy up to free space
+    strncat(destination, ",", MAX_JSON_BUFFER_LENGTH - strlen(destination) - 1);
+  strncat(destination, source, MAX_JSON_BUFFER_LENGTH - strlen(destination) - 1); // copy up to free space
   return true;
 }
 
@@ -175,9 +160,9 @@ static inline bool cat_prov(char *json,
                             pthread_mutex_t *lock){
   bool rc = false;
   if(!str_is_empty(data)){
-    strncat(json, prefix, MAX_PROVJSON_BUFFER_LENGTH);
-    strncat(json, data, MAX_PROVJSON_BUFFER_LENGTH);
-    memset(data, 0, MAX_PROVJSON_BUFFER_LENGTH);
+    strncat(json, prefix, MAX_JSON_BUFFER_LENGTH);
+    strncat(json, data, MAX_JSON_BUFFER_LENGTH);
+    memset(data, 0, MAX_JSON_BUFFER_LENGTH);
     rc = true;
   }
   pthread_mutex_unlock(lock);
@@ -246,7 +231,7 @@ void flush_json(){
   }
 }
 
-static inline void json_append(pthread_mutex_t* l, char destination[MAX_PROVJSON_BUFFER_LENGTH], char* source){
+static inline void json_append(pthread_mutex_t* l, char destination[MAX_JSON_BUFFER_LENGTH], char* source){
   pthread_mutex_lock(l);
   // we cannot append buffer is full, need to print json out
   if(!__append(destination, source)){
@@ -290,8 +275,7 @@ void append_derived(char* json_element){
   json_append(&l_derived, derived, json_element);
 }
 
-static __thread char buffer[MAX_PROVJSON_BUFFER_LENGTH];
-#define BUFFER_LENGTH (MAX_PROVJSON_BUFFER_LENGTH-strnlen(buffer, MAX_PROVJSON_BUFFER_LENGTH))
+#define BUFFER_LENGTH (MAX_JSON_BUFFER_LENGTH-strnlen(buffer, MAX_JSON_BUFFER_LENGTH))
 
 static __thread char id[PROV_ID_STR_LEN];
 static __thread char sender[PROV_ID_STR_LEN];
@@ -325,71 +309,6 @@ static inline void __init_json_entry(const char* id)
   strncat(buffer, "\":{", BUFFER_LENGTH);
 }
 
-static inline void __add_attribute(const char* name, bool comma){
-  if(comma){
-    strncat(buffer, ",\"", BUFFER_LENGTH);
-  }else{
-    strncat(buffer, "\"", BUFFER_LENGTH);
-  }
-  strncat(buffer, name, BUFFER_LENGTH);
-  strncat(buffer, "\":", BUFFER_LENGTH);
-}
-
-static inline void __add_uint32_attribute(const char* name, const uint32_t value, bool comma){
-  char tmp[32];
-  __add_attribute(name, comma);
-  strncat(buffer, utoa(value, tmp, DECIMAL), BUFFER_LENGTH);
-}
-
-
-static inline void __add_int32_attribute(const char* name, const int32_t value, bool comma){
-  char tmp[32];
-  __add_attribute(name, comma);
-  strncat(buffer, itoa(value, tmp, DECIMAL), BUFFER_LENGTH);
-}
-
-static inline void __add_uint32hex_attribute(const char* name, const uint32_t value, bool comma){
-  char tmp[32];
-  __add_attribute(name, comma);
-  strncat(buffer, "\"0x", BUFFER_LENGTH);
-  strncat(buffer, utoa(value, tmp, HEX), BUFFER_LENGTH);
-  strncat(buffer, "\"", BUFFER_LENGTH);
-}
-
-static inline void __add_uint64_attribute(const char* name, const uint64_t value, bool comma){
-  char tmp[64];
-  __add_attribute(name, comma);
-  strncat(buffer, "\"", BUFFER_LENGTH);
-  strncat(buffer, ulltoa(value, tmp, DECIMAL), BUFFER_LENGTH);
-  strncat(buffer, "\"", BUFFER_LENGTH);
-}
-
-static inline void __add_uint64hex_attribute(const char* name, const uint64_t value, bool comma){
-  char tmp[64];
-  __add_attribute(name, comma);
-  strncat(buffer, "\"", BUFFER_LENGTH);
-  strncat(buffer, ulltoa(value, tmp, HEX), BUFFER_LENGTH);
-  strncat(buffer, "\"", BUFFER_LENGTH);
-}
-
-static inline void __add_int64_attribute(const char* name, const int64_t value, bool comma){
-  char tmp[64];
-  __add_attribute(name, comma);
-  strncat(buffer, "\"", BUFFER_LENGTH);
-  strncat(buffer, lltoa(value, tmp, DECIMAL), BUFFER_LENGTH);
-  strncat(buffer, "\"", BUFFER_LENGTH);
-}
-
-static inline void __add_string_attribute(const char* name, const char* value, bool comma){
-  if(value[0]=='\0'){ // value is not set
-    return;
-  }
-  __add_attribute(name, comma);
-  strncat(buffer, "\"", BUFFER_LENGTH);
-  strncat(buffer, value, BUFFER_LENGTH);
-  strncat(buffer, "\"", BUFFER_LENGTH);
-}
-
 static inline void __add_machine_id(uint32_t value, bool comma){
   char tmp[32];
   __add_attribute("cf:machine_id", comma);
@@ -414,15 +333,6 @@ static inline void __add_json_attribute(const char* name, const char* value, boo
   strncat(buffer, value, BUFFER_LENGTH);
 }
 
-static inline void __add_date_attribute(bool comma){
-  __add_attribute("cf:date", comma);
-  strncat(buffer, "\"", BUFFER_LENGTH);
-  pthread_rwlock_rdlock(&date_lock);
-  strncat(buffer, date, BUFFER_LENGTH);
-  pthread_rwlock_unlock(&date_lock);
-  strncat(buffer, "\"", BUFFER_LENGTH);
-}
-
 static inline void __add_label_attribute(const char* type, const char* text, bool comma){
   __add_attribute("prov:label", comma);
   if(type!=NULL){
@@ -434,23 +344,6 @@ static inline void __add_label_attribute(const char* type, const char* text, boo
   }
   if(text!=NULL)
     strncat(buffer, text, BUFFER_LENGTH);
-  strncat(buffer, "\"", BUFFER_LENGTH);
-}
-
-
-
-static inline void __add_ipv4(uint32_t ip, uint32_t port){
-    char tmp[8];
-    strncat(buffer, uint32_to_ipv4str(ip), BUFFER_LENGTH);
-    strncat(buffer, ":", BUFFER_LENGTH);
-    strncat(buffer, utoa(htons(port), tmp, DECIMAL), BUFFER_LENGTH);
-}
-
-static inline void __add_ipv4_attribute(const char* name, const uint32_t ip, const uint32_t port, bool comma){
-  char tmp[64];
-  __add_attribute(name, comma);
-  strncat(buffer, "\"", BUFFER_LENGTH);
-  __add_ipv4(ip, port);
   strncat(buffer, "\"", BUFFER_LENGTH);
 }
 
@@ -581,21 +474,6 @@ char* task_to_json(struct task_prov_struct* n){
   return buffer;
 }
 
-#define UUID_STR_SIZE 37
-char* uuid_to_str(uint8_t* uuid, char* str, size_t size){
-  if(size<37){
-    snprintf(str, size, "UUID-ERROR");
-    return str;
-  }
-  snprintf(str, size, "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-    uuid[0], uuid[1], uuid[2], uuid[3]
-    , uuid[4], uuid[5]
-    , uuid[6], uuid[7]
-    , uuid[8], uuid[9]
-    , uuid[10], uuid[11], uuid[12], uuid[13], uuid[14], uuid[15]);
-    return str;
-}
-
 static const char STR_UNKNOWN[]= "unknown";
 static const char STR_BLOCK_SPECIAL[]= "block special";
 static const char STR_CHAR_SPECIAL[]= "char special";
@@ -604,25 +482,6 @@ static const char STR_FIFO[]= "fifo";
 static const char STR_LINK[]= "link";
 static const char STR_FILE[]= "file";
 static const char STR_SOCKET[]= "socket";
-
-static inline const char* get_inode_type(mode_t mode){
-  if(S_ISBLK(mode))
-    return STR_BLOCK_SPECIAL;
-  else if(S_ISCHR(mode))
-    return STR_CHAR_SPECIAL;
-  else if(S_ISDIR(mode))
-    return STR_DIRECTORY;
-  else if(S_ISFIFO(mode))
-    return STR_FIFO;
-  else if(S_ISLNK(mode))
-    return STR_LINK;
-  else if(S_ISREG(mode))
-    return STR_FILE;
-  else if(S_ISSOCK(mode))
-    return STR_SOCKET;
-  return STR_UNKNOWN;
-}
-
 
 char* inode_to_json(struct inode_prov_struct* n){
   char uuid[UUID_STR_SIZE];
