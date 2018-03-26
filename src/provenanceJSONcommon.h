@@ -133,3 +133,11 @@ static inline void __add_ipv4_attribute(const char* name, const uint32_t ip, con
   __add_ipv4(ip, port);
   strncat(buffer, "\"", BUFFER_LENGTH);
 }
+
+static inline void __add_machine_id(uint32_t value, bool comma){
+  char tmp[32];
+  __add_attribute("cf:machine_id", comma);
+  strncat(buffer, "\"cf:", BUFFER_LENGTH);
+  strncat(buffer, utoa(value, tmp, DECIMAL), BUFFER_LENGTH);
+  strncat(buffer, "\"", BUFFER_LENGTH);
+}

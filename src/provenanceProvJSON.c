@@ -309,14 +309,6 @@ static inline void __init_json_entry(const char* id)
   strncat(buffer, "\":{", BUFFER_LENGTH);
 }
 
-static inline void __add_machine_id(uint32_t value, bool comma){
-  char tmp[32];
-  __add_attribute("cf:machine_id", comma);
-  strncat(buffer, "\"cf:", BUFFER_LENGTH);
-  strncat(buffer, utoa(value, tmp, DECIMAL), BUFFER_LENGTH);
-  strncat(buffer, "\"", BUFFER_LENGTH);
-}
-
 static inline void __add_reference(const char* name, const char* id, bool comma){
   if(id[0]=='\0'){ // value is not set
     return;

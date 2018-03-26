@@ -45,7 +45,7 @@ static __thread char to[PROV_ID_STR_LEN];
 char date[256];
 pthread_rwlock_t  date_lock = PTHREAD_RWLOCK_INITIALIZER;
 
-static inline void __init_node(char* type, char* id){
+static inline void __init_node(char* type, char* id, const struct node_identifier* n){
   buffer[0]='\0';
   strncat(buffer, "\n{\n\"type\": \"", BUFFER_LENGTH);
   strncat(buffer, type, BUFFER_LENGTH);
@@ -54,6 +54,11 @@ static inline void __init_node(char* type, char* id){
   strncat(buffer, id, BUFFER_LENGTH);
   strncat(buffer, "\",\n", BUFFER_LENGTH);
   strncat(buffer, "\"annotations\": {\n", BUFFER_LENGTH);
+  __add_uint64_attribute("cf:id", n->id, false);
+  __add_string_attribute("prov:type", node_id_to_str(n->type), true);
+  __add_uint32_attribute("cf:boot_id", n->boot_id, true);
+  __add_machine_id(n->machine_id, true);
+  __add_uint32_attribute("cf:version", n->version, true);
 }
 
 static inline void __close_node( void ){
@@ -82,7 +87,7 @@ static inline void __init_relation(char* type,
 }
 
 #define NODE_START(type) ID_ENCODE(n->identifier.buffer, PROV_IDENTIFIER_BUFFER_LENGTH, id, PROV_ID_STR_LEN);\
-                    __init_node(type, id)
+                    __init_node(type, id, &(n->identifier.node_id))
 
 #define NODE_END() __close_node()
 
