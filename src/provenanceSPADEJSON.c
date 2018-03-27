@@ -47,15 +47,17 @@ pthread_rwlock_t  date_lock = PTHREAD_RWLOCK_INITIALIZER;
 
 static inline void __init_node(char* type, char* id, const struct node_identifier* n){
   buffer[0]='\0';
+  update_time();
   strncat(buffer, "\n{\n", BUFFER_LENGTH);
   __add_string_attribute("type", type, false);
   __add_string_attribute("id", id, true);
   strncat(buffer, ",\n\"annotations\": {\n", BUFFER_LENGTH);
   __add_uint64_attribute("node_id", n->id, false);
-  __add_string_attribute("prov:type", node_id_to_str(n->type), true);
+  __add_string_attribute("node_type", node_id_to_str(n->type), true);
   __add_uint32_attribute("cf:boot_id", n->boot_id, true);
   __add_machine_id(n->machine_id, true);
-  __add_uint32_attribute("cf:version", n->version, true);
+  __add_uint32_attribute("version", n->version, true);
+  __add_date_attribute(true);
 }
 
 static inline void __close_node( void ){
@@ -65,15 +67,22 @@ static inline void __close_node( void ){
 static inline void __init_relation(char* type,
                     char* from,
                     char* to,
-                    char* id
+                    char* id,
+                    const struct relation_identifier* e
                   ) {
   buffer[0]='\0';
+  update_time();
   strncat(buffer, "\n{\n", BUFFER_LENGTH);
   __add_string_attribute("type", type, false);
   __add_string_attribute("from", from, true);
   __add_string_attribute("to", to, true);
   strncat(buffer, ",\n\"annotations\": {\n", BUFFER_LENGTH);
   __add_string_attribute("id", id, false);
+  __add_uint64_attribute("relation_id", e->id, true);
+  __add_string_attribute("relation_type", relation_id_to_str(e->type), true);
+  __add_uint32_attribute("boot_id", e->boot_id, true);
+  __add_machine_id(e->machine_id, true);
+  __add_date_attribute(true);
 }
 
 #define NODE_START(type) ID_ENCODE(n->identifier.buffer, PROV_IDENTIFIER_BUFFER_LENGTH, id, PROV_ID_STR_LEN);\
@@ -84,12 +93,11 @@ static inline void __init_relation(char* type,
 #define RELATION_START(type)  ID_ENCODE(e->identifier.buffer, PROV_IDENTIFIER_BUFFER_LENGTH, id, PROV_ID_STR_LEN);\
                         ID_ENCODE(e->snd.buffer, PROV_IDENTIFIER_BUFFER_LENGTH, from, PROV_ID_STR_LEN);\
                         ID_ENCODE(e->rcv.buffer, PROV_IDENTIFIER_BUFFER_LENGTH, to, PROV_ID_STR_LEN);\
-                        __init_relation(type, from, to, id)
+                        __init_relation(type, from, to, id, &(e->identifier.relation_id))
 
 #define RELATION_END() __close_node()
 
 static inline void __relation_to_spade_json(struct relation_struct* e) {
-  __add_date_attribute(true);
   __add_uint64_attribute("jiffies", e->jiffies, true);
   if(e->allowed==FLOW_ALLOWED)
     __add_string_attribute("allowed", "true", true);
