@@ -47,14 +47,11 @@ pthread_rwlock_t  date_lock = PTHREAD_RWLOCK_INITIALIZER;
 
 static inline void __init_node(char* type, char* id, const struct node_identifier* n){
   buffer[0]='\0';
-  strncat(buffer, "\n{\n\"type\": \"", BUFFER_LENGTH);
-  strncat(buffer, type, BUFFER_LENGTH);
-  strncat(buffer, "\",\n", BUFFER_LENGTH);
-  strncat(buffer, "\"id\": \"", BUFFER_LENGTH);
-  strncat(buffer, id, BUFFER_LENGTH);
-  strncat(buffer, "\",\n", BUFFER_LENGTH);
-  strncat(buffer, "\"annotations\": {\n", BUFFER_LENGTH);
-  __add_uint64_attribute("cf:id", n->id, false);
+  strncat(buffer, "\n{\n", BUFFER_LENGTH);
+  __add_string_attribute("type", type, false);
+  __add_string_attribute("id", id, true);
+  strncat(buffer, ",\n\"annotations\": {\n", BUFFER_LENGTH);
+  __add_uint64_attribute("node_id", n->id, false);
   __add_string_attribute("prov:type", node_id_to_str(n->type), true);
   __add_uint32_attribute("cf:boot_id", n->boot_id, true);
   __add_machine_id(n->machine_id, true);
@@ -71,19 +68,12 @@ static inline void __init_relation(char* type,
                     char* id
                   ) {
   buffer[0]='\0';
-  strncat(buffer, "\n{\n\"type\": \"", BUFFER_LENGTH);
-  strncat(buffer, type, BUFFER_LENGTH);
-  strncat(buffer, "\",\n", BUFFER_LENGTH);
-  strncat(buffer, "\"from\": \"", BUFFER_LENGTH);
-  strncat(buffer, from, BUFFER_LENGTH);
-  strncat(buffer, "\",\n", BUFFER_LENGTH);
-  strncat(buffer, "\"to\": \"", BUFFER_LENGTH);
-  strncat(buffer, to, BUFFER_LENGTH);
-  strncat(buffer, "\",\n", BUFFER_LENGTH);
-  strncat(buffer, "\"annotations\": {\n", BUFFER_LENGTH);
-  strncat(buffer, "\"id\": \"", BUFFER_LENGTH);
-  strncat(buffer, id, BUFFER_LENGTH);
-  strncat(buffer, "\"\n", BUFFER_LENGTH);
+  strncat(buffer, "\n{\n", BUFFER_LENGTH);
+  __add_string_attribute("type", type, false);
+  __add_string_attribute("from", from, true);
+  __add_string_attribute("to", to, true);
+  strncat(buffer, ",\n\"annotations\": {\n", BUFFER_LENGTH);
+  __add_string_attribute("id", id, false);
 }
 
 #define NODE_START(type) ID_ENCODE(n->identifier.buffer, PROV_IDENTIFIER_BUFFER_LENGTH, id, PROV_ID_STR_LEN);\
