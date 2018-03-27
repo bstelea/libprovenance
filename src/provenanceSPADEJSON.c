@@ -347,3 +347,77 @@ char* machine_description_spade_json( void ){
   strncat(buffer, "}}]", BUFFER_LENGTH);
   return buffer;
 }
+
+static char* json;
+static inline void init_buffer( void ){
+  json = (char*)malloc(MAX_JSON_BUFFER_LENGTH);
+  memset(buffer, 0, MAX_JSON_BUFFER_LENGTH);
+  memset(json, 0, MAX_JSON_BUFFER_LENGTH);
+}
+
+static void (*print_json)(char* json);
+
+void set_SPADEJSON_callback( void (*fcn)(char* json) ){
+  init_buffer();
+  print_json = fcn;
+}
+
+static inline bool __append(char* buff){
+  if (strlen(buff) + 2 > MAX_JSON_BUFFER_LENGTH - strlen(json) - 1){ // not enough space
+    return false;
+  }
+  strncat(json, buff, MAX_JSON_BUFFER_LENGTH - strlen(json) - 1); // copy up to free space
+  return true;
+}
+
+static pthread_mutex_t l_json =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+void spade_json_append(char* buff){
+  pthread_mutex_lock(&l_json);
+  // we cannot append buffer is full, need to print json out
+  if(!__append(buff)){
+    flush_spade_json();
+    pthread_mutex_unlock(&l_json);
+    spade_json_append(buff);
+    return;
+  }
+  pthread_mutex_unlock(&l_json);
+}
+
+static inline char* ready_to_print(){
+  char *tmp;
+
+  tmp = (char*)malloc(MAX_JSON_BUFFER_LENGTH);
+  pthread_mutex_lock(&l_json);
+  memset(tmp, 0, MAX_JSON_BUFFER_LENGTH);
+  memcpy(tmp, json, MAX_JSON_BUFFER_LENGTH);
+  memset(json, 0, MAX_JSON_BUFFER_LENGTH);
+  pthread_mutex_unlock(&l_json);
+  return tmp;
+}
+
+static bool writing_out = false;
+static pthread_mutex_t l_flush =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+
+void flush_spade_json(){
+  bool should_flush=false;
+  char* tmp;
+
+  pthread_mutex_lock(&l_flush);
+  if(!writing_out){
+    writing_out = true;
+    should_flush = true;
+    update_time(); // we update the time
+  }
+  pthread_mutex_unlock(&l_flush);
+
+  if(should_flush){
+    tmp = ready_to_print();
+    if(tmp!=NULL){
+      print_json(tmp);
+      free(tmp);
+    }
+    pthread_mutex_lock(&l_flush);
+    writing_out = false;
+    pthread_mutex_unlock(&l_flush);
+  }
+}

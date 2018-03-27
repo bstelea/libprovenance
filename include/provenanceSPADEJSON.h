@@ -34,4 +34,8 @@ char* pckcnt_to_spade_json(struct pckcnt_struct* n);
 char* arg_to_spade_json(struct arg_struct* n);
 char* machine_description_spade_json( void );
 
+void spade_json_append(char* buff);
+void set_SPADEJSON_callback( void (*fcn)(char* json) );
+void flush_spade_json();
+
 #endif

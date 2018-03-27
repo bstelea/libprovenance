@@ -77,7 +77,7 @@ void init_buffers(void){
   init_buffer(&message);
 }
 
-bool writing_out = false;
+static bool writing_out = false;
 
 static void (*print_json)(char* json);
 
