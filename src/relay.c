@@ -204,6 +204,10 @@ void relation_record(union prov_elt *msg){
 
 void node_record(union prov_elt *msg){
   switch(prov_type(msg)){
+    case ENT_PROC:
+      if(prov_ops.log_proc!=NULL)
+        prov_ops.log_proc(&(msg->proc_info));
+      break;
     case ACT_TASK:
       if(prov_ops.log_task!=NULL)
         prov_ops.log_task(&(msg->task_info));

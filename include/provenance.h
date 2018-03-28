@@ -40,6 +40,7 @@ struct provenance_ops{
   void (*log_used)(struct relation_struct*);
   void (*log_informed)(struct relation_struct*);
   /* nodes callback */
+  void (*log_proc)(struct proc_prov_struct*);
   void (*log_task)(struct task_prov_struct*);
   void (*log_inode)(struct inode_prov_struct*);
   void (*log_str)(struct str_struct*);

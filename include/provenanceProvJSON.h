@@ -34,12 +34,12 @@ int disclose_relation_ProvJSON(uint64_t type, union prov_identifier* sender, uni
 
 /* struct to json functions */
 /* TODO provide clean implementation? right now probably highly inneficient */
-char* relation_to_json(struct relation_struct* e);
 char* used_to_json(struct relation_struct* e);
 char* generated_to_json(struct relation_struct* e);
 char* informed_to_json(struct relation_struct* e);
 char* derived_to_json(struct relation_struct* e);
 char* disc_to_json(struct disc_node_struct* n);
+char* proc_to_json(struct proc_prov_struct* n);
 char* task_to_json(struct task_prov_struct* n);
 char* inode_to_json(struct inode_prov_struct* n);
 char* sb_to_json(struct sb_struct* n);
