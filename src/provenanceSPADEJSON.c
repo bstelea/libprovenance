@@ -385,14 +385,19 @@ void spade_json_append(char* buff){
 
 static inline char* ready_to_print(){
   char *tmp;
+  char *out;
 
-  tmp = (char*)malloc(MAX_JSON_BUFFER_LENGTH);
+  if (json[0]==0)
+    return NULL;
+  out = (char*)malloc(MAX_JSON_BUFFER_LENGTH+1);
   pthread_mutex_lock(&l_json);
-  memset(tmp, 0, MAX_JSON_BUFFER_LENGTH);
-  memcpy(tmp, json, MAX_JSON_BUFFER_LENGTH);
+  out[0] = '[';
+  memcpy(&out[1], json, MAX_JSON_BUFFER_LENGTH);
+  tmp = out + strlen(json);
+  *tmp = ']';
   memset(json, 0, MAX_JSON_BUFFER_LENGTH);
   pthread_mutex_unlock(&l_json);
-  return tmp;
+  return out;
 }
 
 static bool writing_out = false;
