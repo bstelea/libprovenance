@@ -71,7 +71,11 @@ void long_prov_record(union long_prov_elt* msg);
 */
 bool provenance_is_present(void);
 
-/* provenance usher functions */
+/*
+* Function return boolean value representing if either or not provenance
+* has ever been written by the kernel.
+*/
+bool provenance_was_written(void);
 
 /*
 * @ops structure containing audit callbacks
