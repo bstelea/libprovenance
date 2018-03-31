@@ -833,6 +833,7 @@ int provenance_version(char* version, size_t len){
   int fd = open(PROV_VERSION, O_RDONLY);
   if( fd < 0 )
     return fd;
+  memset(version, 0, len);
   rc = read(fd, version, len);
   close(fd);
   return rc;
