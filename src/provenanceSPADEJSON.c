@@ -212,12 +212,19 @@ char* shm_to_spade_json(struct shm_struct* n) {
 }
 
 char* packet_to_spade_json(struct pck_struct* n) {
-  NODE_START("Entity");
-  __add_uint32_attribute("id", n->identifier.packet_id.id, true);
+  ID_ENCODE(n->identifier.buffer, PROV_IDENTIFIER_BUFFER_LENGTH, id, PROV_ID_STR_LEN);
+  buffer[0]='\0';
+  update_time();
+  strncat(buffer, "\n{\n", BUFFER_LENGTH);
+  __add_string_attribute("type", "Entity", false);
+  __add_string_attribute("id", id, true);
+  strncat(buffer, ",\n\"annotations\": {\n", BUFFER_LENGTH);
+  __add_string_attribute("node_type", "packet", false);
+  __add_date_attribute(true);
+  __add_uint32_attribute("packet_id", n->identifier.packet_id.id, true);
   __add_uint32_attribute("seq", n->identifier.packet_id.seq, true);
   __add_ipv4_attribute("sender", n->identifier.packet_id.snd_ip, n->identifier.packet_id.snd_port, true);
   __add_ipv4_attribute("receiver", n->identifier.packet_id.rcv_ip, n->identifier.packet_id.rcv_port, true);
-  __add_string_attribute("type", "packet", true);
   __add_uint64_attribute("jiffies", n->jiffies, true);
   NODE_END();
   return buffer;
