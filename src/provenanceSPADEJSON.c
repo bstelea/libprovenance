@@ -54,7 +54,7 @@ static inline void __init_node(char* type, char* id, const struct node_identifie
   strncat(buffer, ",\n\"annotations\": {\n", BUFFER_LENGTH);
   __add_uint64_attribute("node_id", n->id, false);
   __add_string_attribute("node_type", node_id_to_str(n->type), true);
-  __add_uint32_attribute("cf:boot_id", n->boot_id, true);
+  __add_uint32_attribute("boot_id", n->boot_id, true);
   __add_machine_id(n->machine_id, true);
   __add_uint32_attribute("version", n->version, true);
   __add_date_attribute(true);
@@ -213,7 +213,7 @@ char* shm_to_spade_json(struct shm_struct* n) {
 
 char* packet_to_spade_json(struct pck_struct* n) {
   NODE_START("Entity");
-  __add_uint32_attribute("id", n->identifier.packet_id.id, false);
+  __add_uint32_attribute("id", n->identifier.packet_id.id, true);
   __add_uint32_attribute("seq", n->identifier.packet_id.seq, true);
   __add_ipv4_attribute("sender", n->identifier.packet_id.snd_ip, n->identifier.packet_id.snd_port, true);
   __add_ipv4_attribute("receiver", n->identifier.packet_id.rcv_ip, n->identifier.packet_id.rcv_port, true);
