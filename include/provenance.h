@@ -140,6 +140,17 @@ bool provenance_does_compress_edge(void);
 
 /*
 * @v boolean value
+* activate provenance duplication.
+*/
+int provenance_should_duplicate(bool v);
+
+/*
+* return either or not provenance duplication is enabled.
+*/
+bool provenance_does_duplicate(void);
+
+/*
+* @v boolean value
 * Hide the current process from provenance capture. Should be mostly used by the
 * provenance capture service itself. Will fail if the current process is not
 * root.

@@ -35,6 +35,7 @@
 
 ### v0.3.11
 ```
+- Support node duplication on/off.
 - Added support for SPADE.
 - Added support for thread level provenance.
 - Accept larger security context in cache.

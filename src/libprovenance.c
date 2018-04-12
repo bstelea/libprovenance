@@ -83,6 +83,9 @@ declare_get_boolean_fcn(provenance_does_compress_node, PROV_COMPRESS_NODE_FILE);
 declare_set_boolean_fcn(provenance_should_compress_edge, PROV_COMPRESS_EDGE_FILE);
 declare_get_boolean_fcn(provenance_does_compress_edge, PROV_COMPRESS_EDGE_FILE);
 
+declare_set_boolean_fcn(provenance_should_duplicate, PROV_DUPLICATE_FILE);
+declare_get_boolean_fcn(provenance_does_duplicate, PROV_DUPLICATE_FILE);
+
 #define declare_self_set_flag(fcn_name, element, operation) int fcn_name (bool v){ \
   struct prov_process_config cfg;\
   int rc;\
