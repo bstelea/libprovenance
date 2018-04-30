@@ -93,7 +93,7 @@ static inline void __init_relation(char* type,
 #define RELATION_START(type)  ID_ENCODE(e->identifier.buffer, PROV_IDENTIFIER_BUFFER_LENGTH, id, PROV_ID_STR_LEN);\
                         ID_ENCODE(e->snd.buffer, PROV_IDENTIFIER_BUFFER_LENGTH, from, PROV_ID_STR_LEN);\
                         ID_ENCODE(e->rcv.buffer, PROV_IDENTIFIER_BUFFER_LENGTH, to, PROV_ID_STR_LEN);\
-                        __init_relation(type, from, to, id, &(e->identifier.relation_id))
+                        __init_relation(type, to, from, id, &(e->identifier.relation_id))
 
 #define RELATION_END() __close_node()
 
