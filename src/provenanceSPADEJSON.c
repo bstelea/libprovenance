@@ -221,7 +221,7 @@ char* packet_to_spade_json(struct pck_struct* n) {
   __add_string_attribute("type", "Entity", false);
   __add_string_attribute("id", id, true);
   strncat(buffer, ",\n\"annotations\": {\n", BUFFER_LENGTH);
-  __add_string_attribute("node_type", "packet", false);
+  __add_string_attribute("object_type", "packet", false);
   __add_date_attribute(true);
   __add_uint32_attribute("packet_id", n->identifier.packet_id.id, true);
   __add_uint32_attribute("seq", n->identifier.packet_id.seq, true);
