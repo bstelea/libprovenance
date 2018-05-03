@@ -263,8 +263,6 @@ static void callback_job(void* data, const size_t prov_size)
     return;
   }
   msg = (union prov_elt*)data;
-  if(prov_type(msg)!=ENT_PACKET)
-    node_identifier(msg).machine_id = machine_id;
   /* initialise per worker thread */
   if(!initialised && prov_ops.init!=NULL){
     prov_ops.init();
@@ -338,7 +336,6 @@ static void long_callback_job(void* data, const size_t prov_size)
     return;
   }
   msg = (union long_prov_elt*)data;
-  node_identifier(msg).machine_id = machine_id;
 
   /* initialise per worker thread */
   if(!initialised && prov_ops.init!=NULL){
