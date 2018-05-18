@@ -32,7 +32,7 @@
 #include <linux/provenance_types.h>
 
 #include "provenance.h"
-#include "provenanceProvJSON.h"
+#include "provenanceW3CJSON.h"
 #include "provenanceutils.h"
 
 #include "provenanceJSONcommon.h"
@@ -81,7 +81,7 @@ static bool writing_out = false;
 
 static void (*print_json)(char* json);
 
-int disclose_node_ProvJSON(uint64_t type, const char* content, union prov_identifier* identifier){
+int disclose_node_W3CJSON(uint64_t type, const char* content, union prov_identifier* identifier){
   int err;
   struct disc_node_struct node;
 
@@ -95,7 +95,7 @@ int disclose_node_ProvJSON(uint64_t type, const char* content, union prov_identi
   return err;
 }
 
-int disclose_relation_ProvJSON(uint64_t type, union prov_identifier* sender, union prov_identifier* receiver){
+int disclose_relation_W3CJSON(uint64_t type, union prov_identifier* sender, union prov_identifier* receiver){
   struct relation_struct relation;
   relation.identifier.relation_id.type=type;
   relation.allowed=true;
@@ -104,7 +104,7 @@ int disclose_relation_ProvJSON(uint64_t type, union prov_identifier* sender, uni
   return provenance_disclose_relation(&relation);
 }
 
-void set_ProvJSON_callback( void (*fcn)(char* json) ){
+void set_W3CJSON_callback( void (*fcn)(char* json) ){
   init_buffers();
   print_json = fcn;
 }
