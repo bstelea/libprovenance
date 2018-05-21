@@ -1,6 +1,6 @@
 Summary: CamFlow userspace library
 Name: libprovenance
-Version: 0.3.11
+Version: 0.4.0
 Release: 1
 Group: audit/camflow
 License: GPLv2
