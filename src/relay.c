@@ -36,7 +36,6 @@ static int relay_file[NUMBER_CPUS];
 static int long_relay_file[NUMBER_CPUS];
 /* worker pool */
 static threadpool worker_thpool=NULL;
-static uint32_t machine_id=0;
 static uint8_t running = 1;
 
 /* internal functions */
@@ -75,8 +74,6 @@ int provenance_record_pid( void ){
 int provenance_relay_register(struct provenance_ops* ops, const char* name)
 {
   int err;
-
-  provenance_get_machine_id(&machine_id);
 
   /* the provenance usher will not appear in trace */
   err = provenance_set_opaque(true);
