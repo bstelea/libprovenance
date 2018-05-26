@@ -36,7 +36,6 @@ static int relay_file[NUMBER_CPUS];
 static int long_relay_file[NUMBER_CPUS];
 /* worker pool */
 static threadpool worker_thpool=NULL;
-static uint32_t machine_id=0;
 static uint8_t running = 1;
 
 /* internal functions */
@@ -75,8 +74,6 @@ int provenance_record_pid( void ){
 int provenance_relay_register(struct provenance_ops* ops, const char* name)
 {
   int err;
-
-  provenance_get_machine_id(&machine_id);
 
   /* the provenance usher will not appear in trace */
   err = provenance_set_opaque(true);
@@ -204,6 +201,10 @@ void relation_record(union prov_elt *msg){
 
 void node_record(union prov_elt *msg){
   switch(prov_type(msg)){
+    case ENT_PROC:
+      if(prov_ops.log_proc!=NULL)
+        prov_ops.log_proc(&(msg->proc_info));
+      break;
     case ACT_TASK:
       if(prov_ops.log_task!=NULL)
         prov_ops.log_task(&(msg->task_info));
@@ -259,8 +260,6 @@ static void callback_job(void* data, const size_t prov_size)
     return;
   }
   msg = (union prov_elt*)data;
-  if(prov_type(msg)!=ENT_PACKET)
-    node_identifier(msg).machine_id = machine_id;
   /* initialise per worker thread */
   if(!initialised && prov_ops.init!=NULL){
     prov_ops.init();
@@ -334,7 +333,6 @@ static void long_callback_job(void* data, const size_t prov_size)
     return;
   }
   msg = (union long_prov_elt*)data;
-  node_identifier(msg).machine_id = machine_id;
 
   /* initialise per worker thread */
   if(!initialised && prov_ops.init!=NULL){

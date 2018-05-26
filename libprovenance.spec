@@ -1,6 +1,6 @@
 Summary: CamFlow userspace library
 Name: libprovenance
-Version: 0.3.10
+Version: 0.4.0
 Release: 1
 Group: audit/camflow
 License: GPLv2
@@ -20,6 +20,7 @@ cp -f %{SOURCEURL0}/include/provenance.h ./usr/include/provenance.h
 cp -f %{SOURCEURL0}/include/provenancefilter.h ./usr/include/provenancefilter.h
 cp -f %{SOURCEURL0}/include/provenanceutils.h ./usr/include/provenanceutils.h
 cp -f %{SOURCEURL0}/include/provenanceProvJSON.h ./usr/include/provenanceProvJSON.h
+cp -f %{SOURCEURL0}/include/provenanceSPADEJSON.h ./usr/include/provenanceSPADEJSON.h
 
 %clean
 rm -r -f "$RPM_BUILD_ROOT"

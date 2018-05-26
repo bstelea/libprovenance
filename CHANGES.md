@@ -2,6 +2,7 @@
 
 | Library version | Date       |
 | --------------- | ---------- |
+| 0.4.0           | 26/05/2018 |
 | 0.3.10          | 27/01/2018 |
 | 0.3.9           | 12/12/2017 |
 | 0.3.8           | 28/09/2017 |
@@ -31,6 +32,14 @@
 | 0.1.2           | 26/05/2016 |
 | 0.1.1           | 03/04/2016 |
 | 0.1.0           | 28/03/2016 |
+
+### v0.4.0
+```
+- Support node duplication on/off.
+- Added support for SPADE.
+- Added support for thread level provenance.
+- Accept larger security context in cache.
+```
 
 ### v0.3.10
 ```

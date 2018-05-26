@@ -75,11 +75,16 @@ declare_get_boolean_fcn(provenance_get_enable, PROV_ENABLE_FILE);
 declare_set_boolean_fcn(provenance_set_all, PROV_ALL_FILE);
 declare_get_boolean_fcn(provenance_get_all, PROV_ALL_FILE);
 
+declare_get_boolean_fcn(provenance_was_written, PROV_WRITTEN_FILE);
+
 declare_set_boolean_fcn(provenance_should_compress_node, PROV_COMPRESS_NODE_FILE);
 declare_get_boolean_fcn(provenance_does_compress_node, PROV_COMPRESS_NODE_FILE);
 
 declare_set_boolean_fcn(provenance_should_compress_edge, PROV_COMPRESS_EDGE_FILE);
 declare_get_boolean_fcn(provenance_does_compress_edge, PROV_COMPRESS_EDGE_FILE);
+
+declare_set_boolean_fcn(provenance_should_duplicate, PROV_DUPLICATE_FILE);
+declare_get_boolean_fcn(provenance_does_duplicate, PROV_DUPLICATE_FILE);
 
 #define declare_self_set_flag(fcn_name, element, operation) int fcn_name (bool v){ \
   struct prov_process_config cfg;\
@@ -515,9 +520,10 @@ declare_set_ipv4_fcn(provenance_egress_ipv4_delete, PROV_IPV4_EGRESS_FILE, PROV_
 declare_get_ipv4_fcn(provenance_ingress_ipv4, PROV_IPV4_INGRESS_FILE);
 declare_get_ipv4_fcn(provenance_egress_ipv4, PROV_IPV4_EGRESS_FILE);
 
+#define NAME_BUFFER 400
 struct secentry {
     int id;            /* we'll use this field as the key */
-    char name[200];
+    char name[NAME_BUFFER];
     UT_hash_handle hh; /* makes this structure hashable */
 };
 
@@ -537,7 +543,7 @@ static void sec_add_entry(uint32_t secid, const char* secctx){
     return;
   se = malloc(sizeof(struct secentry));
   se->id=secid;
-  strncpy(se->name, secctx, 200);
+  strncpy(se->name, secctx, NAME_BUFFER);
   HASH_ADD_INT(hash, id, se);
 }
 
@@ -546,13 +552,13 @@ bool sec_find_entry(uint32_t secid, char* secctx) {
   HASH_FIND_INT(hash, &secid, se);
   if(!se)
     return false;
-  strncpy(secctx, se->name, 200);
+  strncpy(secctx, se->name, NAME_BUFFER);
   return true;
 }
 
 int provenance_secid_to_secctx( uint32_t secid, char* secctx, uint32_t len){
   struct secinfo info;
-  int rc;
+  int rc = 0;
   int fd;
 
   if( sec_find_entry(secid, secctx) )
@@ -830,6 +836,7 @@ int provenance_version(char* version, size_t len){
   int fd = open(PROV_VERSION, O_RDONLY);
   if( fd < 0 )
     return fd;
+  memset(version, 0, len);
   rc = read(fd, version, len);
   close(fd);
   return rc;

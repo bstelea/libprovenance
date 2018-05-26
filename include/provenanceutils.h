@@ -19,6 +19,8 @@
 #include <arpa/inet.h>
 #include <stddef.h>
 
+#define LSM_LIST "/sys/kernel/security/lsm"
+
 #define hexifyBound(in) (in*2+1)
 size_t hexify(uint8_t *in, size_t in_size, char *out, size_t out_size);
 #define encode64Bound(in) (4 * ((in + 2) / 3) + 1)

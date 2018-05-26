@@ -23,8 +23,8 @@
 #define str(s) # s
 
 #define PROVLIB_VERSION_MAJOR 0
-#define PROVLIB_VERSION_MINOR 3
-#define PROVLIB_VERSION_PATCH 10
+#define PROVLIB_VERSION_MINOR 4
+#define PROVLIB_VERSION_PATCH 0
 #define PROVLIB_VERSION_STR   "v"xstr(PROVLIB_VERSION_MAJOR)\
     "."xstr(PROVLIB_VERSION_MINOR)\
     "."xstr(PROVLIB_VERSION_PATCH)\
@@ -40,6 +40,7 @@ struct provenance_ops{
   void (*log_used)(struct relation_struct*);
   void (*log_informed)(struct relation_struct*);
   /* nodes callback */
+  void (*log_proc)(struct proc_prov_struct*);
   void (*log_task)(struct task_prov_struct*);
   void (*log_inode)(struct inode_prov_struct*);
   void (*log_str)(struct str_struct*);
@@ -70,7 +71,11 @@ void long_prov_record(union long_prov_elt* msg);
 */
 bool provenance_is_present(void);
 
-/* provenance usher functions */
+/*
+* Function return boolean value representing if either or not provenance
+* has ever been written by the kernel.
+*/
+bool provenance_was_written(void);
 
 /*
 * @ops structure containing audit callbacks
@@ -132,6 +137,17 @@ int provenance_should_compress_edge(bool v);
 * return either or not edges are compressed.
 */
 bool provenance_does_compress_edge(void);
+
+/*
+* @v boolean value
+* activate provenance duplication.
+*/
+int provenance_should_duplicate(bool v);
+
+/*
+* return either or not provenance duplication is enabled.
+*/
+bool provenance_does_duplicate(void);
 
 /*
 * @v boolean value
