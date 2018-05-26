@@ -32,5 +32,6 @@ rm -r -f "$RPM_BUILD_ROOT"
 /usr/include/provenancefilter.h
 /usr/include/provenanceutils.h
 /usr/include/provenanceW3CJSON.h
+/usr/include/provenanceSPADEJSON.h
 
 %post -p /sbin/ldconfig
