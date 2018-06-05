@@ -215,7 +215,7 @@ void node_record(union prov_elt *msg){
     case ENT_INODE_DIRECTORY:
     case ENT_INODE_CHAR:
     case ENT_INODE_BLOCK:
-    case ENT_INODE_FIFO:
+    case ENT_INODE_PIPE:
     case ENT_INODE_SOCKET:
     case ENT_INODE_MMAP:
       if(prov_ops.log_inode!=NULL)
@@ -285,7 +285,7 @@ void long_prov_record(union long_prov_elt* msg){
       if(prov_ops.log_str!=NULL)
         prov_ops.log_str(&(msg->str_info));
       break;
-    case ENT_FILE_NAME:
+    case ENT_PATH:
       if(prov_ops.log_file_name!=NULL)
         prov_ops.log_file_name(&(msg->file_name_info));
       break;
