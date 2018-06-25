@@ -407,20 +407,14 @@ static void reader_job(void *data)
   }while(running);
 }
 
-#define US	1000L
-#define MS 	1000000L
 /* read from relayfs file */
 static void long_reader_job(void *data)
 {
   int rc;
   uint8_t cpu = (uint8_t)(*(uint8_t*)data);
   struct pollfd pollfd;
-	struct timespec s;
 
-	s.tv_sec=0;
-	s.tv_nsec=5*MS;
   do{
-		nanosleep(&s, NULL);
     /* file to look on */
     pollfd.fd = long_relay_file[cpu];
     /* something to read */
