@@ -9,6 +9,7 @@
 * published by the Free Software Foundation.
 *
 */
+#define _GNU_SOURCE
 #include <sys/stat.h>
 #include <sys/poll.h>
 #include <errno.h>
@@ -382,6 +383,20 @@ static void ___read_relay( const int relay_file, const size_t prov_size, void (*
 	free(buf);
 }
 
+static int set_thread_affinity(int core_id)
+{
+  cpu_set_t cpuset;
+  pthread_t current;
+
+  if (core_id < 0 || core_id >= ncpus)
+    return -1;
+  CPU_ZERO(&cpuset);
+  CPU_SET(core_id, &cpuset);
+
+  current = pthread_self();
+  return pthread_setaffinity_np(current, sizeof(cpu_set_t), &cpuset);
+}
+
 #define POL_FLAG (POLLIN|POLLRDNORM|POLLERR)
 #define RELAY_POLL_TIMEOUT 1000L
 
@@ -391,6 +406,12 @@ static void reader_job(void *data)
   int rc;
   uint8_t cpu = (uint8_t)(*(uint8_t*)data);
   struct pollfd pollfd;
+
+  rc = set_thread_affinity(cpu);
+  if (rc) {
+    record_error("Failed setting cpu affinity (%d).", rc);
+    exit(-1);
+  }
 
   do{
     /* file to look on */
@@ -413,6 +434,12 @@ static void long_reader_job(void *data)
   int rc;
   uint8_t cpu = (uint8_t)(*(uint8_t*)data);
   struct pollfd pollfd;
+
+  rc = set_thread_affinity(cpu);
+  if (rc) {
+    record_error("Failed setting cpu affinity (%d).", rc);
+    exit(-1);
+  }
 
   do{
     /* file to look on */
