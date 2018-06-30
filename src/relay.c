@@ -416,7 +416,7 @@ static int set_thread_affinity(int core_id)
 #define TIME_MS 1000L*TIME_US
 
 #define POL_FLAG (POLLIN|POLLRDNORM|POLLERR)
-#define RELAY_POLL_TIMEOUT TIME_MS
+#define RELAY_POLL_TIMEOUT 1000L
 
 /* read from relayfs file */
 static void reader_job(void *data)
