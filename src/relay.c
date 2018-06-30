@@ -412,8 +412,11 @@ static int set_thread_affinity(int core_id)
   return pthread_setaffinity_np(current, sizeof(cpu_set_t), &cpuset);
 }
 
+#define TIME_US 1000L
+#define TIME_MS 1000L*TIME_US
+
 #define POL_FLAG (POLLIN|POLLRDNORM|POLLERR)
-#define RELAY_POLL_TIMEOUT 1000L
+#define RELAY_POLL_TIMEOUT TIME_MS
 
 /* read from relayfs file */
 static void reader_job(void *data)
@@ -421,6 +424,10 @@ static void reader_job(void *data)
   int rc;
   struct job_parameters *params = (struct job_parameters*)data;
   struct pollfd pollfd;
+  struct timespec s;
+
+  s.tv_sec = 0;
+  s.tv_nsec = 5 * TIME_MS;
 
   rc = set_thread_affinity(params->cpu);
   if (rc) {
@@ -429,6 +436,7 @@ static void reader_job(void *data)
   }
 
   do{
+    nanosleep(&s, NULL);
     /* file to look on */
     pollfd.fd = params->fd;
     /* something to read */
