@@ -9,6 +9,7 @@
 * published by the Free Software Foundation.
 *
 */
+#define _GNU_SOURCE
 #include <sys/stat.h>
 #include <sys/poll.h>
 #include <errno.h>
@@ -160,17 +161,32 @@ static int close_files(void)
   return 0;
 }
 
+struct job_parameters {
+  int cpu;
+  void (*callback)(void*, const size_t);
+  int fd;
+  size_t size;
+};
+
 static int create_worker_pool(void)
 {
   int i;
-  uint8_t* cpunb;
+  struct job_parameters *params;
   worker_thpool = thpool_init(ncpus*2);
   /* set reader jobs */
   for(i=0; i<ncpus; i++){
-    cpunb = (uint8_t*)malloc(sizeof(uint8_t)); // will be freed in worker
-    (*cpunb)=i;
-    thpool_add_work(worker_thpool, (void*)reader_job, (void*)cpunb);
-    thpool_add_work(worker_thpool, (void*)long_reader_job, (void*)cpunb);
+    params = (struct job_parameters*)malloc(sizeof(struct job_parameters)); // will be freed in worker
+    params->cpu = i;
+    params->callback = callback_job;
+    params->fd = relay_file[i];
+    params->size = sizeof(union prov_elt);
+    thpool_add_work(worker_thpool, (void*)reader_job, (void*)params);
+    params = (struct job_parameters*)malloc(sizeof(struct job_parameters)); // will be freed in worker
+    params->cpu = i;
+    params->callback = long_callback_job;
+    params->fd = long_relay_file[i];
+    params->size = sizeof(union long_prov_elt);
+    thpool_add_work(worker_thpool, (void*)reader_job, (void*)params);
   }
   return 0;
 }
@@ -354,7 +370,7 @@ out:
 }
 
 #define buffer_size(prov_size) (prov_size*1000)
-static void ___read_relay( const int relay_file, const size_t prov_size, void (*callback)(void*, const size_t)){
+static void ___read_relay(const int relay_file, const size_t prov_size, void (*callback)(void*, const size_t)){
 	uint8_t *buf;
 	uint8_t* entry;
   size_t size=0;
@@ -382,6 +398,23 @@ static void ___read_relay( const int relay_file, const size_t prov_size, void (*
 	free(buf);
 }
 
+static int set_thread_affinity(int core_id)
+{
+  cpu_set_t cpuset;
+  pthread_t current;
+
+  if (core_id < 0 || core_id >= ncpus)
+    return -1;
+  CPU_ZERO(&cpuset);
+  CPU_SET(core_id, &cpuset);
+
+  current = pthread_self();
+  return pthread_setaffinity_np(current, sizeof(cpu_set_t), &cpuset);
+}
+
+#define TIME_US 1000L
+#define TIME_MS 1000L*TIME_US
+
 #define POL_FLAG (POLLIN|POLLRDNORM|POLLERR)
 #define RELAY_POLL_TIMEOUT 1000L
 
@@ -389,12 +422,23 @@ static void ___read_relay( const int relay_file, const size_t prov_size, void (*
 static void reader_job(void *data)
 {
   int rc;
-  uint8_t cpu = (uint8_t)(*(uint8_t*)data);
+  struct job_parameters *params = (struct job_parameters*)data;
   struct pollfd pollfd;
+  struct timespec s;
+
+  s.tv_sec = 0;
+  s.tv_nsec = 5 * TIME_MS;
+
+  rc = set_thread_affinity(params->cpu);
+  if (rc) {
+    record_error("Failed setting cpu affinity (%d).", rc);
+    exit(-1);
+  }
 
   do{
+    nanosleep(&s, NULL);
     /* file to look on */
-    pollfd.fd = relay_file[cpu];
+    pollfd.fd = params->fd;
     /* something to read */
 		pollfd.events = POL_FLAG;
     /* one file, timeout */
@@ -403,34 +447,6 @@ static void reader_job(void *data)
       record_error("Failed while polling (%d).", rc);
       continue; /* something bad happened */
     }
-    ___read_relay(relay_file[cpu], sizeof(union prov_elt), callback_job);
-  }while(running);
-}
-
-#define US	1000L
-#define MS 	1000000L
-/* read from relayfs file */
-static void long_reader_job(void *data)
-{
-  int rc;
-  uint8_t cpu = (uint8_t)(*(uint8_t*)data);
-  struct pollfd pollfd;
-	struct timespec s;
-
-	s.tv_sec=0;
-	s.tv_nsec=5*MS;
-  do{
-		nanosleep(&s, NULL);
-    /* file to look on */
-    pollfd.fd = long_relay_file[cpu];
-    /* something to read */
-		pollfd.events = POL_FLAG;
-    /* one file, timeout */
-    rc = poll(&pollfd, 1, RELAY_POLL_TIMEOUT);
-    if(rc<0){
-      record_error("Failed while polling (%d).", rc);
-      continue; /* something bad happened */
-    }
-    ___read_relay(long_relay_file[cpu], sizeof(union long_prov_elt), long_callback_job);
+    ___read_relay(params->fd, params->size, params->callback);
   }while(running);
 }

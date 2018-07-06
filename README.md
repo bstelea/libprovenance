@@ -1,4 +1,4 @@
-# CamFlow Userspace Library
+# CamFlow Userspace Library [![Master Build Status](https://api.travis-ci.org/CamFlow/libprovenance.svg?branch=master)](https://travis-ci.org/CamFlow/libprovenance/branches)
 
 ## Build Status
 
