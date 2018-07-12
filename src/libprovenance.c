@@ -232,6 +232,18 @@ int provenance_flush(void){
   return rc;
 }
 
+int provenance_change_epoch(void){
+  uint8_t tmp = 1;
+  int rc;
+  int fd = open(PROV_EPOCH_FILE, O_WRONLY);
+
+  if(fd<0)
+    return fd;
+  rc = write(fd, &tmp, sizeof(uint8_t));
+  close(fd);
+  return rc;
+}
+
 int provenance_read_file(const char path[PATH_MAX], union prov_elt* inode_info){
   return getxattr(path, XATTR_NAME_PROVENANCE, inode_info, sizeof(union prov_elt));
 }
