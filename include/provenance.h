@@ -242,6 +242,8 @@ int provenance_self(struct task_prov_struct* self);
 */
 int provenance_flush(void);
 
+int provenance_change_epoch(void);
+
 /*
 * @name file name
 * @inode_info point to an inode_info structure

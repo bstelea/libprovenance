@@ -355,12 +355,14 @@ static inline void __node_identifier(const struct node_identifier* n){
 static inline void __node_start(const char* id,
                                 const struct node_identifier* n,
                                 const char* taint,
-                                uint64_t jiffies){
+                                uint64_t jiffies,
+                                uint8_t epoch){
   __init_json_entry(id);
   __node_identifier(n);
   __add_date_attribute(true);
   __add_string_attribute("cf:taint", taint, true);
   __add_uint64_attribute("cf:jiffies", jiffies, true);
+  __add_uint32_attribute("epoch", epoch, true);
 }
 
 static inline void __relation_identifier(const struct relation_identifier* e){
@@ -378,6 +380,7 @@ static char* __relation_to_json(struct relation_struct* e, const char* snd, cons
   __add_date_attribute(true);
   __add_string_attribute("cf:taint", taint, true);
   __add_uint64_attribute("cf:jiffies", e->jiffies, true);
+  __add_uint32_attribute("epoch", e->epoch, true);
   __add_label_attribute(NULL, relation_id_to_str(e->identifier.relation_id.type), true);
   if(e->allowed==FLOW_ALLOWED)
     __add_string_attribute("cf:allowed", "true", true);
@@ -411,7 +414,7 @@ char* derived_to_json(struct relation_struct* e){
 char* disc_to_json(struct disc_node_struct* n){
   DISC_PREP_IDs(n);
   prov_prep_taint((union prov_elt*)n);
-  __node_start(id, &(n->identifier.node_id), taint, n->jiffies);
+  __node_start(id, &(n->identifier.node_id), taint, n->jiffies, n->epoch);
   __add_reference("cf:hasParent", parent_id, true);
   if(n->length > 0){
     strncat(buffer, ",", BUFFER_LENGTH);
@@ -427,7 +430,7 @@ char* proc_to_json(struct proc_prov_struct* n){
   provenance_secid_to_secctx(n->secid, secctx, PATH_MAX);
   NODE_PREP_IDs(n);
   prov_prep_taint((union prov_elt*)n);
-  __node_start(id, &(n->identifier.node_id), taint, n->jiffies);
+  __node_start(id, &(n->identifier.node_id), taint, n->jiffies, n->epoch);
   __add_uint32_attribute("cf:uid", n->uid, true);
   __add_uint32_attribute("cf:gid", n->gid, true);
   __add_uint32_attribute("cf:tgid", n->tgid, true);
@@ -458,7 +461,7 @@ char* task_to_json(struct task_prov_struct* n){
   provenance_secid_to_secctx(n->secid, secctx, PATH_MAX);
   NODE_PREP_IDs(n);
   prov_prep_taint((union prov_elt*)n);
-  __node_start(id, &(n->identifier.node_id), taint, n->jiffies);
+  __node_start(id, &(n->identifier.node_id), taint, n->jiffies, n->epoch);
   __add_uint32_attribute("cf:pid", n->pid, true);
   __add_uint32_attribute("cf:vpid", n->vpid, true);
   __add_label_attribute("task", utoa(n->identifier.node_id.version, tmp, DECIMAL), true);
@@ -482,7 +485,7 @@ char* inode_to_json(struct inode_prov_struct* n){
   provenance_secid_to_secctx(n->secid, secctx, PATH_MAX);
   NODE_PREP_IDs(n);
   prov_prep_taint((union prov_elt*)n);
-  __node_start(id, &(n->identifier.node_id), taint, n->jiffies);
+  __node_start(id, &(n->identifier.node_id), taint, n->jiffies, n->epoch);
   __add_uint32_attribute("cf:uid", n->uid, true);
   __add_uint32_attribute("cf:gid", n->gid, true);
   __add_uint32hex_attribute("cf:mode", n->mode, true);
@@ -498,7 +501,7 @@ char* iattr_to_json(struct iattr_prov_struct* n){
   char tmp[65];
   NODE_PREP_IDs(n);
   prov_prep_taint((union prov_elt*)n);
-  __node_start(id, &(n->identifier.node_id), taint, n->jiffies);
+  __node_start(id, &(n->identifier.node_id), taint, n->jiffies, n->epoch);
   __add_uint32hex_attribute("cf:valid", n->valid, true);
   __add_uint32hex_attribute("cf:mode", n->mode, true);
   __add_uint32_attribute("cf:uid", n->uid, true);
@@ -515,7 +518,7 @@ char* iattr_to_json(struct iattr_prov_struct* n){
 char* xattr_to_json(struct xattr_prov_struct* n){
   NODE_PREP_IDs(n);
   prov_prep_taint((union prov_elt*)n);
-  __node_start(id, &(n->identifier.node_id), taint, n->jiffies);
+  __node_start(id, &(n->identifier.node_id), taint, n->jiffies, n->epoch);
   __add_string_attribute("cf:name", n->name, true);
   if(n->size>0){
     __add_uint32_attribute("cf:size", n->size, true);
@@ -530,7 +533,7 @@ char* pckcnt_to_json(struct pckcnt_struct* n){
   char* cntenc;
   NODE_PREP_IDs(n);
   prov_prep_taint((union prov_elt*)n);
-  __node_start(id, &(n->identifier.node_id), taint, n->jiffies);
+  __node_start(id, &(n->identifier.node_id), taint, n->jiffies, n->epoch);
   cntenc = malloc( encode64Bound(n->length) );
   base64encode(n->content, n->length, cntenc, encode64Bound(n->length));
   __add_string_attribute("cf:content", cntenc, true);
@@ -549,7 +552,7 @@ char* sb_to_json(struct sb_struct* n){
   char uuid[UUID_STR_SIZE];
   NODE_PREP_IDs(n);
   prov_prep_taint((union prov_elt*)n);
-  __node_start(id, &(n->identifier.node_id), taint, n->jiffies);
+  __node_start(id, &(n->identifier.node_id), taint, n->jiffies, n->epoch);
   __add_string_attribute("cf:uuid", uuid_to_str(n->uuid, uuid, UUID_STR_SIZE), true);
   __close_json_entry(buffer);
   return buffer;
@@ -558,7 +561,7 @@ char* sb_to_json(struct sb_struct* n){
 char* msg_to_json(struct msg_msg_struct* n){
   NODE_PREP_IDs(n);
   prov_prep_taint((union prov_elt*)n);
-  __node_start(id, &(n->identifier.node_id), taint, n->jiffies);
+  __node_start(id, &(n->identifier.node_id), taint, n->jiffies, n->epoch);
   __close_json_entry(buffer);
   return buffer;
 }
@@ -566,7 +569,7 @@ char* msg_to_json(struct msg_msg_struct* n){
 char* shm_to_json(struct shm_struct* n){
   NODE_PREP_IDs(n);
   prov_prep_taint((union prov_elt*)n);
-  __node_start(id, &(n->identifier.node_id), taint, n->jiffies);
+  __node_start(id, &(n->identifier.node_id), taint, n->jiffies, n->epoch);
   __add_uint32hex_attribute("cf:mode", n->mode, true);
   __close_json_entry(buffer);
   return buffer;
@@ -599,7 +602,7 @@ char* str_msg_to_json(struct str_struct* n){
   int i=0;
   NODE_PREP_IDs(n);
   prov_prep_taint((union prov_elt*)n);
-  __node_start(id, &(n->identifier.node_id), taint, n->jiffies);
+  __node_start(id, &(n->identifier.node_id), taint, n->jiffies, n->epoch);
   for(i=0; i < n->length; i++){
     if(n->str[i]=='"')
       n->str[i]=' ';
@@ -654,7 +657,7 @@ char* addr_to_json(struct address_struct* n){
   char addr_info[PATH_MAX+1024];
   NODE_PREP_IDs(n);
   prov_prep_taint((union prov_elt*)n);
-  __node_start(id, &(n->identifier.node_id), taint, n->jiffies);
+  __node_start(id, &(n->identifier.node_id), taint, n->jiffies, n->epoch);
   __add_json_attribute("cf:address", sockaddr_to_json(addr_info, PATH_MAX+1024, &n->addr, n->length), true);
   __add_label_attribute("address", sockaddr_to_label(addr_info, PATH_MAX+1024, &n->addr, n->length), true);
   __close_json_entry(buffer);
@@ -665,7 +668,7 @@ char* pathname_to_json(struct file_name_struct* n){
   int i;
   NODE_PREP_IDs(n);
   prov_prep_taint((union prov_elt*)n);
-  __node_start(id, &(n->identifier.node_id), taint, n->jiffies);
+  __node_start(id, &(n->identifier.node_id), taint, n->jiffies, n->epoch);
   for(i=0; i<n->length; i++){
     if(n->name[i]=='\\')
       n->name[i]='/';
@@ -681,7 +684,7 @@ char* arg_to_json(struct arg_struct* n){
   char* tmp;
   NODE_PREP_IDs(n);
   prov_prep_taint((union prov_elt*)n);
-  __node_start(id, &(n->identifier.node_id), taint, n->jiffies);
+  __node_start(id, &(n->identifier.node_id), taint, n->jiffies, n->epoch);
   for(i=0; i<n->length; i++){
     if(n->value[i]=='\\')
       n->value[i]='/';
