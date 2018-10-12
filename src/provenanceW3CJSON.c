@@ -362,7 +362,7 @@ static inline void __node_start(const char* id,
   __add_date_attribute(true);
   __add_string_attribute("cf:taint", taint, true);
   __add_uint64_attribute("cf:jiffies", jiffies, true);
-  __add_uint32_attribute("epoch", epoch, true);
+  __add_uint32_attribute("cf:epoch", epoch, true);
 }
 
 static inline void __relation_identifier(const struct relation_identifier* e){
@@ -380,7 +380,7 @@ static char* __relation_to_json(struct relation_struct* e, const char* snd, cons
   __add_date_attribute(true);
   __add_string_attribute("cf:taint", taint, true);
   __add_uint64_attribute("cf:jiffies", e->jiffies, true);
-  __add_uint32_attribute("epoch", e->epoch, true);
+  __add_uint32_attribute("cf:epoch", e->epoch, true);
   __add_label_attribute(NULL, relation_id_to_str(e->identifier.relation_id.type), true);
   if(e->allowed==FLOW_ALLOWED)
     __add_string_attribute("cf:allowed", "true", true);
