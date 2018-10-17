@@ -48,10 +48,10 @@ pthread_rwlock_t  date_lock = PTHREAD_RWLOCK_INITIALIZER;
 static inline void __init_node(char* type, char* id, const struct node_identifier* n){
   buffer[0]='\0';
   update_time();
-  strncat(buffer, "\n{\n", BUFFER_LENGTH);
+  strncat(buffer, "\n{", BUFFER_LENGTH);
   __add_string_attribute("type", type, false);
   __add_string_attribute("id", id, true);
-  strncat(buffer, ",\n\"annotations\": {\n", BUFFER_LENGTH);
+  strncat(buffer, ",\"annotations\": {", BUFFER_LENGTH);
   __add_uint64_attribute("object_id", n->id, false);
   __add_string_attribute("object_type", node_id_to_str(n->type), true);
   __add_uint32_attribute("boot_id", n->boot_id, true);
@@ -61,7 +61,7 @@ static inline void __init_node(char* type, char* id, const struct node_identifie
 }
 
 static inline void __close_node( void ){
-  strncat(buffer, "}\n},", BUFFER_LENGTH);
+  strncat(buffer, "}},", BUFFER_LENGTH);
 }
 
 static inline void __init_relation(char* type,
@@ -72,11 +72,11 @@ static inline void __init_relation(char* type,
                   ) {
   buffer[0]='\0';
   update_time();
-  strncat(buffer, "\n{\n", BUFFER_LENGTH);
+  strncat(buffer, "\n{", BUFFER_LENGTH);
   __add_string_attribute("type", type, false);
   __add_string_attribute("from", from, true);
   __add_string_attribute("to", to, true);
-  strncat(buffer, ",\n\"annotations\": {\n", BUFFER_LENGTH);
+  strncat(buffer, ",\"annotations\": {", BUFFER_LENGTH);
   __add_string_attribute("id", id, false);
   __add_uint64_attribute("relation_id", e->id, true);
   __add_string_attribute("relation_type", relation_id_to_str(e->type), true);
@@ -219,10 +219,10 @@ char* packet_to_spade_json(struct pck_struct* n) {
   ID_ENCODE(n->identifier.buffer, PROV_IDENTIFIER_BUFFER_LENGTH, id, PROV_ID_STR_LEN);
   buffer[0]='\0';
   update_time();
-  strncat(buffer, "\n{\n", BUFFER_LENGTH);
+  strncat(buffer, "\n{", BUFFER_LENGTH);
   __add_string_attribute("type", "Entity", false);
   __add_string_attribute("id", id, true);
-  strncat(buffer, ",\n\"annotations\": {\n", BUFFER_LENGTH);
+  strncat(buffer, ",\"annotations\": {", BUFFER_LENGTH);
   __add_string_attribute("object_type", "packet", false);
   __add_date_attribute(true);
   __add_uint32_attribute("packet_id", n->identifier.packet_id.id, true);
@@ -358,7 +358,7 @@ char* machine_description_spade_json( void ){
   strncat(buffer, "[{", BUFFER_LENGTH);
   __add_string_attribute("type", "Entity", false);
   __add_string_attribute("id", utoa(machine_id, tmp, DECIMAL), true);
-  strncat(buffer, ",\n\"annotations\": {\n", BUFFER_LENGTH);
+  strncat(buffer, ",\"annotations\": {", BUFFER_LENGTH);
   provenance_version(tmp, 64);
   __add_string_attribute("camflow", tmp, false);
   provenance_lib_version(tmp, 64);
