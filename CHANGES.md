@@ -39,7 +39,7 @@
 
 ### v0.4.4
 ```
-- One line per SPADE entry.
+- Change SPADE formatting.
 - Prefix epoch entry for W3C JSON.
 ```
 
