@@ -48,10 +48,10 @@ pthread_rwlock_t  date_lock = PTHREAD_RWLOCK_INITIALIZER;
 static inline void __init_node(char* type, char* id, const struct node_identifier* n){
   buffer[0]='\0';
   update_time();
-  strncat(buffer, "\n{\n", BUFFER_LENGTH);
+  strncat(buffer, "{", BUFFER_LENGTH);
   __add_string_attribute("type", type, false);
   __add_string_attribute("id", id, true);
-  strncat(buffer, ",\n\"annotations\": {\n", BUFFER_LENGTH);
+  strncat(buffer, ",\"annotations\": {", BUFFER_LENGTH);
   __add_uint64_attribute("object_id", n->id, false);
   __add_string_attribute("object_type", node_id_to_str(n->type), true);
   __add_uint32_attribute("boot_id", n->boot_id, true);
@@ -61,7 +61,7 @@ static inline void __init_node(char* type, char* id, const struct node_identifie
 }
 
 static inline void __close_node( void ){
-  strncat(buffer, "}\n},", BUFFER_LENGTH);
+  strncat(buffer, "}}\n", BUFFER_LENGTH);
 }
 
 static inline void __init_relation(char* type,
@@ -72,11 +72,11 @@ static inline void __init_relation(char* type,
                   ) {
   buffer[0]='\0';
   update_time();
-  strncat(buffer, "\n{\n", BUFFER_LENGTH);
+  strncat(buffer, "{", BUFFER_LENGTH);
   __add_string_attribute("type", type, false);
   __add_string_attribute("from", from, true);
   __add_string_attribute("to", to, true);
-  strncat(buffer, ",\n\"annotations\": {\n", BUFFER_LENGTH);
+  strncat(buffer, ",\"annotations\": {", BUFFER_LENGTH);
   __add_string_attribute("id", id, false);
   __add_uint64_attribute("relation_id", e->id, true);
   __add_string_attribute("relation_type", relation_id_to_str(e->type), true);
@@ -219,10 +219,10 @@ char* packet_to_spade_json(struct pck_struct* n) {
   ID_ENCODE(n->identifier.buffer, PROV_IDENTIFIER_BUFFER_LENGTH, id, PROV_ID_STR_LEN);
   buffer[0]='\0';
   update_time();
-  strncat(buffer, "\n{\n", BUFFER_LENGTH);
+  strncat(buffer, "{", BUFFER_LENGTH);
   __add_string_attribute("type", "Entity", false);
   __add_string_attribute("id", id, true);
-  strncat(buffer, ",\n\"annotations\": {\n", BUFFER_LENGTH);
+  strncat(buffer, ",\"annotations\": {", BUFFER_LENGTH);
   __add_string_attribute("object_type", "packet", false);
   __add_date_attribute(true);
   __add_uint32_attribute("packet_id", n->identifier.packet_id.id, true);
@@ -355,10 +355,10 @@ char* machine_description_spade_json( void ){
   read(lsm_fd, lsm_list, 2048);
 
   buffer[0]='\0';
-  strncat(buffer, "[{", BUFFER_LENGTH);
+  strncat(buffer, "{", BUFFER_LENGTH);
   __add_string_attribute("type", "Entity", false);
   __add_string_attribute("id", utoa(machine_id, tmp, DECIMAL), true);
-  strncat(buffer, ",\n\"annotations\": {\n", BUFFER_LENGTH);
+  strncat(buffer, ",\"annotations\": {", BUFFER_LENGTH);
   provenance_version(tmp, 64);
   __add_string_attribute("camflow", tmp, false);
   provenance_lib_version(tmp, 64);
@@ -373,7 +373,7 @@ char* machine_description_spade_json( void ){
   pthread_rwlock_rdlock(&date_lock);
   __add_string_attribute("date", date, true);
   pthread_rwlock_unlock(&date_lock);
-  strncat(buffer, "}}]", BUFFER_LENGTH);
+  strncat(buffer, "}}\n", BUFFER_LENGTH);
   return buffer;
 }
 
@@ -391,42 +391,27 @@ void set_SPADEJSON_callback( void (*fcn)(char* json) ){
   print_json = fcn;
 }
 
+static pthread_mutex_t l_json =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+
 static inline bool __append(char* buff){
+  pthread_mutex_lock(&l_json);
   if (strlen(buff) + 2 > MAX_JSON_BUFFER_LENGTH - strlen(json) - 1){ // not enough space
+    pthread_mutex_unlock(&l_json);
     return false;
   }
   strncat(json, buff, MAX_JSON_BUFFER_LENGTH - strlen(json) - 1); // copy up to free space
+  pthread_mutex_unlock(&l_json);
   return true;
 }
 
-static pthread_mutex_t l_json =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+
 void spade_json_append(char* buff){
-  pthread_mutex_lock(&l_json);
   // we cannot append buffer is full, need to print json out
   if(!__append(buff)){
     flush_spade_json();
-    pthread_mutex_unlock(&l_json);
     spade_json_append(buff);
     return;
   }
-  pthread_mutex_unlock(&l_json);
-}
-
-static inline char* ready_to_print(){
-  char *tmp;
-  char *out;
-
-  if (json[0]==0)
-    return NULL;
-  out = (char*)malloc(MAX_JSON_BUFFER_LENGTH+1);
-  pthread_mutex_lock(&l_json);
-  out[0] = '[';
-  memcpy(&out[1], json, MAX_JSON_BUFFER_LENGTH);
-  tmp = out + strlen(json);
-  *tmp = ']';
-  memset(json, 0, MAX_JSON_BUFFER_LENGTH);
-  pthread_mutex_unlock(&l_json);
-  return out;
 }
 
 static bool writing_out = false;
@@ -445,11 +430,15 @@ void flush_spade_json(){
   pthread_mutex_unlock(&l_flush);
 
   if(should_flush){
-    tmp = ready_to_print();
-    if(tmp!=NULL){
-      print_json(tmp);
-      free(tmp);
+    pthread_mutex_lock(&l_json);
+    if (json[0]==0) {
+      pthread_mutex_unlock(&l_json);
+      writing_out = false;
+      return;
     }
+    print_json(json);
+    memset(json, 0, MAX_JSON_BUFFER_LENGTH);
+    pthread_mutex_unlock(&l_json);
     pthread_mutex_lock(&l_flush);
     writing_out = false;
     pthread_mutex_unlock(&l_flush);

@@ -2,6 +2,7 @@
 
 | Library version | Date       |
 | --------------- | ---------- |
+| 0.4.4           | 24/10/2018 |
 | 0.4.3           | 21/08/2018 |
 | 0.4.2           | 06/07/2018 |
 | 0.4.1           | 05/06/2018 |
@@ -36,7 +37,13 @@
 | 0.1.1           | 03/04/2016 |
 | 0.1.0           | 28/03/2016 |
 
-### v0.4.2
+### v0.4.4
+```
+- Change SPADE formatting.
+- Prefix epoch entry for W3C JSON.
+```
+
+### v0.4.3
 ```
 - Small update due to underlying kernel changes.
 ```
