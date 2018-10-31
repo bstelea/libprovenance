@@ -24,7 +24,7 @@
 
 #define PROVLIB_VERSION_MAJOR 0
 #define PROVLIB_VERSION_MINOR 4
-#define PROVLIB_VERSION_PATCH 4
+#define PROVLIB_VERSION_PATCH 5
 #define PROVLIB_VERSION_STR   "v"xstr(PROVLIB_VERSION_MAJOR)\
     "."xstr(PROVLIB_VERSION_MINOR)\
     "."xstr(PROVLIB_VERSION_PATCH)\
@@ -387,6 +387,8 @@ uint64_t node_str_to_id(const char* name, uint32_t len);
 int provenance_version(char* version, size_t len);
 
 int provenance_lib_version(char* version, size_t len);
+
+int provenance_commit(char* commit, size_t len);
 
 int provenance_create_channel(const char name[PATH_MAX]);
 

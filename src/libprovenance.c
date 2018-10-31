@@ -861,6 +861,17 @@ int provenance_lib_version(char* version, size_t len){
   return 0;
 }
 
+int provenance_commit(char* commit, size_t len){
+  int rc;
+  int fd = open(PROV_COMMIT, O_RDONLY);
+  if( fd < 0 )
+    return fd;
+  memset(commit, 0, len);
+  rc = read(fd, commit, len);
+  close(fd);
+  return rc;
+}
+
 int provenance_create_channel(const char name[PATH_MAX]){
   int rc;
   char buffer[PATH_MAX];
