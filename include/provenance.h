@@ -29,6 +29,8 @@
     "."xstr(PROVLIB_VERSION_MINOR)\
     "."xstr(PROVLIB_VERSION_PATCH)\
 
+#define PROVLIB_COMMIT "abc23d2604273d625a3d89034db5d75cc99288d5"
+
 struct provenance_ops{
   void (*init)(void);
   bool (*filter)(prov_entry_t* msg);
@@ -389,6 +391,8 @@ int provenance_version(char* version, size_t len);
 int provenance_lib_version(char* version, size_t len);
 
 int provenance_commit(char* commit, size_t len);
+
+int provenance_lib_commit(char* commit, size_t len);
 
 int provenance_create_channel(const char name[PATH_MAX]);
 

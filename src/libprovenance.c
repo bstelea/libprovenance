@@ -872,6 +872,13 @@ int provenance_commit(char* commit, size_t len){
   return rc;
 }
 
+int provenance_lib_commit(char* commit, size_t len){
+  if(len < strlen(PROVLIB_COMMIT))
+    return -ENOMEM;
+  strncpy(commit, PROVLIB_COMMIT, len);
+  return 0;
+}
+
 int provenance_create_channel(const char name[PATH_MAX]){
   int rc;
   char buffer[PATH_MAX];

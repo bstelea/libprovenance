@@ -1,7 +1,10 @@
 version=0.4.5
 BRANCH?=master
 
-all:
+update_commit:
+	ruby ./scripts/commit.rb
+
+all: update_commit
 	cd ./threadpool && $(MAKE) all
 	cd ./src && $(MAKE) all
 
@@ -18,7 +21,7 @@ install:
 	cd ./src && sudo $(MAKE) install
 	cd ./include && sudo $(MAKE) install
 
-rpm:
+rpm: all
 	mkdir -p ~/rpmbuild/{RPMS,SRPMS,BUILD,SOURCES,SPECS,tmp}
 	cp -f ./libprovenance.spec ~/rpmbuild/SPECS/libprovenance.spec
 	rpmbuild -bb libprovenance.spec
