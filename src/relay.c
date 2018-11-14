@@ -334,6 +334,10 @@ void long_prov_record(union long_prov_elt* msg){
       if(prov_ops.log_arg!=NULL)
         prov_ops.log_arg(&(msg->arg_info));
       break;
+    case ENT_MACHINE:
+      if(prov_ops.log_machine!=NULL)
+        prov_ops.log_machine(&(msg->machine_info));
+      break;
     default:
       record_error("Error: unknown node long type %llx\n", prov_type(msg));
       break;

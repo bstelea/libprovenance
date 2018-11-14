@@ -711,55 +711,24 @@ char* arg_to_json(struct arg_struct* n){
   return buffer;
 }
 
-char* machine_description_json(char* buffer){
-  char tmp[64];
-  uint32_t machine_id;
-  struct utsname machine_info;
-  int lsm_fd;
-  char lsm_list[2048];
-
-  memset(lsm_list, 0, 2048);
-
-  provenance_get_machine_id(&machine_id);
-  uname(&machine_info);
-
-  lsm_fd = open(LSM_LIST, O_RDONLY);
-  read(lsm_fd, lsm_list, 2048);
-
-  buffer[0]='\0';
-  strncat(buffer, "{\"prefix\":{", BUFFER_LENGTH);
-  strncat(buffer, prefix_json(), BUFFER_LENGTH);
-  strncat(buffer, "}", BUFFER_LENGTH);
-  strncat(buffer, ",\"entity\":{", BUFFER_LENGTH);
-  strncat(buffer, "\"cf:", BUFFER_LENGTH);
-  strncat(buffer, utoa(machine_id, tmp, DECIMAL), BUFFER_LENGTH);
-  strncat(buffer, "\":{", BUFFER_LENGTH);
-  strncat(buffer, "\"prov:label\":\"[machine] ", BUFFER_LENGTH);
-  strncat(buffer, utoa(machine_id, tmp, DECIMAL), BUFFER_LENGTH);
-  strncat(buffer, "\",\"cf:camflow\":\"", BUFFER_LENGTH);
-  provenance_version(tmp, 64);
-  strncat(buffer, tmp, BUFFER_LENGTH);
-  strncat(buffer, "\",\"cf:libprovenance\":\"", BUFFER_LENGTH);
-  provenance_lib_version(tmp, 64);
-  strncat(buffer, tmp, BUFFER_LENGTH);
-  strncat(buffer, "\",\"cf:sysname\":\"", BUFFER_LENGTH);
-  strncat(buffer, machine_info.sysname, BUFFER_LENGTH);
-  strncat(buffer, "\",\"cf:nodename\":\"", BUFFER_LENGTH);
-  strncat(buffer, machine_info.nodename, BUFFER_LENGTH);
-  strncat(buffer, "\",\"cf:release\":\"", BUFFER_LENGTH);
-  strncat(buffer, machine_info.release, BUFFER_LENGTH);
-  strncat(buffer, "\",\"cf:version\":\"", BUFFER_LENGTH);
-  strncat(buffer, machine_info.version, BUFFER_LENGTH);
-  strncat(buffer, "\",\"cf:machine\":\"", BUFFER_LENGTH);
-  strncat(buffer, machine_info.machine, BUFFER_LENGTH);
-  strncat(buffer, "\",\"cf:lsm_list\":\"", BUFFER_LENGTH);
-  strncat(buffer, lsm_list, BUFFER_LENGTH);
-  strncat(buffer, "\", \"cf:date", BUFFER_LENGTH);
-  strncat(buffer, "\":\"", BUFFER_LENGTH);
-  update_time();
-  pthread_rwlock_rdlock(&date_lock);
-  strncat(buffer, date, BUFFER_LENGTH);
-  pthread_rwlock_unlock(&date_lock);
-  strncat(buffer, "\"}}}", BUFFER_LENGTH);
+char* machine_to_json(struct machine_struct* m){
+  char tmp[256];
+  PACKET_PREP_IDs(m);
+  prov_prep_taint((union prov_elt*)m);
+  __node_start(id, &(m->identifier.node_id), taint, m->jiffies, m->epoch);
+  __add_string_attribute("cf:u_sysname", m->utsname.sysname, true);
+  __add_string_attribute("cf:u_nodename", m->utsname.nodename, true);
+  __add_string_attribute("cf:u_release", m->utsname.release, true);
+  __add_string_attribute("cf:u_version", m->utsname.version, true);
+  __add_string_attribute("cf:u_machine", m->utsname.machine, true);
+  __add_string_attribute("cf:u_domainname", m->utsname.domainname, true);
+  sprintf(tmp, "%d.%d.%d", m->cam_major, m->cam_minor, m->cam_patch);
+  __add_string_attribute("cf:k_version", tmp, true);
+  __add_string_attribute("cf:k_commit", m->commit, true);
+  provenance_lib_version(tmp, 256);
+  __add_string_attribute("cf:l_version", tmp, true);
+  provenance_lib_commit(tmp, 256);
+  __add_string_attribute("cf:l_commit", tmp, true);
+  __close_json_entry(buffer);
   return buffer;
 }

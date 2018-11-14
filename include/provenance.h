@@ -29,7 +29,7 @@
     "."xstr(PROVLIB_VERSION_MINOR)\
     "."xstr(PROVLIB_VERSION_PATCH)\
 
-#define PROVLIB_COMMIT "abc23d2604273d625a3d89034db5d75cc99288d5"
+#define PROVLIB_COMMIT "6dcc63ea17556a3441beeb9fe549d437d6b39de7"
 
 struct provenance_ops{
   void (*init)(void);
@@ -58,6 +58,7 @@ struct provenance_ops{
   void (*log_xattr)(struct xattr_prov_struct*);
   void (*log_packet_content)(struct pckcnt_struct*);
   void (*log_arg)(struct arg_struct*);
+  void (*log_machine)(struct machine_struct*);
   /* callback for library errors */
   void (*log_error)(char*);
   /* is it filter only? for query framework */
