@@ -49,6 +49,7 @@ static pthread_mutex_t l_entity =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 static pthread_mutex_t l_used =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 static pthread_mutex_t l_generated =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 static pthread_mutex_t l_informed =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+static pthread_mutex_t l_influenced =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 static pthread_mutex_t l_derived =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 static pthread_mutex_t l_message =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
@@ -58,6 +59,7 @@ static char* entity;
 static char* used;
 static char* generated;
 static char* informed;
+static char* influenced;
 static char* derived;
 static char* message;
 
@@ -73,6 +75,7 @@ void init_buffers(void){
   init_buffer(&used);
   init_buffer(&generated);
   init_buffer(&informed);
+  init_buffer(&influenced);
   init_buffer(&derived);
   init_buffer(&message);
 }
@@ -128,6 +131,7 @@ static inline bool __append(char destination[MAX_JSON_BUFFER_LENGTH], char* sour
 #define JSON_USED "}, \"used\":{"
 #define JSON_GENERATED "}, \"wasGeneratedBy\":{"
 #define JSON_INFORMED "}, \"wasInformedBy\":{"
+#define JSON_INFLUENCED "}, \"wasInfluencedBy\":{"
 #define JSON_DERIVED "}, \"wasDerivedFrom\":{"
 #define JSON_END "}}"
 
@@ -139,6 +143,7 @@ static inline bool __append(char destination[MAX_JSON_BUFFER_LENGTH], char* sour
                       +strlen(JSON_USED)\
                       +strlen(JSON_GENERATED)\
                       +strlen(JSON_INFORMED)\
+                      +strlen(JSON_INFLUENCED)\
                       +strlen(JSON_DERIVED)\
                       +strlen(JSON_END)\
                       +strlen(prefix_json())\
@@ -150,6 +155,7 @@ static inline bool __append(char destination[MAX_JSON_BUFFER_LENGTH], char* sour
                       +strlen(generated)\
                       +strlen(derived)\
                       +strlen(informed)\
+                      +strlen(influenced)\
                       +1)
 
 #define str_is_empty(str) (str[0]=='\0')
@@ -175,6 +181,7 @@ static inline char* ready_to_print(){
   bool content=false;
 
   pthread_mutex_lock(&l_derived);
+  pthread_mutex_lock(&l_influenced);
   pthread_mutex_lock(&l_informed);
   pthread_mutex_lock(&l_generated);
   pthread_mutex_lock(&l_used);
@@ -196,6 +203,7 @@ static inline char* ready_to_print(){
   content |= cat_prov(json, JSON_USED, used, &l_used);
   content |= cat_prov(json, JSON_GENERATED, generated, &l_generated);
   content |= cat_prov(json, JSON_INFORMED, informed, &l_informed);
+  content |= cat_prov(json, JSON_INFLUENCED, influenced, &l_influenced);
   content |= cat_prov(json, JSON_DERIVED, derived, &l_derived);
 
   if(!content){
@@ -269,6 +277,10 @@ void append_generated(char* json_element){
 
 void append_informed(char* json_element){
   json_append(&l_informed, informed, json_element);
+}
+
+void append_influenced(char* json_element){
+  json_append(&l_influenced, influenced, json_element);
 }
 
 void append_derived(char* json_element){
@@ -405,6 +417,10 @@ char* generated_to_json(struct relation_struct* e){
 
 char* informed_to_json(struct relation_struct* e){
   return __relation_to_json(e, "prov:informant", "prov:informed");
+}
+
+char* influenced_to_json(struct relation_struct* e){
+  return __relation_to_json(e, "prov:influencer", "prov:influencee");
 }
 
 char* derived_to_json(struct relation_struct* e){

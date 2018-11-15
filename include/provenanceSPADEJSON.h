@@ -16,6 +16,7 @@
 char* used_to_spade_json(struct relation_struct* e);
 char* generated_to_spade_json(struct relation_struct* e);
 char* informed_to_spade_json(struct relation_struct* e);
+char* influenced_to_spade_json(struct relation_struct* e);
 char* derived_to_spade_json(struct relation_struct* e);
 char* disc_to_spade_json(struct disc_node_struct* n);
 char* proc_to_spade_json(struct proc_prov_struct* n);

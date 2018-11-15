@@ -29,7 +29,7 @@
     "."xstr(PROVLIB_VERSION_MINOR)\
     "."xstr(PROVLIB_VERSION_PATCH)\
 
-#define PROVLIB_COMMIT "04a82395be4775efdb9f0514c191003693846a69"
+#define PROVLIB_COMMIT "31be833601afa88fb3647c32a43c55cba9080596"
 
 struct provenance_ops{
   void (*init)(void);
@@ -41,6 +41,7 @@ struct provenance_ops{
   void (*log_generated)(struct relation_struct*);
   void (*log_used)(struct relation_struct*);
   void (*log_informed)(struct relation_struct*);
+  void (*log_influenced)(struct relation_struct*);
   /* nodes callback */
   void (*log_proc)(struct proc_prov_struct*);
   void (*log_task)(struct task_prov_struct*);

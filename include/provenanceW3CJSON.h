@@ -22,6 +22,7 @@ void append_relation(char* json_element);
 void append_used(char* json_element);
 void append_generated(char* json_element);
 void append_informed(char* json_element);
+void append_influenced(char* json_element);
 void append_derived(char* json_element);
 
 /* disclosing nodes and relations for W3CJSON */
@@ -37,6 +38,7 @@ int disclose_relation_W3CJSON(uint64_t type, union prov_identifier* sender, unio
 char* used_to_json(struct relation_struct* e);
 char* generated_to_json(struct relation_struct* e);
 char* informed_to_json(struct relation_struct* e);
+char* influenced_to_json(struct relation_struct* e);
 char* derived_to_json(struct relation_struct* e);
 char* disc_to_json(struct disc_node_struct* n);
 char* proc_to_json(struct proc_prov_struct* n);
