@@ -213,6 +213,8 @@ void relation_record(union prov_elt *msg){
     prov_ops.log_derived(&(msg->relation_info));
   else if(prov_is_influenced(type) && prov_ops.log_influenced!=NULL)
     prov_ops.log_influenced(&(msg->relation_info));
+  else if(prov_is_associated(type) && prov_ops.log_associated!=NULL)
+    prov_ops.log_associated(&(msg->relation_info));
   else
     record_error("Error: unknown relation type %llx\n", prov_type(msg));
 }

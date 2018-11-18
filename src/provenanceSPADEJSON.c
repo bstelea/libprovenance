@@ -140,6 +140,13 @@ char* influenced_to_spade_json(struct relation_struct* e) {
   return buffer;
 }
 
+char* associated_to_spade_json(struct relation_struct* e) {
+  RELATION_START("WasAssociatedWith");
+  __relation_to_spade_json(e);
+  RELATION_END();
+  return buffer;
+}
+
 char* derived_to_spade_json(struct relation_struct* e) {
   RELATION_START("WasDerivedFrom");
   __relation_to_spade_json(e);
