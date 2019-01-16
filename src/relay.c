@@ -237,7 +237,6 @@ void node_record(union prov_elt *msg){
     case ENT_INODE_BLOCK:
     case ENT_INODE_PIPE:
     case ENT_INODE_SOCKET:
-    case ENT_INODE_MMAP:
       if(prov_ops.log_inode!=NULL)
         prov_ops.log_inode(&(msg->inode_info));
       break;
