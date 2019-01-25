@@ -28,6 +28,10 @@ rpm: all
 	mkdir -p output
 	cp ~/rpmbuild/RPMS/x86_64/* ./output
 
+deb:
+	sudo alien output/libprovenance-$(version)-1.x86_64.rpm
+	cp *.deb ./output
+
 travis_checkout_dev:
 	git clone https://github.com/CamFlow/camflow-dev.git
 	cd camflow-dev && git checkout $(BRANCH)
@@ -48,5 +52,10 @@ travis_update_files: travis_checkout_dev
 
 travis: travis_update_files prepare all install
 
-publish:
+publish_rpm:
 	cd ./output && package_cloud push camflow/provenance/fedora/27 libprovenance-$(version)-1.x86_64.rpm
+
+publish_deb:
+	cd ./output && package_cloud push camflow/provenance/ubuntu/bionic libprovenance_$(version)-2_amd64.deb
+
+publish: publish_rpm publish_deb
