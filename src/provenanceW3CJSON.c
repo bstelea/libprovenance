@@ -52,6 +52,8 @@ static pthread_mutex_t l_entity =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 static pthread_mutex_t l_used =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 static pthread_mutex_t l_generated =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 static pthread_mutex_t l_informed =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+static pthread_mutex_t l_influenced =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+static pthread_mutex_t l_associated =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 static pthread_mutex_t l_derived =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 static pthread_mutex_t l_message =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
@@ -61,6 +63,8 @@ static char* entity;
 static char* used;
 static char* generated;
 static char* informed;
+static char* influenced;
+static char* associated;
 static char* derived;
 static char* message;
 
@@ -76,6 +80,8 @@ void init_buffers(void){
   init_buffer(&used);
   init_buffer(&generated);
   init_buffer(&informed);
+  init_buffer(&influenced);
+  init_buffer(&associated);
   init_buffer(&derived);
   init_buffer(&message);
 }
@@ -131,6 +137,8 @@ static inline bool __append(char destination[MAX_JSON_BUFFER_LENGTH], char* sour
 #define JSON_USED "}, \"used\":{"
 #define JSON_GENERATED "}, \"wasGeneratedBy\":{"
 #define JSON_INFORMED "}, \"wasInformedBy\":{"
+#define JSON_INFLUENCED "}, \"wasInfluencedBy\":{"
+#define JSON_ASSOCIATED "}, \"wasAssociatedWith\":{"
 #define JSON_DERIVED "}, \"wasDerivedFrom\":{"
 #define JSON_END "}}"
 
@@ -142,6 +150,8 @@ static inline bool __append(char destination[MAX_JSON_BUFFER_LENGTH], char* sour
                       +strlen(JSON_USED)\
                       +strlen(JSON_GENERATED)\
                       +strlen(JSON_INFORMED)\
+                      +strlen(JSON_INFLUENCED)\
+                      +strlen(JSON_ASSOCIATED)\
                       +strlen(JSON_DERIVED)\
                       +strlen(JSON_END)\
                       +strlen(prefix_json())\
@@ -153,6 +163,8 @@ static inline bool __append(char destination[MAX_JSON_BUFFER_LENGTH], char* sour
                       +strlen(generated)\
                       +strlen(derived)\
                       +strlen(informed)\
+                      +strlen(influenced)\
+                      +strlen(associated)\
                       +1)
 
 #define str_is_empty(str) (str[0]=='\0')
@@ -178,6 +190,8 @@ static inline char* ready_to_print(){
   bool content=false;
 
   pthread_mutex_lock(&l_derived);
+  pthread_mutex_lock(&l_influenced);
+  pthread_mutex_lock(&l_associated);
   pthread_mutex_lock(&l_informed);
   pthread_mutex_lock(&l_generated);
   pthread_mutex_lock(&l_used);
@@ -199,6 +213,8 @@ static inline char* ready_to_print(){
   content |= cat_prov(json, JSON_USED, used, &l_used);
   content |= cat_prov(json, JSON_GENERATED, generated, &l_generated);
   content |= cat_prov(json, JSON_INFORMED, informed, &l_informed);
+  content |= cat_prov(json, JSON_ASSOCIATED, associated, &l_associated);
+  content |= cat_prov(json, JSON_INFLUENCED, influenced, &l_influenced);
   content |= cat_prov(json, JSON_DERIVED, derived, &l_derived);
 
   if(!content){
@@ -272,6 +288,14 @@ void append_generated(char* json_element){
 
 void append_informed(char* json_element){
   json_append(&l_informed, informed, json_element);
+}
+
+void append_influenced(char* json_element){
+  json_append(&l_influenced, influenced, json_element);
+}
+
+void append_associated(char* json_element){
+  json_append(&l_associated, associated, json_element);
 }
 
 void append_derived(char* json_element){
@@ -409,6 +433,15 @@ char* generated_to_json(struct relation_struct* e){
 char* informed_to_json(struct relation_struct* e){
   return __relation_to_json(e, "prov:informant", "prov:informed");
 }
+
+char* influenced_to_json(struct relation_struct* e){
+  return __relation_to_json(e, "prov:influencer", "prov:influencee");
+}
+
+char* associated_to_json(struct relation_struct* e){
+  return __relation_to_json(e, "prov:agent", "prov:activity");
+}
+
 
 char* derived_to_json(struct relation_struct* e){
   return __relation_to_json(e, "prov:usedEntity", "prov:generatedEntity");
@@ -714,55 +747,24 @@ char* arg_to_json(struct arg_struct* n){
   return buffer;
 }
 
-char* machine_description_json(char* buffer){
-  char tmp[64];
-  uint32_t machine_id;
-  struct utsname machine_info;
-  int lsm_fd;
-  char lsm_list[2048];
-
-  memset(lsm_list, 0, 2048);
-
-  provenance_get_machine_id(&machine_id);
-  uname(&machine_info);
-
-  lsm_fd = open(LSM_LIST, O_RDONLY);
-  read(lsm_fd, lsm_list, 2048);
-
-  buffer[0]='\0';
-  strncat(buffer, "{\"prefix\":{", BUFFER_LENGTH);
-  strncat(buffer, prefix_json(), BUFFER_LENGTH);
-  strncat(buffer, "}", BUFFER_LENGTH);
-  strncat(buffer, ",\"entity\":{", BUFFER_LENGTH);
-  strncat(buffer, "\"cf:", BUFFER_LENGTH);
-  strncat(buffer, utoa(machine_id, tmp, DECIMAL), BUFFER_LENGTH);
-  strncat(buffer, "\":{", BUFFER_LENGTH);
-  strncat(buffer, "\"prov:label\":\"[machine] ", BUFFER_LENGTH);
-  strncat(buffer, utoa(machine_id, tmp, DECIMAL), BUFFER_LENGTH);
-  strncat(buffer, "\",\"cf:camflow\":\"", BUFFER_LENGTH);
-  provenance_version(tmp, 64);
-  strncat(buffer, tmp, BUFFER_LENGTH);
-  strncat(buffer, "\",\"cf:libprovenance\":\"", BUFFER_LENGTH);
-  provenance_lib_version(tmp, 64);
-  strncat(buffer, tmp, BUFFER_LENGTH);
-  strncat(buffer, "\",\"cf:sysname\":\"", BUFFER_LENGTH);
-  strncat(buffer, machine_info.sysname, BUFFER_LENGTH);
-  strncat(buffer, "\",\"cf:nodename\":\"", BUFFER_LENGTH);
-  strncat(buffer, machine_info.nodename, BUFFER_LENGTH);
-  strncat(buffer, "\",\"cf:release\":\"", BUFFER_LENGTH);
-  strncat(buffer, machine_info.release, BUFFER_LENGTH);
-  strncat(buffer, "\",\"cf:version\":\"", BUFFER_LENGTH);
-  strncat(buffer, machine_info.version, BUFFER_LENGTH);
-  strncat(buffer, "\",\"cf:machine\":\"", BUFFER_LENGTH);
-  strncat(buffer, machine_info.machine, BUFFER_LENGTH);
-  strncat(buffer, "\",\"cf:lsm_list\":\"", BUFFER_LENGTH);
-  strncat(buffer, lsm_list, BUFFER_LENGTH);
-  strncat(buffer, "\", \"cf:date", BUFFER_LENGTH);
-  strncat(buffer, "\":\"", BUFFER_LENGTH);
-  update_time();
-  pthread_rwlock_rdlock(&date_lock);
-  strncat(buffer, date, BUFFER_LENGTH);
-  pthread_rwlock_unlock(&date_lock);
-  strncat(buffer, "\"}}}", BUFFER_LENGTH);
+char* machine_to_json(struct machine_struct* m){
+  char tmp[256];
+  PACKET_PREP_IDs(m);
+  prov_prep_taint((union prov_elt*)m);
+  __node_start(id, &(m->identifier.node_id), taint, m->jiffies, m->epoch);
+  __add_string_attribute("cf:u_sysname", m->utsname.sysname, true);
+  __add_string_attribute("cf:u_nodename", m->utsname.nodename, true);
+  __add_string_attribute("cf:u_release", m->utsname.release, true);
+  __add_string_attribute("cf:u_version", m->utsname.version, true);
+  __add_string_attribute("cf:u_machine", m->utsname.machine, true);
+  __add_string_attribute("cf:u_domainname", m->utsname.domainname, true);
+  sprintf(tmp, "%d.%d.%d", m->cam_major, m->cam_minor, m->cam_patch);
+  __add_string_attribute("cf:k_version", tmp, true);
+  __add_string_attribute("cf:k_commit", m->commit, true);
+  provenance_lib_version(tmp, 256);
+  __add_string_attribute("cf:l_version", tmp, true);
+  provenance_lib_commit(tmp, 256);
+  __add_string_attribute("cf:l_commit", tmp, true);
+  __close_json_entry(buffer);
   return buffer;
 }

@@ -214,6 +214,10 @@ void relation_record(union prov_elt *msg){
     prov_ops.log_generated(&(msg->relation_info));
   else if(prov_is_derived(type) && prov_ops.log_derived!=NULL)
     prov_ops.log_derived(&(msg->relation_info));
+  else if(prov_is_influenced(type) && prov_ops.log_influenced!=NULL)
+    prov_ops.log_influenced(&(msg->relation_info));
+  else if(prov_is_associated(type) && prov_ops.log_associated!=NULL)
+    prov_ops.log_associated(&(msg->relation_info));
   else
     record_error("Error: unknown relation type %llx\n", prov_type(msg));
 }
@@ -236,7 +240,6 @@ void node_record(union prov_elt *msg){
     case ENT_INODE_BLOCK:
     case ENT_INODE_PIPE:
     case ENT_INODE_SOCKET:
-    case ENT_INODE_MMAP:
       if(prov_ops.log_inode!=NULL)
         prov_ops.log_inode(&(msg->inode_info));
       break;
@@ -336,6 +339,10 @@ void long_prov_record(union long_prov_elt* msg){
     case ENT_ENV:
       if(prov_ops.log_arg!=NULL)
         prov_ops.log_arg(&(msg->arg_info));
+      break;
+    case AGT_MACHINE:
+      if(prov_ops.log_machine!=NULL)
+        prov_ops.log_machine(&(msg->machine_info));
       break;
     default:
       record_error("Error: unknown node long type %llx\n", prov_type(msg));

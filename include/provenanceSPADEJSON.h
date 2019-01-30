@@ -19,6 +19,8 @@
 char* used_to_spade_json(struct relation_struct* e);
 char* generated_to_spade_json(struct relation_struct* e);
 char* informed_to_spade_json(struct relation_struct* e);
+char* influenced_to_spade_json(struct relation_struct* e);
+char* associated_to_spade_json(struct relation_struct* e);
 char* derived_to_spade_json(struct relation_struct* e);
 char* disc_to_spade_json(struct disc_node_struct* n);
 char* proc_to_spade_json(struct proc_prov_struct* n);
@@ -35,7 +37,7 @@ char* iattr_to_spade_json(struct iattr_prov_struct* n);
 char* xattr_to_spade_json(struct xattr_prov_struct* n);
 char* pckcnt_to_spade_json(struct pckcnt_struct* n);
 char* arg_to_spade_json(struct arg_struct* n);
-char* machine_description_spade_json( void );
+char* machine_to_spade_json(struct machine_struct *m);
 
 void spade_json_append(char* buff);
 void set_SPADEJSON_callback( void (*fcn)(char* json) );

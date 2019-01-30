@@ -25,6 +25,8 @@ void append_relation(char* json_element);
 void append_used(char* json_element);
 void append_generated(char* json_element);
 void append_informed(char* json_element);
+void append_influenced(char* json_element);
+void append_associated(char* json_element);
 void append_derived(char* json_element);
 
 /* disclosing nodes and relations for W3CJSON */
@@ -40,6 +42,8 @@ int disclose_relation_W3CJSON(uint64_t type, union prov_identifier* sender, unio
 char* used_to_json(struct relation_struct* e);
 char* generated_to_json(struct relation_struct* e);
 char* informed_to_json(struct relation_struct* e);
+char* influenced_to_json(struct relation_struct* e);
+char* associated_to_json(struct relation_struct* e);
 char* derived_to_json(struct relation_struct* e);
 char* disc_to_json(struct disc_node_struct* n);
 char* proc_to_json(struct proc_prov_struct* n);
@@ -53,7 +57,7 @@ char* str_msg_to_json(struct str_struct* n);
 char* addr_to_json(struct address_struct* n);
 char* pathname_to_json(struct file_name_struct* n);
 const char* prefix_json();
-char* machine_description_json(char* buffer);
+char* machine_to_json(struct machine_struct *m);
 char* iattr_to_json(struct iattr_prov_struct* n);
 char* xattr_to_json(struct xattr_prov_struct* n);
 char* pckcnt_to_json(struct pckcnt_struct* n);

@@ -136,6 +136,20 @@ char* informed_to_spade_json(struct relation_struct* e) {
   return buffer;
 }
 
+char* influenced_to_spade_json(struct relation_struct* e) {
+  RELATION_START("WasInfluencedBy");
+  __relation_to_spade_json(e);
+  RELATION_END();
+  return buffer;
+}
+
+char* associated_to_spade_json(struct relation_struct* e) {
+  RELATION_START("WasAssociatedWith");
+  __relation_to_spade_json(e);
+  RELATION_END();
+  return buffer;
+}
+
 char* derived_to_spade_json(struct relation_struct* e) {
   RELATION_START("WasDerivedFrom");
   __relation_to_spade_json(e);
@@ -342,41 +356,23 @@ char* arg_to_spade_json(struct arg_struct* n) {
   return buffer;
 }
 
-char* machine_description_spade_json( void ){
-  char tmp[64];
-  uint32_t machine_id;
-  struct utsname machine_info;
-  int lsm_fd;
-  char lsm_list[2048];
-
-  memset(lsm_list, 0, 2048);
-
-  provenance_get_machine_id(&machine_id);
-  uname(&machine_info);
-
-  lsm_fd = open(LSM_LIST, O_RDONLY);
-  read(lsm_fd, lsm_list, 2048);
-
-  buffer[0]='\0';
-  strncat(buffer, "{", BUFFER_LENGTH);
-  __add_string_attribute("type", "Entity", false);
-  __add_string_attribute("id", utoa(machine_id, tmp, DECIMAL), true);
-  strncat(buffer, ",\"annotations\": {", BUFFER_LENGTH);
-  provenance_version(tmp, 64);
-  __add_string_attribute("camflow", tmp, false);
-  provenance_lib_version(tmp, 64);
-  __add_string_attribute("libprovenance", tmp, true);
-  __add_string_attribute("sysname", machine_info.sysname, true);
-  __add_string_attribute("nodename", machine_info.nodename, true);
-  __add_string_attribute("release", machine_info.release, true);
-  __add_string_attribute("version", machine_info.version, true);
-  __add_string_attribute("machine", machine_info.machine, true);
-  __add_string_attribute("lsm_list", lsm_list, true);
-  update_time();
-  pthread_rwlock_rdlock(&date_lock);
-  __add_string_attribute("date", date, true);
-  pthread_rwlock_unlock(&date_lock);
-  strncat(buffer, "}}\n", BUFFER_LENGTH);
+char* machine_to_spade_json(struct machine_struct* n){
+  char tmp[256];
+  NODE_START("Entity");
+  __add_string_attribute("u_sysname", n->utsname.sysname, true);
+  __add_string_attribute("u_nodename", n->utsname.nodename, true);
+  __add_string_attribute("u_release", n->utsname.release, true);
+  __add_string_attribute("u_version", n->utsname.version, true);
+  __add_string_attribute("u_machine", n->utsname.machine, true);
+  __add_string_attribute("u_domainname", n->utsname.domainname, true);
+  sprintf(tmp, "%d.%d.%d", n->cam_major, n->cam_minor, n->cam_patch);
+  __add_string_attribute("k_version", tmp, true);
+  __add_string_attribute("k_commit", n->commit, true);
+  provenance_lib_version(tmp, 256);
+  __add_string_attribute("l_version", tmp, true);
+  provenance_lib_commit(tmp, 256);
+  __add_string_attribute("l_commit", tmp, true);
+  NODE_END();
   return buffer;
 }
 

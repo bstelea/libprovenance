@@ -27,10 +27,12 @@
 
 #define PROVLIB_VERSION_MAJOR 0
 #define PROVLIB_VERSION_MINOR 4
-#define PROVLIB_VERSION_PATCH 4
+#define PROVLIB_VERSION_PATCH 5
 #define PROVLIB_VERSION_STR   "v"xstr(PROVLIB_VERSION_MAJOR)\
     "."xstr(PROVLIB_VERSION_MINOR)\
     "."xstr(PROVLIB_VERSION_PATCH)\
+
+#define PROVLIB_COMMIT "b3ad95aa55abe4fb4aa41e62575ff104978d5232"
 
 struct provenance_ops{
   void (*init)(void);
@@ -42,6 +44,8 @@ struct provenance_ops{
   void (*log_generated)(struct relation_struct*);
   void (*log_used)(struct relation_struct*);
   void (*log_informed)(struct relation_struct*);
+  void (*log_influenced)(struct relation_struct*);
+  void (*log_associated)(struct relation_struct*);
   /* nodes callback */
   void (*log_proc)(struct proc_prov_struct*);
   void (*log_task)(struct task_prov_struct*);
@@ -59,6 +63,7 @@ struct provenance_ops{
   void (*log_xattr)(struct xattr_prov_struct*);
   void (*log_packet_content)(struct pckcnt_struct*);
   void (*log_arg)(struct arg_struct*);
+  void (*log_machine)(struct machine_struct*);
   /* callback for library errors */
   void (*log_error)(char*);
   /* is it filter only? for query framework */
@@ -390,6 +395,10 @@ uint64_t node_str_to_id(const char* name, uint32_t len);
 int provenance_version(char* version, size_t len);
 
 int provenance_lib_version(char* version, size_t len);
+
+int provenance_commit(char* commit, size_t len);
+
+int provenance_lib_commit(char* commit, size_t len);
 
 int provenance_create_channel(const char name[PATH_MAX]);
 
