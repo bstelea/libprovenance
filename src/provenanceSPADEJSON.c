@@ -261,17 +261,31 @@ char* str_msg_to_spade_json(struct str_struct* n) {
 char* addr_to_spade_json(struct address_struct* n) {
   char host[NI_MAXHOST];
   char serv[NI_MAXSERV];
+  int err;
+
   NODE_START("Entity");
   if(n->addr.sa_family == AF_INET){
-    getnameinfo(&(n->addr), n->length, host, NI_MAXHOST, serv, NI_MAXSERV, 0);
+    err = getnameinfo(&(n->addr), n->length, host, NI_MAXHOST, serv, NI_MAXSERV, NI_IDN_USE_STD3_ASCII_RULES);
     __add_string_attribute("type", "AF_INET", true);
-    __add_string_attribute("host", host, true);
-    __add_string_attribute("serv", serv, true);
+    if (err < 0) {
+      __add_string_attribute("host", "could not resolve", true);
+      __add_string_attribute("serv", "could not resolve", true);
+      __add_string_attribute("error", gai_strerror(err), true);
+    } else {
+      __add_string_attribute("host", host, true);
+      __add_string_attribute("serv", serv, true);
+    }
   }else if(n->addr.sa_family == AF_INET6){
-    getnameinfo(&(n->addr), n->length, host, NI_MAXHOST, serv, NI_MAXSERV, 0);
+    err = getnameinfo(&(n->addr), n->length, host, NI_MAXHOST, serv, NI_MAXSERV, NI_IDN_USE_STD3_ASCII_RULES);
     __add_string_attribute("type", "AF_INET6", true);
-    __add_string_attribute("host", host, true);
-    __add_string_attribute("serv", serv, true);
+    if (err < 0) {
+      __add_string_attribute("host", "could not resolve", true);
+      __add_string_attribute("serv", "could not resolve", true);
+      __add_string_attribute("error", gai_strerror(err), true);
+    } else {
+      __add_string_attribute("host", host, true);
+      __add_string_attribute("serv", serv, true);
+    }
   }else if(n->addr.sa_family == AF_UNIX){
     __add_string_attribute("type", "AF_UNIX", true);
     __add_string_attribute("path", ((struct sockaddr_un*)&(n->addr))->sun_path, true);
