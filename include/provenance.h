@@ -32,7 +32,7 @@
     "."xstr(PROVLIB_VERSION_MINOR)\
     "."xstr(PROVLIB_VERSION_PATCH)\
 
-#define PROVLIB_COMMIT "c04cb2aca06a2d439826fc97df8c8769e4f5ba38"
+#define PROVLIB_COMMIT "6811edcf58bf47f44809569f266f1a888b5679ec"
 
 struct provenance_ops{
   void (*init)(void);
