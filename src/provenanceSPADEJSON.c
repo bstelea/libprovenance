@@ -269,22 +269,22 @@ char* addr_to_spade_json(struct address_struct* n) {
     __add_string_attribute("type", "AF_INET", true);
     if (err < 0) {
       __add_string_attribute("host", "could not resolve", true);
-      __add_string_attribute("serv", "could not resolve", true);
+      __add_string_attribute("service", "could not resolve", true);
       __add_string_attribute("error", gai_strerror(err), true);
     } else {
       __add_string_attribute("host", host, true);
-      __add_string_attribute("serv", serv, true);
+      __add_string_attribute("service", serv, true);
     }
   }else if(n->addr.sa_family == AF_INET6){
     err = getnameinfo(&(n->addr), n->length, host, NI_MAXHOST, serv, NI_MAXSERV, NI_IDN_USE_STD3_ASCII_RULES);
     __add_string_attribute("type", "AF_INET6", true);
     if (err < 0) {
       __add_string_attribute("host", "could not resolve", true);
-      __add_string_attribute("serv", "could not resolve", true);
+      __add_string_attribute("service", "could not resolve", true);
       __add_string_attribute("error", gai_strerror(err), true);
     } else {
       __add_string_attribute("host", host, true);
-      __add_string_attribute("serv", serv, true);
+      __add_string_attribute("service", serv, true);
     }
   }else if(n->addr.sa_family == AF_UNIX){
     __add_string_attribute("type", "AF_UNIX", true);

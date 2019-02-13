@@ -659,15 +659,15 @@ char* sockaddr_to_json(char* buf, size_t blen, struct sockaddr* addr, size_t len
   if(addr->sa_family == AF_INET){
     err = getnameinfo(addr, length, host, NI_MAXHOST, serv, NI_MAXSERV, NI_IDN_USE_STD3_ASCII_RULES);
     if (err < 0)
-      snprintf(buf, blen, "{\"type\":\"AF_INET\", \"host\":\"%s\", \"serv\":\"%s\", \"error\":\"%s\"}", "could not resolve", "could not resolve", gai_strerror(err));
+      snprintf(buf, blen, "{\"type\":\"AF_INET\", \"host\":\"%s\", \"service\":\"%s\", \"error\":\"%s\"}", "could not resolve", "could not resolve", gai_strerror(err));
     else
-      snprintf(buf, blen, "{\"type\":\"AF_INET\", \"host\":\"%s\", \"serv\":\"%s\"}", host, serv);
+      snprintf(buf, blen, "{\"type\":\"AF_INET\", \"host\":\"%s\", \"service\":\"%s\"}", host, serv);
   }else if(addr->sa_family == AF_INET6){
     err = getnameinfo(addr, length, host, NI_MAXHOST, serv, NI_MAXSERV, NI_IDN_USE_STD3_ASCII_RULES);
     if (err < 0)
-      snprintf(buf, blen, "{\"type\":\"AF_INET6\", \"host\":\"%s\", \"serv\":\"%s\", \"error\":\"%s\"}", "could not resolve", "could not resolve", gai_strerror(err));
+      snprintf(buf, blen, "{\"type\":\"AF_INET6\", \"host\":\"%s\", \"service\":\"%s\", \"error\":\"%s\"}", "could not resolve", "could not resolve", gai_strerror(err));
     else
-      snprintf(buf, blen, "{\"type\":\"AF_INET6\", \"host\":\"%s\", \"serv\":\"%s\"}", host, serv);
+      snprintf(buf, blen, "{\"type\":\"AF_INET6\", \"host\":\"%s\", \"service\":\"%s\"}", host, serv);
   }else if(addr->sa_family == AF_UNIX){
     snprintf(buf, blen, "{\"type\":\"AF_UNIX\", \"path\":\"%s\"}", ((struct sockaddr_un*)addr)->sun_path);
   }else{
