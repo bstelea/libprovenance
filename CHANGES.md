@@ -41,6 +41,7 @@
 
 ### v0.4.6
 ```
+- Print service type in address label.
 - In address description: serv -> service.
 - Fixing getnameinfo issue (address name resolution).
 ```

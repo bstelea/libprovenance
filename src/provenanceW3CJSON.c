@@ -687,13 +687,13 @@ char* sockaddr_to_label(char* buf, size_t blen, struct sockaddr* addr, size_t le
     if (err < 0)
       snprintf(buf, blen, "IPV4 could not resolve (%s)", gai_strerror(err));
     else
-      snprintf(buf, blen, "IPV4 %s", host);
+      snprintf(buf, blen, "IPV4 %s (%s)", host, serv);
   }else if(addr->sa_family == AF_INET6){
     err = getnameinfo(addr, length, host, NI_MAXHOST, serv, NI_MAXSERV, NI_IDN_USE_STD3_ASCII_RULES);
     if (err < 0)
       snprintf(buf, blen, "IPV6 could not resolve (%s)", gai_strerror(err));
     else
-      snprintf(buf, blen, "IPV6 %s", host);
+      snprintf(buf, blen, "IPV6 %s (%s)", host, serv);
   }else if(addr->sa_family == AF_UNIX){
     snprintf(buf, blen, "UNIX %s", ((struct sockaddr_un*)addr)->sun_path);
   }else{
