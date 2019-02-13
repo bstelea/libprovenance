@@ -4,7 +4,7 @@ BRANCH?=master
 update_commit:
 	ruby ./scripts/commit.rb
 
-all: update_commit
+all: update_commit clean
 	cd ./threadpool && $(MAKE) all
 	cd ./src && $(MAKE) all
 
