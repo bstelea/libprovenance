@@ -657,13 +657,13 @@ char* sockaddr_to_json(char* buf, size_t blen, struct sockaddr* addr, size_t len
   int err;
 
   if(addr->sa_family == AF_INET){
-    err = getnameinfo(addr, length, host, NI_MAXHOST, serv, NI_MAXSERV, NI_IDN);
+    err = getnameinfo(addr, length, host, NI_MAXHOST, serv, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
     if (err < 0)
       snprintf(buf, blen, "{\"type\":\"AF_INET\", \"host\":\"%s\", \"service\":\"%s\", \"error\":\"%s\"}", "could not resolve", "could not resolve", gai_strerror(err));
     else
       snprintf(buf, blen, "{\"type\":\"AF_INET\", \"host\":\"%s\", \"service\":\"%s\"}", host, serv);
   }else if(addr->sa_family == AF_INET6){
-    err = getnameinfo(addr, length, host, NI_MAXHOST, serv, NI_MAXSERV, NI_IDN);
+    err = getnameinfo(addr, length, host, NI_MAXHOST, serv, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
     if (err < 0)
       snprintf(buf, blen, "{\"type\":\"AF_INET6\", \"host\":\"%s\", \"service\":\"%s\", \"error\":\"%s\"}", "could not resolve", "could not resolve", gai_strerror(err));
     else
@@ -683,13 +683,13 @@ char* sockaddr_to_label(char* buf, size_t blen, struct sockaddr* addr, size_t le
   int err;
 
   if(addr->sa_family == AF_INET){
-    err = getnameinfo(addr, length, host, NI_MAXHOST, serv, NI_MAXSERV, NI_IDN);
+    err = getnameinfo(addr, length, host, NI_MAXHOST, serv, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
     if (err < 0)
       snprintf(buf, blen, "IPV4 could not resolve (%s)", gai_strerror(err));
     else
       snprintf(buf, blen, "IPV4 %s (%s)", host, serv);
   }else if(addr->sa_family == AF_INET6){
-    err = getnameinfo(addr, length, host, NI_MAXHOST, serv, NI_MAXSERV, NI_IDN);
+    err = getnameinfo(addr, length, host, NI_MAXHOST, serv, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
     if (err < 0)
       snprintf(buf, blen, "IPV6 could not resolve (%s)", gai_strerror(err));
     else
