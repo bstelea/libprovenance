@@ -671,9 +671,12 @@ char* sockaddr_to_json(char* buf, size_t blen, struct sockaddr* addr, size_t len
   }else if(addr->sa_family == AF_UNIX){
     snprintf(buf, blen, "{\"type\":\"AF_UNIX\", \"path\":\"%s\"}", ((struct sockaddr_un*)addr)->sun_path);
   }else{
-    snprintf(buf, blen, "{\"type\":\"OTHER\"}");
+    err = getnameinfo(addr, length, host, NI_MAXHOST, serv, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
+    if (err < 0)
+      snprintf(buf, blen, "{\"type\":%d, \"host\":\"%s\", \"service\":\"%s\"}", addr->sa_family, host, serv);
+    else
+      snprintf(buf, blen, "{\"type\":%d, \"host\":\"%s\", \"service\":\"%s\", \"error\":\"%s\"}", addr->sa_family, host, serv, gai_strerror(err));
   }
-
   return buf;
 }
 
@@ -697,7 +700,11 @@ char* sockaddr_to_label(char* buf, size_t blen, struct sockaddr* addr, size_t le
   }else if(addr->sa_family == AF_UNIX){
     snprintf(buf, blen, "UNIX %s", ((struct sockaddr_un*)addr)->sun_path);
   }else{
-    snprintf(buf, blen, "OTHER");
+    err = getnameinfo(addr, length, host, NI_MAXHOST, serv, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
+    if (err < 0)
+      snprintf(buf, blen, "%d could not resolve (%s)", addr->sa_family, gai_strerror(err));
+    else
+      snprintf(buf, blen, "%d %s (%s)", addr->sa_family, host, serv);
   }
 
   return buf;

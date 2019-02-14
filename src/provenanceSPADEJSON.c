@@ -290,7 +290,16 @@ char* addr_to_spade_json(struct address_struct* n) {
     __add_string_attribute("type", "AF_UNIX", true);
     __add_string_attribute("path", ((struct sockaddr_un*)&(n->addr))->sun_path, true);
   }else{
-    __add_string_attribute("type", "OTHER", true);
+    err = getnameinfo(&(n->addr), n->length, host, NI_MAXHOST, serv, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
+    __add_int32_attribute("type", n->addr.sa_family, true);
+    if (err < 0) {
+      __add_string_attribute("host", "could not resolve", true);
+      __add_string_attribute("service", "could not resolve", true);
+      __add_string_attribute("error", gai_strerror(err), true);
+    } else {
+      __add_string_attribute("host", host, true);
+      __add_string_attribute("service", serv, true);
+    }
   }
   NODE_END();
   return buffer;
