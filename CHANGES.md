@@ -2,6 +2,7 @@
 
 | Library version | Date       |
 | --------------- | ---------- |
+| 0.4.6           | 21/02/2019 |
 | 0.4.5           | 30/01/2019 |
 | 0.4.4           | 24/10/2018 |
 | 0.4.3           | 21/08/2018 |
@@ -37,6 +38,13 @@
 | 0.1.2           | 26/05/2016 |
 | 0.1.1           | 03/04/2016 |
 | 0.1.0           | 28/03/2016 |
+
+### v0.4.6
+```
+- Print service type in address label.
+- In address description: serv -> service.
+- Fixing getnameinfo issue (address name resolution).
+```
 
 ### v0.4.5
 ```
