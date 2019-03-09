@@ -38,6 +38,9 @@ travis_checkout_dev:
 
 travis_update_files: travis_checkout_dev
 	sed -i -e 's/#include <linux\/provenance.h>/#include "..\/camflow-dev\/include\/uapi\/linux\/provenance.h"/g' ./include/provenance.h
+	sed -i -e 's/#include <linux\/provenance_fs.h>/#include "..\/camflow-dev\/include\/uapi\/linux\/provenance_fs.h"/g' ./include/provenance.h
+	sed -i -e 's/#include <linux\/provenance_utils.h>/#include "..\/camflow-dev\/include\/uapi\/linux\/provenance_utils.h"/g' ./include/provenance.h
+	sed -i -e 's/#include <linux\/provenance_types.h>/#include "..\/camflow-dev\/include\/uapi\/linux\/provenance_types.h"/g' ./include/provenance.h
 	sed -i -e 's/#include <linux\/provenance.h>/#include "..\/camflow-dev\/include\/uapi\/linux\/provenance.h"/g' ./include/provenancefilter.h
 	sed -i -e 's/#include <linux\/provenance.h>/#include "..\/camflow-dev\/include\/uapi\/linux\/provenance.h"/g' ./include/provenanceutils.h
 	sed -i -e 's/#include <linux\/provenance_types.h>/#include "..\/camflow-dev\/include\/uapi\/linux\/provenance_types.h"/g' ./include/provenancefilter.h
