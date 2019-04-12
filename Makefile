@@ -1,5 +1,5 @@
 version=0.4.7
-BRANCH?=master
+BRANCH?=dev
 
 update_commit:
 	ruby ./scripts/commit.rb
@@ -52,6 +52,7 @@ travis_update_files: travis_checkout_dev
 	sed -i -e 's/#include <linux\/provenance_fs.h>/#include "..\/camflow-dev\/include\/uapi\/linux\/provenance_fs.h"/g' ./include/provenance.h
 	sed -i -e 's/#include <linux\/provenance_utils.h>/#include "..\/camflow-dev\/include\/uapi\/linux\/provenance_utils.h"/g' ./include/provenance.h
 	sed -i -e 's/#include <linux\/provenance_types.h>/#include "..\/camflow-dev\/include\/uapi\/linux\/provenance_types.h"/g' ./include/provenance.h
+	sed -i -e 's/#include <linux\/provenance_utils.h>/#include "provenance_utils.h"/g' ./camflow-dev/include/uapi/linux/provenance.h
 
 travis: travis_update_files prepare all install
 
