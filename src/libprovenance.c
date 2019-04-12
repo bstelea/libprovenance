@@ -41,9 +41,9 @@ static inline int __set_boolean(bool value, const char* name){
   }
   if(value)
   {
-    rc = write(fd, "1", sizeof(char));
+    rc = write(fd, "1", 2*sizeof(char));
   }else{
-    rc = write(fd, "0", sizeof(char));
+    rc = write(fd, "0", 2*sizeof(char));
   }
   close(fd);
   if(rc < 0){
