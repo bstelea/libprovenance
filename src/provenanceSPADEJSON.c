@@ -262,10 +262,11 @@ char* addr_to_spade_json(struct address_struct* n) {
   char host[NI_MAXHOST];
   char serv[NI_MAXSERV];
   int err;
+  struct sockaddr *ad = (struct sockaddr*)&(n->addr);
 
   NODE_START("Entity");
-  if(n->addr.sa_family == AF_INET){
-    err = getnameinfo(&(n->addr), sizeof(struct sockaddr_in), host, NI_MAXHOST, serv, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
+  if(ad->sa_family == AF_INET){
+    err = getnameinfo(ad, sizeof(struct sockaddr_in), host, NI_MAXHOST, serv, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
     __add_string_attribute("type", "AF_INET", true);
     if (err < 0) {
       __add_string_attribute("host", "could not resolve", true);
@@ -275,8 +276,8 @@ char* addr_to_spade_json(struct address_struct* n) {
       __add_string_attribute("host", host, true);
       __add_string_attribute("service", serv, true);
     }
-  }else if(n->addr.sa_family == AF_INET6){
-    err = getnameinfo(&(n->addr), sizeof(struct sockaddr_in6), host, NI_MAXHOST, serv, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
+  }else if(ad->sa_family == AF_INET6){
+    err = getnameinfo(ad, sizeof(struct sockaddr_in6), host, NI_MAXHOST, serv, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
     __add_string_attribute("type", "AF_INET6", true);
     if (err < 0) {
       __add_string_attribute("host", "could not resolve", true);
@@ -286,12 +287,12 @@ char* addr_to_spade_json(struct address_struct* n) {
       __add_string_attribute("host", host, true);
       __add_string_attribute("service", serv, true);
     }
-  }else if(n->addr.sa_family == AF_UNIX){
+  }else if(ad->sa_family == AF_UNIX){
     __add_string_attribute("type", "AF_UNIX", true);
-    __add_string_attribute("path", ((struct sockaddr_un*)&(n->addr))->sun_path, true);
+    __add_string_attribute("path", ((struct sockaddr_un*)ad)->sun_path, true);
   }else{
-    err = getnameinfo(&(n->addr), n->length, host, NI_MAXHOST, serv, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
-    __add_int32_attribute("type", n->addr.sa_family, true);
+    err = getnameinfo(ad, n->length, host, NI_MAXHOST, serv, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
+    __add_int32_attribute("type", ad->sa_family, true);
     if (err < 0) {
       __add_string_attribute("host", "could not resolve", true);
       __add_string_attribute("service", "could not resolve", true);
