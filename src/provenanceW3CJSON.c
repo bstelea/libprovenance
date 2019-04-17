@@ -674,9 +674,9 @@ char* sockaddr_to_json(char* buf, size_t blen, struct sockaddr_storage* addr, si
   }else{
     err = getnameinfo(ad, length, host, NI_MAXHOST, serv, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
     if (err < 0)
-      snprintf(buf, blen, "{\"type\":%d, \"host\":\"%s\", \"service\":\"%s\"}", ad->sa_family, host, serv);
-    else
       snprintf(buf, blen, "{\"type\":%d, \"host\":\"%s\", \"service\":\"%s\", \"error\":\"%s\"}", ad->sa_family, host, serv, gai_strerror(err));
+    else
+      snprintf(buf, blen, "{\"type\":%d, \"host\":\"%s\", \"service\":\"%s\"}", ad->sa_family, host, serv);
   }
   return buf;
 }
