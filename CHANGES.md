@@ -40,6 +40,13 @@
 | 0.1.1           | 03/04/2016 |
 | 0.1.0           | 28/03/2016 |
 
+### v0.4.7
+```
+- Fix address bug.
+- Record task_id (thread) as an edge attribute.
+
+```
+
 ### v0.4.6
 ```
 - Print service type in address label.
