@@ -21,18 +21,21 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <linux/provenance.h>
+#include <linux/provenance_fs.h>
+#include <linux/provenance_utils.h>
+#include <linux/provenance_types.h>
 
 #define xstr(s) str(s)
 #define str(s) # s
 
 #define PROVLIB_VERSION_MAJOR 0
 #define PROVLIB_VERSION_MINOR 4
-#define PROVLIB_VERSION_PATCH 6
+#define PROVLIB_VERSION_PATCH 7
 #define PROVLIB_VERSION_STR   "v"xstr(PROVLIB_VERSION_MAJOR)\
     "."xstr(PROVLIB_VERSION_MINOR)\
     "."xstr(PROVLIB_VERSION_PATCH)\
 
-#define PROVLIB_COMMIT "5c586056108e859f9d363fcd03c02a6a0f7138e2"
+#define PROVLIB_COMMIT "ad817d39890b76b83df2ff9c3b5177941fce4d64"
 
 struct provenance_ops{
   void (*init)(void);
