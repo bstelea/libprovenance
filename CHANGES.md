@@ -2,7 +2,7 @@
 
 | Library version | Date       |
 | --------------- | ---------- |
-| 0.4.9           | N/A        |
+| 0.4.9           | 23/08/2019 |
 | 0.4.8           | 17/06/2019 |
 | 0.4.7           | 29/04/2019 |
 | 0.4.6           | 21/02/2019 |
@@ -44,7 +44,7 @@
 
 ### v0.4.9
 ```
-- Perf attributes moved from proc to task.
+- Resource accounting attributes moved from proc to task.
 ```
 
 ### v0.4.8
