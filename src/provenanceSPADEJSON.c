@@ -178,6 +178,14 @@ char* proc_to_spade_json(struct proc_prov_struct* n) {
   __add_uint32_attribute("cgroupns", n->cgroupns, true);
   provenance_secid_to_secctx(n->secid, secctx, PATH_MAX);
   __add_string_attribute("secctx", secctx, true);
+  NODE_END();
+  return buffer;
+}
+
+char* task_to_spade_json(struct task_prov_struct* n) {
+  NODE_START("Activity");
+  __add_uint32_attribute("pid", n->pid, true);
+  __add_uint32_attribute("vpid", n->vpid, true);
   __add_uint64_attribute("utime", n->utime, true);
   __add_uint64_attribute("stime", n->stime, true);
   __add_uint64_attribute("vm", n->vm, true);
@@ -187,14 +195,6 @@ char* proc_to_spade_json(struct proc_prov_struct* n) {
   __add_uint64_attribute("rbytes", n->rbytes, true);
   __add_uint64_attribute("wbytes", n->wbytes, true);
   __add_uint64_attribute("cancel_wbytes", n->cancel_wbytes, true);
-  NODE_END();
-  return buffer;
-}
-
-char* task_to_spade_json(struct task_prov_struct* n) {
-  NODE_START("Activity");
-  __add_uint32_attribute("pid", n->pid, true);
-  __add_uint32_attribute("vpid", n->vpid, true);
   NODE_END();
   return buffer;
 }
