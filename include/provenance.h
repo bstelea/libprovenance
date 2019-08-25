@@ -35,7 +35,7 @@
     "."xstr(PROVLIB_VERSION_MINOR)\
     "."xstr(PROVLIB_VERSION_PATCH)\
 
-#define PROVLIB_COMMIT "ccbdd126ae28559ba106ba5e8f64da7001cd6160"
+#define PROVLIB_COMMIT "95445d66c205fd74a1b2e994bf7729365d20197a"
 
 struct provenance_ops{
   void (*init)(void);
@@ -360,6 +360,18 @@ int provenance_egress_ipv4_propagate(const char* param);
 int provenance_egress_ipv4_record(const char* param);
 int provenance_egress_ipv4_delete(const char* param);
 int provenance_egress_ipv4( struct prov_ipv4_filter* filters, size_t length );
+
+int provenance_ingress_ipv6_track(const char* param);
+int provenance_ingress_ipv6_propagate(const char* param);
+int provenance_ingress_ipv6_record(const char* param);
+int provenance_ingress_ipv6_delete(const char* param);
+int provenance_ingress_ipv6(prov_ipv6_filter* filters, size_t length);
+
+int provenance_egress_ipv6_track(const char* param);
+int provenance_egress_ipv6_propagate(const char* param);
+int provenance_egress_ipv6_record(const char* param);
+int provenance_egress_ipv6_delete(const char* param);
+int provenance_egress_ipv6(prov_ipv6_filter* filters, size_t length);
 
 int provenance_secid_to_secctx( uint32_t secid, char* secctx, uint32_t len);
 
