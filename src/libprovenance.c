@@ -507,14 +507,14 @@ static int __param_to_ipv6_filter(const char* param, prov_ipv6_filter* filter){
   uint32_t port;
 
   err = sscanf(param, "[%x:%x:%x:%x:%x:%x:%x:%x]:%u", &a, &b, &c, &d, &e, &f, &g, &h, &port);
-  filter->ip.s6_addr16[0] = a;
-  filter->ip.s6_addr16[1] = b;
-  filter->ip.s6_addr16[2] = c;
-  filter->ip.s6_addr16[3] = d;
-  filter->ip.s6_addr16[4] = e;
-  filter->ip.s6_addr16[5] = f;
-  filter->ip.s6_addr16[6] = g;
-  filter->ip.s6_addr16[7] = h;
+  filter->ip.s6_addr16[0] = htons(a);
+  filter->ip.s6_addr16[1] = htons(b);
+  filter->ip.s6_addr16[2] = htons(c);
+  filter->ip.s6_addr16[3] = htons(d);
+  filter->ip.s6_addr16[4] = htons(e);
+  filter->ip.s6_addr16[5] = htons(f);
+  filter->ip.s6_addr16[6] = htons(g);
+  filter->ip.s6_addr16[7] = htons(h);
   if(err < 9){
     errno=-EINVAL;
     return -EINVAL;

@@ -624,10 +624,10 @@ char* packet_to_json(struct pck_struct* p){
   __add_string_attribute("prov:type", "packet", true);
   __add_string_attribute("cf:taint", taint, true);
   __add_uint64_attribute("cf:jiffies", p->jiffies, true);
-  strncat(buffer, ",\"prov:label\":\"[packet] ", BUFFER_LENGTH);
-  __add_ipv4(p->identifier.packet_id.snd_ip, p->identifier.packet_id.snd_port);
+  strncat(buffer, ",\"prov:label\":\"[packet ipv6] ", BUFFER_LENGTH);
+  __add_ipv6(p->identifier.ipv6_packet_id.snd_ip, p->identifier.ipv6_packet_id.snd_port);
   strncat(buffer, "->", BUFFER_LENGTH);
-  __add_ipv4(p->identifier.packet_id.rcv_ip, p->identifier.packet_id.rcv_port);
+  __add_ipv6(p->identifier.ipv6_packet_id.rcv_ip, p->identifier.ipv6_packet_id.rcv_port);
   strncat(buffer, " (", BUFFER_LENGTH);
   strncat(buffer, utoa(p->identifier.packet_id.id, tmp, DECIMAL), BUFFER_LENGTH);
   strncat(buffer, ")\"", BUFFER_LENGTH);
