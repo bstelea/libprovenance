@@ -617,10 +617,9 @@ char* packet_to_json(struct pck_struct* p){
   PACKET_PREP_IDs(p);
   prov_prep_taint((union prov_elt*)p);
   __init_json_entry(id);
-  __add_uint32_attribute("cf:id", p->identifier.packet_id.id, false);
-  __add_uint32_attribute("cf:seq", p->identifier.packet_id.seq, true);
-  __add_ipv4_attribute("cf:sender", p->identifier.packet_id.snd_ip, p->identifier.packet_id.snd_port, true);
-  __add_ipv4_attribute("cf:receiver", p->identifier.packet_id.rcv_ip, p->identifier.packet_id.rcv_port, true);
+  __add_uint32_attribute("cf:seq", p->identifier.ipv6_packet_id.seq, false);
+  __add_ipv6_attribute("cf:sender", p->identifier.ipv6_packet_id.snd_ip, p->identifier.ipv6_packet_id.snd_port, true);
+  __add_ipv6_attribute("cf:receiver", p->identifier.ipv6_packet_id.rcv_ip, p->identifier.ipv6_packet_id.rcv_port, true);
   __add_string_attribute("prov:type", "packet", true);
   __add_string_attribute("cf:taint", taint, true);
   __add_uint64_attribute("cf:jiffies", p->jiffies, true);
@@ -628,9 +627,7 @@ char* packet_to_json(struct pck_struct* p){
   __add_ipv6(p->identifier.ipv6_packet_id.snd_ip, p->identifier.ipv6_packet_id.snd_port);
   strncat(buffer, "->", BUFFER_LENGTH);
   __add_ipv6(p->identifier.ipv6_packet_id.rcv_ip, p->identifier.ipv6_packet_id.rcv_port);
-  strncat(buffer, " (", BUFFER_LENGTH);
-  strncat(buffer, utoa(p->identifier.packet_id.id, tmp, DECIMAL), BUFFER_LENGTH);
-  strncat(buffer, ")\"", BUFFER_LENGTH);
+  strncat(buffer, "\"", BUFFER_LENGTH);
   __close_json_entry(buffer);
   return buffer;
 }
