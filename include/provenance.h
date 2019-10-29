@@ -326,7 +326,7 @@ int fprovenance_label_file(int fd, const char *label);
 
 /*
 * @pid process pid
-* @inode_info point to an inode_info structure
+* @process_info point to an process_info structure
 * retrieve provenance information of the process associated with pid.
 */
 int provenance_read_process(uint32_t pid, union prov_elt* process_info);
