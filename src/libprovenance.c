@@ -195,6 +195,17 @@ int provenance_disclose_node(struct disc_node_struct* node){
   return rc;
 }
 
+int provenance_last_disclosed_node(struct disc_node_struct* node){
+  int rc;
+  int fd = open(PROV_NODE_FILE, O_RDONLY);
+
+  if(fd<0)
+    return fd;
+  rc = read(fd, node, sizeof(struct disc_node_struct));
+  close(fd);
+  return rc;
+}
+
 int provenance_disclose_relation(struct relation_struct* relation){
   int rc;
   int fd = open(PROV_RELATION_FILE, O_WRONLY);

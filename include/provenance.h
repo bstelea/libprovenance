@@ -35,7 +35,7 @@
     "."xstr(PROVLIB_VERSION_MINOR)\
     "."xstr(PROVLIB_VERSION_PATCH)\
 
-#define PROVLIB_COMMIT "ccbdd126ae28559ba106ba5e8f64da7001cd6160"
+#define PROVLIB_COMMIT "78ee8ec9c005348e7b75fb49209c9e46f3abde03"
 
 struct provenance_ops{
   void (*init)(void);
@@ -233,6 +233,12 @@ int provenance_get_boot_id(uint32_t* v);
 * be updated by the kernel.
 */
 int provenance_disclose_node(struct disc_node_struct* node);
+
+/*
+* @node node data structure to be retrieved
+* API to retrieve the last disclosed node.
+*/
+int provenance_last_disclosed_node(struct disc_node_struct* node);
 
 /*
 * @relation relation data structure to be recorded
