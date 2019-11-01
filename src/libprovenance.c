@@ -14,6 +14,7 @@
 */
 #include <sys/types.h>
 #include <sys/syscall.h>
+#include <pthread.h>
 #include <sys/un.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -905,4 +906,77 @@ int provenance_create_channel(const char name[PATH_MAX]){
   rc = write(fd, name, strlen(name)+1);
   close(fd);
   return rc;
+}
+
+struct disc_entry {
+    uint64_t id;            /* we'll use this field as the key */
+    struct disc_node_struct prov;
+    UT_hash_handle hh; /* makes this structure hashable */
+};
+
+struct disc_entry *disc_hash = NULL;
+pthread_mutex_t disclosed_lock;
+
+int disclose_init(void) {
+  if (pthread_mutex_init(&disclosed_lock, NULL) != 0)
+    return -1;
+  return 0;
+}
+
+uint64_t __disclose_node(uint64_t type, char* json_attributes) {
+  struct disc_entry *de = calloc(1, sizeof(struct disc_entry));
+  uint64_t rc = 0;
+
+  de->prov.identifier.node_id.type = type;
+  strncpy(de->prov.content, json_attributes, PATH_MAX);
+  de->prov.length = strnlen(json_attributes, PATH_MAX);
+
+  rc = provenance_disclose_node(&(de->prov));
+  if (rc < 0) {
+    free(de);
+    return 0;
+  }
+
+  rc = provenance_last_disclosed_node(&(de->prov));
+  if (rc < 0) {
+    free(de);
+    return 0;
+  }
+
+  rc = de->prov.identifier.node_id.id;
+  de->id = rc;
+
+  pthread_mutex_lock(&disclosed_lock);
+  HASH_ADD(hh, disc_hash, id, sizeof(uint64_t), de);
+  pthread_mutex_unlock(&disclosed_lock);
+
+  return rc;
+}
+
+void disclose_free(uint64_t id) {
+  struct disc_entry *de, *tmp;
+
+  pthread_mutex_lock(&disclosed_lock);
+  HASH_FIND(hh, disc_hash, &id, sizeof(uint64_t), de);
+  if (de) {
+    HASH_DEL(disc_hash, de);
+    free(de);
+  }
+  pthread_mutex_unlock(&disclosed_lock);
+}
+
+agent_t disclose_agent(char* json_attributes) {
+  return __disclose_node(AGT_DISC, json_attributes);
+}
+
+activity_t disclose_activity(char* json_attributes) {
+  return __disclose_node(ACT_DISC, json_attributes);
+}
+
+entity_t disclose_entity(char* json_attributes) {
+  return __disclose_node(ENT_DISC, json_attributes);
+}
+
+void disclose_relation(uint64_t type, uint64_t from, uint64_t to) {
+  
 }

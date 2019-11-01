@@ -35,7 +35,7 @@
     "."xstr(PROVLIB_VERSION_MINOR)\
     "."xstr(PROVLIB_VERSION_PATCH)\
 
-#define PROVLIB_COMMIT "82562d59ca1c24fb6d003534a58cd4642e87a902"
+#define PROVLIB_COMMIT "0e59a8bcfc009cc8c8b870dac872050a0e4431dc"
 
 struct provenance_ops{
   void (*init)(void);
@@ -414,9 +414,12 @@ int provenance_create_channel(const char name[PATH_MAX]);
 
 
 /* HIGH LEVEL DISCLOSING API */
-typedef uint32_t agent_t;
-typedef uint32_t activity_t;
-typedef uint32_t entity_t;
+typedef uint64_t agent_t;
+typedef uint64_t activity_t;
+typedef uint64_t entity_t;
+
+int disclose_init(void);
+void disclose_free(uint64_t id);
 
 agent_t disclose_agent(char* json_attributes);
 activity_t disclose_activity(char* json_attributes);
