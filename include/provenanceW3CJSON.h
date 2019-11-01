@@ -29,14 +29,6 @@ void append_influenced(char* json_element);
 void append_associated(char* json_element);
 void append_derived(char* json_element);
 
-/* disclosing nodes and relations for W3CJSON */
-#define disclose_entity_W3CJSON(content, identifier) disclose_node_W3CJSON(ENT_DISC, content, identifier)
-#define disclose_activity_W3CJSON(content, identifier) disclose_node_W3CJSON(ACT_DISC, content, identifier)
-#define disclose_agent_W3CJSON(content, identifier) disclose_node_W3CJSON(AGT_DISC, content, identifier)
-
-int disclose_node_W3CJSON(uint64_t type, const char* content, union prov_identifier* identifier);
-int disclose_relation_W3CJSON(uint64_t type, union prov_identifier* sender, union prov_identifier* receiver);
-
 /* struct to json functions */
 /* TODO provide clean implementation? right now probably highly inneficient */
 char* used_to_json(struct relation_struct* e);
