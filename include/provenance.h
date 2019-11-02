@@ -35,7 +35,7 @@
     "."xstr(PROVLIB_VERSION_MINOR)\
     "."xstr(PROVLIB_VERSION_PATCH)\
 
-#define PROVLIB_COMMIT "2765e0acb6b5651749c9d4c2ad0189b99e8eebeb"
+#define PROVLIB_COMMIT "520ce6b4b813339ff35d0e02442b900d22615205"
 
 struct provenance_ops{
   void (*init)(void);
@@ -425,12 +425,12 @@ agent_t disclose_agent(char* json_attributes);
 activity_t disclose_activity(char* json_attributes);
 entity_t disclose_entity(char* json_attributes);
 
-void disclose_derives(uint64_t from, uint64_t to);
-void disclose_generates(uint64_t from, uint64_t to);
-void disclose_uses(uint64_t from, uint64_t to);
-void disclose_informs(uint64_t from, uint64_t to);
-void disclose_influences(uint64_t from, uint64_t to);
-void disclose_associates(uint64_t from, uint64_t to);
+void disclose_derives(entity_t from, entity_t to);
+void disclose_generates(activity_t from, entity_t to);
+void disclose_uses(entity_t from, activity_t to);
+void disclose_informs(activity_t from, activity_t to);
+void disclose_influences(uint64_t activity_t, uint64_t agent_t);
+void disclose_associates(uint64_t agent_t, uint64_t activity_t);
 
 entity_t disclose_get_file(const char path[PATH_MAX]);
 
