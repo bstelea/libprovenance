@@ -977,6 +977,42 @@ entity_t disclose_entity(char* json_attributes) {
   return __disclose_node(ENT_DISC, json_attributes);
 }
 
-void disclose_relation(uint64_t type, uint64_t from, uint64_t to) {
-  
+void __disclose_relation(uint64_t type, uint64_t from, uint64_t to) {
+  struct disc_entry *de_from, *de_to;
+  struct relation_struct relation;
+
+  relation.identifier.relation_id.type = type;
+
+  pthread_mutex_lock(&disclosed_lock);
+  HASH_FIND(hh, disc_hash, &from, sizeof(uint64_t), de_from);
+  HASH_FIND(hh, disc_hash, &to, sizeof(uint64_t), de_to);
+  pthread_mutex_unlock(&disclosed_lock);
+
+  memcpy(&(relation.snd), &(de_from->prov.identifier), sizeof(union prov_identifier));
+  memcpy(&(relation.rcv), &(de_to->prov.identifier), sizeof(union prov_identifier));
+  provenance_disclose_relation(&relation);
+}
+
+void disclose_derives(uint64_t from, uint64_t to) {
+  __disclose_relation(RL_DERIVED_DISC, from, to);
+}
+
+void disclose_generates(uint64_t from, uint64_t to) {
+  __disclose_relation(RL_GENERATED_DISC, from, to);
+}
+
+void disclose_uses(uint64_t from, uint64_t to) {
+  __disclose_relation(RL_USED_DISC, from, to);
+}
+
+void disclose_informs(uint64_t from, uint64_t to) {
+  __disclose_relation(RL_INFORMED_DISC, from, to);
+}
+
+void disclose_influences(uint64_t from, uint64_t to) {
+  __disclose_relation(RL_INFLUENCED_DISC, from, to);
+}
+
+void disclose_associates(uint64_t from, uint64_t to) {
+  __disclose_relation(RL_ASSOCIATED_DISC, from, to);
 }
