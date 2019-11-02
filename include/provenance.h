@@ -35,7 +35,7 @@
     "."xstr(PROVLIB_VERSION_MINOR)\
     "."xstr(PROVLIB_VERSION_PATCH)\
 
-#define PROVLIB_COMMIT "fff64b5fbc1c98cf912ae8d59d06a04b1550edbc"
+#define PROVLIB_COMMIT "2765e0acb6b5651749c9d4c2ad0189b99e8eebeb"
 
 struct provenance_ops{
   void (*init)(void);
@@ -431,5 +431,7 @@ void disclose_uses(uint64_t from, uint64_t to);
 void disclose_informs(uint64_t from, uint64_t to);
 void disclose_influences(uint64_t from, uint64_t to);
 void disclose_associates(uint64_t from, uint64_t to);
+
+entity_t disclose_get_file(const char path[PATH_MAX]);
 
 #endif /* __PROVENANCELIB_H */

@@ -1016,3 +1016,17 @@ void disclose_influences(uint64_t from, uint64_t to) {
 void disclose_associates(uint64_t from, uint64_t to) {
   __disclose_relation(RL_ASSOCIATED_DISC, from, to);
 }
+
+entity_t disclose_get_file(const char path[PATH_MAX]) {
+  struct disc_entry *de = calloc(1, sizeof(struct disc_entry));
+  uint64_t rc = 0;
+
+  if (provenance_read_file(path, (union prov_elt*)&(de->prov))<0)
+    return 0;
+  rc = de->prov.identifier.node_id.id;
+  de->id = rc;
+  pthread_mutex_lock(&disclosed_lock);
+  HASH_ADD(hh, disc_hash, id, sizeof(uint64_t), de);
+  pthread_mutex_unlock(&disclosed_lock);
+  return rc;
+}
