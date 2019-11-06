@@ -981,6 +981,8 @@ void __disclose_relation(uint64_t type, uint64_t from, uint64_t to) {
   struct disc_entry *de_from, *de_to;
   struct relation_struct relation;
 
+  memset(&relation, 0, sizeof(struct relation_struct));
+
   relation.identifier.relation_id.type = type;
 
   pthread_mutex_lock(&disclosed_lock);
