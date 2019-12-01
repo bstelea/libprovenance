@@ -35,7 +35,7 @@
     "."xstr(PROVLIB_VERSION_MINOR)\
     "."xstr(PROVLIB_VERSION_PATCH)\
 
-#define PROVLIB_COMMIT "ccbdd126ae28559ba106ba5e8f64da7001cd6160"
+#define PROVLIB_COMMIT "55e4384675b471d21ed15fd55222e297aac6722c"
 
 struct provenance_ops{
   void (*init)(void);
@@ -235,6 +235,12 @@ int provenance_get_boot_id(uint32_t* v);
 int provenance_disclose_node(struct disc_node_struct* node);
 
 /*
+* @node node data structure to be retrieved
+* API to retrieve the last disclosed node.
+*/
+int provenance_last_disclosed_node(struct disc_node_struct* node);
+
+/*
 * @relation relation data structure to be recorded
 * API to dsiclose a provenance relation. Some values should be left blank and Will
 * be updated by the kernel.
@@ -404,5 +410,28 @@ int provenance_commit(char* commit, size_t len);
 int provenance_lib_commit(char* commit, size_t len);
 
 int provenance_create_channel(const char name[PATH_MAX]);
+
+
+
+/* HIGH LEVEL DISCLOSING API */
+typedef uint64_t agent_t;
+typedef uint64_t activity_t;
+typedef uint64_t entity_t;
+
+int disclose_init(void);
+void disclose_free(uint64_t id);
+
+agent_t disclose_agent(char* json_attributes);
+activity_t disclose_activity(char* json_attributes);
+entity_t disclose_entity(char* json_attributes);
+
+void disclose_derives(entity_t from, entity_t to);
+void disclose_generates(activity_t from, entity_t to);
+void disclose_uses(entity_t from, activity_t to);
+void disclose_informs(activity_t from, activity_t to);
+void disclose_influences(uint64_t activity_t, uint64_t agent_t);
+void disclose_associates(uint64_t agent_t, uint64_t activity_t);
+
+entity_t disclose_get_file(const char path[PATH_MAX]);
 
 #endif /* __PROVENANCELIB_H */
