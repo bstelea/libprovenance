@@ -27,6 +27,7 @@ void append_generated(char* json_element);
 void append_informed(char* json_element);
 void append_influenced(char* json_element);
 void append_associated(char* json_element);
+void append_hook(char* json_element);
 void append_derived(char* json_element);
 
 /* disclosing nodes and relations for W3CJSON */
