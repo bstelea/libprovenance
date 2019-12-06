@@ -55,6 +55,7 @@ static pthread_mutex_t l_informed =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 static pthread_mutex_t l_influenced =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 static pthread_mutex_t l_associated =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 static pthread_mutex_t l_derived =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+static pthread_mutex_t l_hook = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 static pthread_mutex_t l_message =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 static char* activity;
@@ -66,6 +67,7 @@ static char* informed;
 static char* influenced;
 static char* associated;
 static char* derived;
+static char* hook;
 static char* message;
 
 static inline void init_buffer(char **buffer){
@@ -83,6 +85,7 @@ void init_buffers(void){
   init_buffer(&influenced);
   init_buffer(&associated);
   init_buffer(&derived);
+  init_buffer(&hook);
   init_buffer(&message);
 }
 
@@ -140,6 +143,7 @@ static inline bool __append(char destination[MAX_JSON_BUFFER_LENGTH], char* sour
 #define JSON_INFLUENCED "}, \"wasInfluencedBy\":{"
 #define JSON_ASSOCIATED "}, \"wasAssociatedWith\":{"
 #define JSON_DERIVED "}, \"wasDerivedFrom\":{"
+#define JSON_HOOK "}, \"hook\":{"
 #define JSON_END "}}"
 
 #define JSON_LENGTH (strlen(JSON_START)\
@@ -153,6 +157,7 @@ static inline bool __append(char destination[MAX_JSON_BUFFER_LENGTH], char* sour
                       +strlen(JSON_INFLUENCED)\
                       +strlen(JSON_ASSOCIATED)\
                       +strlen(JSON_DERIVED)\
+                      +strlen(JSON_HOOK)\
                       +strlen(JSON_END)\
                       +strlen(prefix_json())\
                       +strlen(activity)\
@@ -189,6 +194,7 @@ static inline char* ready_to_print(){
   char* json;
   bool content=false;
 
+  pthread_mutex_lock(&l_hook);
   pthread_mutex_lock(&l_derived);
   pthread_mutex_lock(&l_influenced);
   pthread_mutex_lock(&l_associated);
@@ -216,6 +222,7 @@ static inline char* ready_to_print(){
   content |= cat_prov(json, JSON_ASSOCIATED, associated, &l_associated);
   content |= cat_prov(json, JSON_INFLUENCED, influenced, &l_influenced);
   content |= cat_prov(json, JSON_DERIVED, derived, &l_derived);
+  content |= cat_prov(json, JSON_HOOK, hook, &l_hook);
 
   if(!content){
     free(json);
@@ -300,6 +307,10 @@ void append_associated(char* json_element){
 
 void append_derived(char* json_element){
   json_append(&l_derived, derived, json_element);
+}
+
+void append_hook(char* json_element){
+  json_append(&l_hook, hook, json_element);
 }
 
 #define BUFFER_LENGTH (MAX_JSON_BUFFER_LENGTH-strnlen(buffer, MAX_JSON_BUFFER_LENGTH))
@@ -445,6 +456,18 @@ char* associated_to_json(struct relation_struct* e){
 
 char* derived_to_json(struct relation_struct* e){
   return __relation_to_json(e, "prov:usedEntity", "prov:generatedEntity");
+}
+
+char* log_to_json(struct relation_struct* e){
+  RELATION_PREP_IDs(e);
+  __init_json_entry(id);
+  __relation_identifier(&(e->identifier.relation_id));
+  __add_date_attribute(true);
+  __add_uint64_attribute("cf:jiffies", e->jiffies, true);
+  __add_uint32_attribute("cf:epoch", e->epoch, true);
+  __add_label_attribute(NULL, relation_id_to_str(e->identifier.relation_id.type), true);
+  __close_json_entry(buffer);
+  return buffer;
 }
 
 char* disc_to_json(struct disc_node_struct* n){
