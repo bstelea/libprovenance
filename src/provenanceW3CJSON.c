@@ -458,7 +458,7 @@ char* derived_to_json(struct relation_struct* e){
   return __relation_to_json(e, "prov:usedEntity", "prov:generatedEntity");
 }
 
-char* log_to_json(struct relation_struct* e){
+char* hook_to_json(struct relation_struct* e){
   RELATION_PREP_IDs(e);
   __init_json_entry(id);
   __relation_identifier(&(e->identifier.relation_id));
