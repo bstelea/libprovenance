@@ -459,15 +459,7 @@ char* derived_to_json(struct relation_struct* e){
 }
 
 char* hook_to_json(struct relation_struct* e){
-  RELATION_PREP_IDs(e);
-  __init_json_entry(id);
-  __relation_identifier(&(e->identifier.relation_id));
-  __add_date_attribute(true);
-  __add_uint64_attribute("cf:jiffies", e->jiffies, true);
-  __add_uint32_attribute("cf:epoch", e->epoch, true);
-  __add_label_attribute(NULL, relation_id_to_str(e->identifier.relation_id.type), true);
-  __close_json_entry(buffer);
-  return buffer;
+  return __relation_to_json(e, "n/a", "n/a");
 }
 
 char* disc_to_json(struct disc_node_struct* n){
