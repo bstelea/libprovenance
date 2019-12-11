@@ -28,6 +28,7 @@ void append_informed(char* json_element);
 void append_influenced(char* json_element);
 void append_associated(char* json_element);
 void append_derived(char* json_element);
+void append_hook(char* json_element);
 
 /* struct to json functions */
 /* TODO provide clean implementation? right now probably highly inneficient */
@@ -37,6 +38,7 @@ char* informed_to_json(struct relation_struct* e);
 char* influenced_to_json(struct relation_struct* e);
 char* associated_to_json(struct relation_struct* e);
 char* derived_to_json(struct relation_struct* e);
+char* hook_to_json(struct relation_struct* e);
 char* disc_to_json(struct disc_node_struct* n);
 char* proc_to_json(struct proc_prov_struct* n);
 char* task_to_json(struct task_prov_struct* n);
