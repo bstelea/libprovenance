@@ -147,6 +147,7 @@ static inline bool __append(char destination[MAX_JSON_BUFFER_LENGTH], char* sour
                       +strlen(informed)\
                       +strlen(influenced)\
                       +strlen(associated)\
+		      +strlen(hook)\
                       +1)
 
 #define str_is_empty(str) (str[0]=='\0')
