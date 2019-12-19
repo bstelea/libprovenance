@@ -506,6 +506,40 @@ static int __param_to_ipv4_filter(const char* param, struct prov_ipv4_filter* fi
   return 0;
 }
 
+static int __param_to_ipv6_filter(const char* param, prov_ipv6_filter* filter){
+  int err;
+  uint16_t a;
+  uint16_t b;
+  uint16_t c;
+  uint16_t d;
+  uint16_t e;
+  uint16_t f;
+  uint16_t g;
+  uint16_t h;
+  uint32_t port;
+
+  err = sscanf(param, "[%x:%x:%x:%x:%x:%x:%x:%x]:%u", &a, &b, &c, &d, &e, &f, &g, &h, &port);
+  filter->ip.s6_addr16[0] = htons(a);
+  filter->ip.s6_addr16[1] = htons(b);
+  filter->ip.s6_addr16[2] = htons(c);
+  filter->ip.s6_addr16[3] = htons(d);
+  filter->ip.s6_addr16[4] = htons(e);
+  filter->ip.s6_addr16[5] = htons(f);
+  filter->ip.s6_addr16[6] = htons(g);
+  filter->ip.s6_addr16[7] = htons(h);
+  if(err < 9){
+    errno=-EINVAL;
+    return -EINVAL;
+  }
+
+  if(port > 65535){
+    errno=-EINVAL;
+    return -EINVAL;
+  }
+  filter->port=htons(port);
+  return 0;
+}
+
 #define declare_set_ipv4_fcn(fcn_name, file, operation) int fcn_name (const char* param){\
   struct prov_ipv4_filter filter;\
   int rc;\
@@ -546,6 +580,47 @@ declare_set_ipv4_fcn(provenance_egress_ipv4_delete, PROV_IPV4_EGRESS_FILE, PROV_
 
 declare_get_ipv4_fcn(provenance_ingress_ipv4, PROV_IPV4_INGRESS_FILE);
 declare_get_ipv4_fcn(provenance_egress_ipv4, PROV_IPV4_EGRESS_FILE);
+
+#define declare_set_ipv6_fcn(fcn_name, file, operation) int fcn_name (const char* param){\
+  prov_ipv6_filter filter;\
+  int rc;\
+  int fd = open(file, O_WRONLY);\
+  if( fd < 0 ){\
+    return fd;\
+  }\
+  rc = __param_to_ipv6_filter(param, &filter);\
+  if(rc!=0){\
+    return rc;\
+  }\
+  filter.op = operation;\
+  rc = write(fd, &filter, sizeof(prov_ipv6_filter));\
+  close(fd);\
+  return rc;\
+}
+
+#define declare_get_ipv6_fcn(fcn_name, file) int fcn_name (prov_ipv6_filter* filters, size_t length){\
+  int rc;\
+  int fd = open(file, O_RDONLY);\
+  if( fd < 0 ){\
+    return fd;\
+  }\
+  rc = read(fd, filters, length);\
+  close(fd);\
+  return rc;\
+}
+
+declare_set_ipv6_fcn(provenance_ingress_ipv6_track, PROV_IPV6_INGRESS_FILE, PROV_SET_TRACKED);
+declare_set_ipv6_fcn(provenance_ingress_ipv6_propagate, PROV_IPV6_INGRESS_FILE, PROV_SET_TRACKED|PROV_SET_PROPAGATE);
+declare_set_ipv6_fcn(provenance_ingress_ipv6_record, PROV_IPV6_INGRESS_FILE, PROV_SET_TRACKED|PROV_SET_RECORD);
+declare_set_ipv6_fcn(provenance_ingress_ipv6_delete, PROV_IPV6_INGRESS_FILE, PROV_SET_DELETE);
+
+declare_set_ipv6_fcn(provenance_egress_ipv6_track, PROV_IPV6_EGRESS_FILE, PROV_SET_TRACKED);
+declare_set_ipv6_fcn(provenance_egress_ipv6_propagate, PROV_IPV6_EGRESS_FILE, PROV_SET_TRACKED|PROV_SET_PROPAGATE);
+declare_set_ipv6_fcn(provenance_egress_ipv6_record, PROV_IPV6_EGRESS_FILE, PROV_SET_TRACKED|PROV_SET_RECORD);
+declare_set_ipv6_fcn(provenance_egress_ipv6_delete, PROV_IPV6_EGRESS_FILE, PROV_SET_DELETE);
+
+declare_get_ipv6_fcn(provenance_ingress_ipv6, PROV_IPV6_INGRESS_FILE);
+declare_get_ipv6_fcn(provenance_egress_ipv6, PROV_IPV6_EGRESS_FILE);
 
 #define NAME_BUFFER 400
 struct secentry {
