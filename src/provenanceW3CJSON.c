@@ -5,7 +5,7 @@
 * Copyright (C) 2015-2016 University of Cambridge
 * Copyright (C) 2016-2017 Harvard University
 * Copyright (C) 2017-2018 University of Cambridge
-* Copyright (C) 2018-2019 University of Bristol
+* Copyright (C) 2018-202O University of Bristol
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License version 2, as
@@ -89,29 +89,6 @@ void init_buffers(void){
 static bool writing_out = false;
 
 static void (*print_json)(char* json);
-
-int disclose_node_W3CJSON(uint64_t type, const char* content, union prov_identifier* identifier){
-  int err;
-  struct disc_node_struct node;
-
-  strncpy(node.content, content, PATH_MAX);
-  node.length=strnlen(content, PATH_MAX);
-  node.identifier.node_id.type=type;
-  err = provenance_disclose_node(&node);
-  if(err<0)
-    return err;
-  memcpy(identifier, &node.identifier, sizeof(union prov_identifier));
-  return err;
-}
-
-int disclose_relation_W3CJSON(uint64_t type, union prov_identifier* sender, union prov_identifier* receiver){
-  struct relation_struct relation;
-  relation.identifier.relation_id.type=type;
-  relation.allowed=true;
-  memcpy(&relation.snd, sender, sizeof(union prov_identifier));
-  memcpy(&relation.rcv, receiver, sizeof(union prov_identifier));
-  return provenance_disclose_relation(&relation);
-}
 
 void set_W3CJSON_callback( void (*fcn)(char* json) ){
   init_buffers();
