@@ -1,4 +1,4 @@
-version=0.4.10
+version=0.4.11
 BRANCH?=dev
 
 update_commit:
@@ -58,7 +58,7 @@ travis_update_files: travis_checkout_dev
 travis: travis_update_files prepare all install
 
 publish_rpm:
-	cd ./output && package_cloud push camflow/provenance/fedora/29 libprovenance-$(version)-1.x86_64.rpm
+	cd ./output && package_cloud push camflow/provenance/fedora/31 libprovenance-$(version)-1.x86_64.rpm
 
 publish_deb:
 	cd ./output && package_cloud push camflow/provenance/ubuntu/bionic libprovenance_$(version)-2_amd64.deb
