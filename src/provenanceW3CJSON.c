@@ -308,9 +308,9 @@ static inline void prov_prep_taint(union prov_elt *n){
 static inline void __init_json_entry(const char* id)
 {
   buffer[0]='\0';
-  strncat(buffer, "\"cf:", BUFFER_LENGTH);
-  strncat(buffer, id, BUFFER_LENGTH);
-  strncat(buffer, "\":{", BUFFER_LENGTH);
+  strncat(buffer, "\"cf:", BUFFER_LENGTH-1);
+  strncat(buffer, id, BUFFER_LENGTH-1);
+  strncat(buffer, "\":{", BUFFER_LENGTH-1);
 }
 
 static inline void __add_reference(const char* name, const char* id, bool comma){
@@ -318,34 +318,34 @@ static inline void __add_reference(const char* name, const char* id, bool comma)
     return;
   }
   __add_attribute(name, comma);
-  strncat(buffer, "\"cf:", BUFFER_LENGTH);
-  strncat(buffer, id, BUFFER_LENGTH);
-  strncat(buffer, "\"", BUFFER_LENGTH);
+  strncat(buffer, "\"cf:", BUFFER_LENGTH-1);
+  strncat(buffer, id, BUFFER_LENGTH-1);
+  strncat(buffer, "\"", BUFFER_LENGTH-1);
 }
 
 
 static inline void __add_json_attribute(const char* name, const char* value, bool comma){
   __add_attribute(name, comma);
-  strncat(buffer, value, BUFFER_LENGTH);
+  strncat(buffer, value, BUFFER_LENGTH-1);
 }
 
 static inline void __add_label_attribute(const char* type, const char* text, bool comma){
   __add_attribute("prov:label", comma);
   if(type!=NULL){
-    strncat(buffer, "\"[", BUFFER_LENGTH);
-    strncat(buffer, type, BUFFER_LENGTH);
-    strncat(buffer, "] ", BUFFER_LENGTH);
+    strncat(buffer, "\"[", BUFFER_LENGTH-1);
+    strncat(buffer, type, BUFFER_LENGTH-1);
+    strncat(buffer, "] ", BUFFER_LENGTH-1);
   }else{
-    strncat(buffer, "\"", BUFFER_LENGTH);
+    strncat(buffer, "\"", BUFFER_LENGTH-1);
   }
   if(text!=NULL)
-    strncat(buffer, text, BUFFER_LENGTH);
-  strncat(buffer, "\"", BUFFER_LENGTH);
+    strncat(buffer, text, BUFFER_LENGTH-1);
+  strncat(buffer, "\"", BUFFER_LENGTH-1);
 }
 
 static inline void __close_json_entry(char* buffer)
 {
-  strncat(buffer, "}", BUFFER_LENGTH);
+  strncat(buffer, "}", BUFFER_LENGTH-1);
 }
 
 static inline void __node_identifier(const struct node_identifier* n){
@@ -431,8 +431,8 @@ char* disc_to_json(struct disc_node_struct* n){
   __node_start(id, &(n->identifier.node_id), taint, n->jiffies, n->epoch);
   __add_reference("cf:hasParent", parent_id, true);
   if(n->length > 0){
-    strncat(buffer, ",", BUFFER_LENGTH);
-    strncat(buffer, n->content, BUFFER_LENGTH);
+    strncat(buffer, ",", BUFFER_LENGTH-1);
+    strncat(buffer, n->content, BUFFER_LENGTH-1);
   }
   __close_json_entry(buffer);
   return buffer;
@@ -601,13 +601,13 @@ char* packet_to_json(struct pck_struct* p){
   __add_string_attribute("prov:type", "packet", true);
   __add_string_attribute("cf:taint", taint, true);
   __add_uint64_attribute("cf:jiffies", p->jiffies, true);
-  strncat(buffer, ",\"prov:label\":\"[packet] ", BUFFER_LENGTH);
+  strncat(buffer, ",\"prov:label\":\"[packet] ", BUFFER_LENGTH-1);
   __add_ipv4(p->identifier.packet_id.snd_ip, p->identifier.packet_id.snd_port);
-  strncat(buffer, "->", BUFFER_LENGTH);
+  strncat(buffer, "->", BUFFER_LENGTH-1);
   __add_ipv4(p->identifier.packet_id.rcv_ip, p->identifier.packet_id.rcv_port);
-  strncat(buffer, " (", BUFFER_LENGTH);
-  strncat(buffer, utoa(p->identifier.packet_id.id, tmp, DECIMAL), BUFFER_LENGTH);
-  strncat(buffer, ")\"", BUFFER_LENGTH);
+  strncat(buffer, " (", BUFFER_LENGTH-1);
+  strncat(buffer, utoa(p->identifier.packet_id.id, tmp, DECIMAL), BUFFER_LENGTH-1);
+  strncat(buffer, ")\"", BUFFER_LENGTH-1);
   __close_json_entry(buffer);
   return buffer;
 }
