@@ -367,6 +367,18 @@ int provenance_egress_ipv4_record(const char* param);
 int provenance_egress_ipv4_delete(const char* param);
 int provenance_egress_ipv4( struct prov_ipv4_filter* filters, size_t length );
 
+int provenance_ingress_ipv6_track(const char* param);
+int provenance_ingress_ipv6_propagate(const char* param);
+int provenance_ingress_ipv6_record(const char* param);
+int provenance_ingress_ipv6_delete(const char* param);
+int provenance_ingress_ipv6(prov_ipv6_filter* filters, size_t length);
+
+int provenance_egress_ipv6_track(const char* param);
+int provenance_egress_ipv6_propagate(const char* param);
+int provenance_egress_ipv6_record(const char* param);
+int provenance_egress_ipv6_delete(const char* param);
+int provenance_egress_ipv6(prov_ipv6_filter* filters, size_t length);
+
 int provenance_secid_to_secctx( uint32_t secid, char* secctx, uint32_t len);
 
 int provenance_secctx_track(const char* secctx);

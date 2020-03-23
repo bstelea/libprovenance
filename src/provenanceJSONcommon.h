@@ -136,6 +136,21 @@ static inline void __add_ipv4_attribute(const char* name, const uint32_t ip, con
   strncat(buffer, "\"", BUFFER_LENGTH);
 }
 
+static inline void __add_ipv6(struct in6_addr ip, uint32_t port){
+    char tmp[8];
+    strncat(buffer, in6_to_ipv6str(ip), BUFFER_LENGTH);
+    strncat(buffer, ":", BUFFER_LENGTH);
+    strncat(buffer, utoa(htons(port), tmp, DECIMAL), BUFFER_LENGTH);
+}
+
+static inline void __add_ipv6_attribute(const char* name, const struct in6_addr ip, const uint32_t port, bool comma){
+  char tmp[64];
+  __add_attribute(name, comma);
+  strncat(buffer, "\"", BUFFER_LENGTH);
+  __add_ipv6(ip, port);
+  strncat(buffer, "\"", BUFFER_LENGTH);
+}
+
 static inline void __add_machine_id(uint32_t value, bool comma){
   char tmp[32];
   __add_attribute("cf:machine_id", comma);

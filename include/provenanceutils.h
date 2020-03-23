@@ -58,6 +58,20 @@ static inline const char* uint32_to_ipv4str(uint32_t v){
   return __addr;
 }
 
+// just wrap inet_pton
+static inline struct in6_addr ipv6str_to_in6(const char* str){
+  struct in6_addr addr;
+  inet_pton(AF_INET6, str, &addr);
+  return addr;
+}
+
+static __thread char __addr6[INET6_ADDRSTRLEN];
+// just wrap inet_ntop
+static inline const char* in6_to_ipv6str(struct in6_addr address){
+  inet_ntop(AF_INET6, &address, __addr6, INET6_ADDRSTRLEN);
+  return __addr6;
+}
+
 union mask{
   uint32_t value;
   uint8_t buffer[4];
