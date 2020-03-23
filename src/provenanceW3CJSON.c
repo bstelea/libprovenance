@@ -606,7 +606,7 @@ char* packet_to_json(struct pck_struct* p){
     strncat(buffer, "->", BUFFER_LENGTH - 1);
     __add_ipv6(p->identifier.ipv6_packet_id.rcv_ip, p->identifier.ipv6_packet_id.rcv_port);
     strncat(buffer, "\"", BUFFER_LENGTH - 1);
-  } else if ( p->identifier.packet_id.iv == 4 ) {
+  } else {
     __add_uint32_attribute("cf:id", p->identifier.packet_id.id, false);
     __add_uint32_attribute("cf:seq", p->identifier.packet_id.seq, true);
     __add_ipv4_attribute("cf:sender", p->identifier.packet_id.snd_ip, p->identifier.packet_id.snd_port, true);
